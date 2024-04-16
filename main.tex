@@ -15,7 +15,12 @@
 \usepackage{float}
 \usepackage{xspace}
 \usepackage{parskip}
+
 \usepackage{fancyhdr}
+\fancyhf{}
+\fancyhead[L]{\rightmark}
+\fancyhead[R]{}
+\renewcommand{\headrulewidth}{0pt}
 
 \usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
 \let\subsectionautorefname\sectionautorefname
@@ -35,19 +40,15 @@
 
 \begin{document}
 
-% \maketitle
 \include{coverpage}
 \include{secondpage}
 
 \tableofcontents
 \newpage
-
 \listoftables
 \listoffigures
-\newpage
 
 \pagestyle{fancy}
-
 \include{abstract}
 \include{introduction}
 \include{methods}
@@ -55,6 +56,8 @@
 \include{discussion}
 \include{conclusion}
 \include{acknowledgements}
+
+\pagestyle{plain}
 \include{bibliography}
 \include{appendix}
 
