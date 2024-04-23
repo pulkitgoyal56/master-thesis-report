@@ -44,17 +44,18 @@
 \include{secondpage}
 
 \tableofcontents
-\newpage
+% \newpage
 \listoftables
 \listoffigures
 
 \pagestyle{fancy}
-\include{abstract}
-\include{introduction}
-\include{methods}
-\include{results}
-\include{discussion}
-\include{conclusion}
+\newpage
+\input{abstract}
+\input{introduction}
+\input{methods}
+\input{results}
+\input{discussion}
+\input{conclusion}
 \include{acknowledgements}
 
 \pagestyle{plain}
