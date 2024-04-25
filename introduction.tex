@@ -2,13 +2,42 @@
 \section{Introduction}
 \label{sec:introduction}
 
-% - Free exploration
+% - Free play
+Humans are capable of exploring and learning about the world in a self-supervised free-form manner with no explicit predefined goal. 
+This ability is crucial for the development of cognitive skills, acquisition of knowledge about the world \citep{exploration,chu2020play}, and adaptation to new environments.
+
+% TODO: add more developmental psychology and cognitive science references about creative exploration in children and adults
+
+In the context of artificial intelligence, self-supervised learning has been a topic of interest for researchers in the fields of robotics and machine learning (ML), and the ability to efficiently explore is a fundamental challenge.
+In recent years, reinforcement learning (RL) has emerged as a powerful framework for training agents to learn complex behaviors through trial and error.
+However, most RL algorithms are designed to solve specific tasks and are not well-suited for free-form exploration.
+Complementary formulations of novelty-based or uncertainty-based exploration methods have been proposed to encourage agents to explore their environment in a self-supervised manner \citep{rnd,icm,disagreement,exploration_survey}. 
+% TODO: Better segregate the different exploration methods (maybe in methods)
+Yet, these methods are often unable to generate diverse and creative behaviors that are characteristic of human exploration.
 
 % - Bias towards semantics in cognitive science
-%     - Diggs-Galligan et al., 2021
-%     - + find more studies and references
+In a human study on free play conducted by \citet{diggs}, participants predominantly showed a preference for semantic expression in the form of regular and symmetric patterns.
+This suggests that humans have an intrinsic bias or motivation towards visual semantics, i.e. a propensity to explore their environments in expressive styles that manifest their knowledge and understanding of the world.
+% TODO: Find more references on this bias towards semantics in cognitive science
+
 % - Vision Language Models
-%     - VLM as Rewards
-%         - ZEST + other papers
-% - RaIR
-%     - Some reference to motivate regularity
+Our work aims to imbue artificial agents with an effectively similar visual semantics bias during free play.
+We do this by leveraging large vision language models (VLMs), that essentially encapsulate human knowledge and understanding of the world.
+
+% - VLM as Rewards
+VLMs have previously been shown as effective abstractions to generate zero-shot rewards for language-guided goal-conditioned tasks in RL \citep{zest,negprompt,vlmrm,lamp}.
+However, these existing methods require a specific goal to be achieved, either self-generated or manually defined, which is not comparable to the free-form exploration paradigm that is of interest to us.
+There is also work on using VLMs for exploration \citep{vlmlang,vlmdistill} that use them additionally for refining the intrinsic reward signal by abstracting away pseudo-novelty.
+This is also fundamentally different from our work where we are specifically interested in semantic expression.
+
+% - Entropy Rewards
+We instead use VLMs to generate intrinsic rewards based on minimizing the entropy of their predictions that the controller exploits to guide the agent to semantically expressive states, i.e. to automatically converge to a state that the VLM finds confidently meaningful, akin to the semantic expression observed in humans during free play.
+
+% - Regularization
+To improve the reward quality, we adopt a combination of regularization formulations from the other studies on VLMs as a source of rewards.
+% - RaIR (Regularity as Intrinsic Reward)
+Furthermore, since there is an implicit structure in meaningful creations, and given the compositional strategies for creative expression learned by humans during development \citep{symmetry,compositional} that favor symmetry and uniformity, we hypothesized that a complementary reward for this regularity \citep{rair} could promote semantic expression.
+
+With the choice of the right parameters, we were able to achieve the desired semantically expressive behavior in our planning agent in rich creative environments like the puzzle Tangram and a pixel grid.
+% We show the effect of all the different bells and whistles in an ablation study.
+This work provides a novel perspective on imbuing creativity in artificial agents and furthers the use of VLMs as a source of rewards in robotics and AI.
