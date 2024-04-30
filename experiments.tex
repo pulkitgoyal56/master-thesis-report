@@ -1,10 +1,30 @@
 % The Experiments of the study should be laid out in a series of declarative paragraphs. Only results essential to establish the main points of the work should be included. Often the reporting of the results can be clearer if broken down into subsections. All figures and tables must be cited in the text and must be numbered in the order of their text citation. Figure legends should be self-explanatory, without referring to the text. They should identify the material that is being illustrated, what is shown, and its significance. Each table should be identified by number and should have a title. This section should not include long passages about the rationale of the experiments (which belong in the Introduction), or the methods used (which belong in the Material and Methods), nor should it include justification or discussion of the results (which belong in the Discussion section).
-\section{Experiments}
+\chapter{Experiments}
 \label{sec:experiments}
+
+We perform these experiments to showcase that we can indeed get semantically expressive creations with our proposed formulation.
+
+
+\section{Environments}
+
+We use two custom environments in the following experiments which allow for rich creative expression.
+
+\subsection{ShapeGridWorld}
+\label{sec:sgw}
+The ShapeGridWorld (SGW) is a pixel grid environment where the agent can draw on the grid by moving pixels around.
+This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs}.
+By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
+This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in the appendix \ref{sec:sgw-details}.
+
+\subsection{Tangram}
+\label{sec:tangram}
+Tangram is a puzzle environment consisting of a canvas and seven geometric shapes -- five right triangles, one square, and one parallelogram.
+Even though the shapes are simple, the agent can create complex and expressive patterns by arranging them on the canvas in different configurations.
+This environment was developed specifically for this work and more details are given in the appendix \ref{sec:tangram-details}.
 
 % - Comparing CLIP Models
 % - CLIP on sketches
-%     - Effect of number of categories
+%     - Effect of the number of categories
 %     - CLIP on MNIST
 % - CLIP on SGW (since it’s reminiscent of the pinboard study)
 %     - Registration technique — move to appendix
@@ -30,3 +50,9 @@
 %         - Hatching
 % - Simulations on Tangram with Ground Truth Model
 %     - With and without RaIR
+
+\section{Simulations on SGW with Ground Truth Model}
+
+\section{Prompt Engineering with CLIP}
+\label{sec:prompt-engineering}
+\cite{waffleclip} found that the exact structure of the phrase, and even tailing it a random string of jibberish, can affect the reward. 

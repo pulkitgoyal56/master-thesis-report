@@ -1,14 +1,14 @@
-% The Introduction should frame the scientific issues that motivate the study. It should briefly indicate the study's objectives and provide enough background information to clarify why the study was undertaken and what hypotheses are tested. An overview of the key publications in the field is essential.
-\section{Introduction}
+% The Introduction should frame the scientific issues that motivate the study. It should briefly indicate the study's objectives and provide enough background information to clarify why the study was undertaken and what hypotheses were tested. An overview of the key publications in the field is essential.
+\chapter{Introduction}
 \label{sec:introduction}
 
-% - Free play
+% - Free Play
 Humans are capable of exploring and learning about the world in a self-supervised free-form manner with no explicit predefined goal. 
 This ability is crucial for the development of cognitive skills, acquisition of knowledge about the world \citep{exploration,chu2020play}, and adaptation to new environments.
 
 % TODO: add more developmental psychology and cognitive science references about creative exploration in children and adults
 
-In the context of artificial intelligence, self-supervised learning has been a topic of interest for researchers in the fields of robotics and machine learning (ML), and the ability to efficiently explore is a fundamental challenge.
+In the context of artificial intelligence, self-supervised learning has been a topic of interest for researchers in the fields of robotics and machine learning (ML), and the ability to efficiently and sufficiently explore is a fundamental challenge.
 In recent years, reinforcement learning (RL) has emerged as a powerful framework for training agents to learn complex behaviors through trial and error.
 However, most RL algorithms are designed to solve specific tasks and are not well-suited for free-form exploration.
 Complementary formulations of novelty-based or uncertainty-based exploration methods have been proposed to encourage agents to explore their environment in a self-supervised manner \citep{rnd,icm,disagreement,exploration_survey}. 
@@ -22,22 +22,43 @@ This suggests that humans have an intrinsic bias or motivation towards visual se
 
 % - Vision Language Models
 Our work aims to imbue artificial agents with an effectively similar visual semantics bias during free play.
-We do this by leveraging large vision language models (VLMs), that essentially encapsulate human knowledge and understanding of the world.
+We do this by leveraging large vision language models (VLMs).
+Also termed "foundational models", these deep neural networks are trained on massive generic text and image datasets using the recent advances in self-supervised learning. 
+The abstractions of natural language, which reflect the semantics of the world, allow them to learn efficient representations that essentially encapsulate human visual understanding.
+
+% - VLM Applications
+VLMs are capable of successfully transferring to a diverse range of downstream applications, such as visual detection, classification, and question-answering.
+However, the use of foundation models for control and embodied intelligence is relatively new and under-explored.
+% CLIPort (Shridhar et al., 2021) combines CLIP embedding with a transporter network to learn language-conditioned robot manipulation policies from demonstrations.
+% The concurrent works of Khandelwal et al. (2021) and Parisi et al. (2022), study the use of CLIP and other self-supervised representation networks as a perception module for control tasks and observe they outperform traditional ImageNet-pretrained backbones.
+
+In RL, pretraining has been used to improve the representations of the policy network. 
+Pretrained CLIP features have been used in various recent robotics papers to speed up control and navigation tasks.
+These features can condition the policy network [26] or can be fused throughout the visual encoder to integrate semantic information about the environment [37]. 
+The goal of these works is to improve the perception of the policy.
+Pretrained language models can also provide useful initializations for training policies to imitate offline trajectories [42, 27].
+These successes demonstrate that large pre-trained models contain prior knowledge that can be useful for RL. While the existing literature uses pre-trained embeddings directly in the agent, we instead allow the policy network to learn from scratch and only utilize pre-trained embeddings to guide exploration during training (Figure S2).
+We imagine that future work may benefit from combining both approaches.
 
 % - VLM as Rewards
-VLMs have previously been shown as effective abstractions to generate zero-shot rewards for language-guided goal-conditioned tasks in RL \citep{zest,negprompt,vlmrm,lamp}.
-However, these existing methods require a specific goal to be achieved, either self-generated or manually defined, which is not comparable to the free-form exploration paradigm that is of interest to us.
-There is also work on using VLMs for exploration \citep{vlmlang,vlmdistill} that use them additionally for refining the intrinsic reward signal by abstracting away pseudo-novelty.
-This is also fundamentally different from our work where we are specifically interested in semantic expression.
+Recent work \citep{zest,negprompt,vlmrm,lamp} has shown that they can be used as effective abstractions to generate zero-shot rewards for language-guided goal-conditioned tasks.
+There are also other studies on using VLMs for exploration \citep{vlmlang,vlmdistill} that use them for refining intrinsic reward signals by abstracting away pseudo-novelty. 
 
 % - Entropy Rewards
-We instead use VLMs to generate intrinsic rewards based on minimizing the entropy of their predictions that the controller exploits to guide the agent to semantically expressive states, i.e. to automatically converge to a state that the VLM finds confidently meaningful, akin to the semantic expression observed in humans during free play.
+Yet this is fundamentally different from our goal as we are specifically interested in creative semantic expression.
+Moreover, they do not consider the free-form exploration paradigm that is of interest to us as these studies require a specific goal to be achieved, either self-generated or manually defined.
 
-% - Regularization
-To improve the reward quality, we adopt a combination of regularization formulations from the other studies on VLMs as a source of rewards.
+We instead use VLMs to generate exploratory intrinsic rewards that incentivize the agent to play with the environment and build something meaningful, akin to the semantic expression observed in humans during free play.
+
+This reward is based on minimizing the entropy of a VLM's predictions over a set of creative possibilities that the environment offers.
+Without any explicit goal specification, our controller exploits this reward to guide the agent to semantically expressive states, i.e. to automatically converge to a state that the VLM finds confidently meaningful.
+
+% TODO: Introduce the sparse nature of the rewards
+
 % - RaIR (Regularity as Intrinsic Reward)
 Furthermore, since there is an implicit structure in meaningful creations, and given the compositional strategies for creative expression learned by humans during development \citep{symmetry,compositional} that favor symmetry and uniformity, we hypothesized that a complementary reward for this regularity \citep{rair} could promote semantic expression.
 
-With the choice of the right parameters, we were able to achieve the desired semantically expressive behavior in our planning agent in rich creative environments like the puzzle Tangram and a pixel grid.
+We tested our formulations in two rich creative environments: the puzzle Tangram and a pixel grid, where we were able to achieve the desired semantically expressive behavior in our planning agent.
 % We show the effect of all the different bells and whistles in an ablation study.
-This work provides a novel perspective on imbuing creativity in artificial agents and furthers the use of VLMs as a source of rewards in robotics and AI.
+
+This work provides a novel perspective on imbuing free-form creativity in artificial agents and furthers the use of VLMs as a source of rewards in robotics and AI.

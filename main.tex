@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[11pt,a4paper]{report}
 
 \usepackage[margin=0.98in]{geometry}
 \usepackage[english]{babel}
@@ -6,8 +6,9 @@
 \usepackage{times}
 
 \usepackage{color,xcolor}
-\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{mathtools,amsmath,amsfonts,amssymb,amsthm}
 
+\usepackage{bm}
 \usepackage{graphicx}
 \usepackage{array,tabularx}
 \usepackage{caption,subcaption}
@@ -20,7 +21,9 @@
 \fancyhf{}
 \fancyhead[L]{\rightmark}
 \fancyhead[R]{}
+\fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{13.6pt}
 
 \usepackage[pagebackref=true,breaklinks=true,hidelinks,bookmarks=false]{hyperref}
 \let\subsectionautorefname\sectionautorefname
@@ -29,6 +32,9 @@
 \usepackage[round]{natbib}
 \usepackage[nottoc]{tocbibind}
 \usepackage[nameinlink,noabbrev]{cleveref}
+
+\usepackage[toc,page]{appendix}
+\setcounter{tocdepth}{1}
 
 
 \input{shortcuts}
@@ -45,21 +51,22 @@
 
 \tableofcontents
 % \newpage
-\listoftables
-\listoffigures
+% \listoftables
+% \listoffigures
 
 \pagestyle{fancy}
-\newpage
-\input{abstract}
+\include{abstract}
 \input{introduction}
-\input{methods}
-\input{experiments}
-\input{discussion}
-\input{conclusion}
-\include{acknowledgements}
+\include{methods}
+\include{experiments}
+\include{discussion}
+\include{conclusion}
 
 \pagestyle{plain}
+\include{acknowledgements}
 \include{bibliography}
+\begin{appendices}    
 \include{appendix}
+\end{appendices}
 
 \end{document}
