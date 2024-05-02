@@ -22,7 +22,7 @@ where \(R_t = r(\bfs_t, \bfo_t)\) is the expected reward at time \(t\) and \(\ga
     \label{eq:rl-policy}
     \pi^* = \argmax_{\pi} E_{\bmtau \sim \pi} \left[ g(\bmtau) \right],
 \end{equation}
-where the expectation is under trajectories \textit{rolled-out} with \(\bfa_t \sim \pi(\cdot \mid \bfs_t)\), \(\bfs_{t+1} = f(\bfs_t, \bfa_t)\), \(\bfo_t = \theta(\bfs_t)\), and \(R_t = r(\bfs_t, \bfo_t)\).
+where the expectation is under trajectories \emph{rolled-out} with \(\bfa_t \sim \pi(\cdot \mid \bfs_t)\), \(\bfs_{t+1} = f(\bfs_t, \bfa_t)\), \(\bfo_t = \theta(\bfs_t)\), and \(R_t = r(\bfs_t, \bfo_t)\).
 
 In our formulations, we consider a finite-horizon problem, where the agent is tasked with maximizing the expected return over a limited planning horizon \(h\).
 
@@ -33,84 +33,174 @@ We define vision-language models (VLMs; \cite{vlmsurvey}) as functions capable o
 
 \subsection{CLIP}
 \label{sec:clip}
-CLIP (Contrastive Language Image Pretraining; \cite{clip}) is a family of vision-language models that have two main components -- an image encoder \(\psi_I: \cI \mapsto \cV\) and a language encoder \(\psi_L: \cL \mapsto \cV\), which generate unit magnitude vector embeddings for images and text, respectively, in the same high-dimensional latent space \(\cV \in \nR^{n_v}\), which can thus be compared to each other using a vector similarity metric \(\zeta: \cI \times \cL \mapsto \nR\), e.g. cosine similarity (\(S_c\), essentially dot product),
+CLIP (Contrastive Language Image Pretraining; \cite{clip}) is a family of vision-language models that have two main components -- an image encoder \(\psi_I: \cI \mapsto \cV\) and a language encoder \(\psi_L: \cL \mapsto \cV\), which generate unit magnitude vector embeddings for images and text, respectively, in the same high-dimensional latent space \(\cV \in \nR^{n_v}\), which can thus be compared to each other using a vector similarity metric \(\zeta: \cI \times \cL \mapsto \nR\), e.g. cosine similarity (\(S_c\), essentially dot product).
+
+For a label \(\bfl \in \cL\) and an image \(\bfi \in \cI\), the similarity is given by,
 \begin{equation}
     \label{eq:clip-similarity}
-    \zeta(\bfi, \bfl) = S_c(\psi_I(\bfi), \psi_L(\bfl)) = \frac{\psi_I(\bfi) \cdot \psi_L(\bfl)}{\| \psi_I(\bfi) \| \| \psi_L(\bfl) \|} = \psi_I(\bfi) \cdot \psi_L(\bfl).
+    \zeta(\bfi, \bfl) = S_c(\psi_I(\bfi), \psi_L(\bfl)) = \dfrac{\psi_I(\bfi) \cdot \psi_L(\bfl)}{\| \psi_I(\bfi) \| \| \psi_L(\bfl) \|} = \psi_I(\bfi) \cdot \psi_L(\bfl).
 \end{equation}
 Eponymously, CLIP encoders are jointly trained using a contrastive loss which directs the model to semantically align the labeled image and text pairs (in the latent space) by increasing their similarity while simultaneously pushing apart the embeddings of the mismatched pairs by decreasing their similarity.
+
+There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
+We use the vision transformer variant (\emph{ViT-L/14}) with \(14 \times 14\) patch size for most of our experiments as it gave a good balance of performance and computational efficiency.
+The comparison of the different models from the original paper for our use case is presented in the appendix.
 
 \subsubsection{CLIP as Zero-Shot Image Classifier}
 \label{sec:clip-classifier}
 CLIP can be used as a zero-shot classifier by comparing the embeddings of a given image and a set of prompts to predict the likelihood of the image belonging to all of the classes.
 
-Given an image \(\bfi\) and a set of text prompts \(\bml\), the likelihood of the image belonging to the class described by a prompt \(\bfl\) is given by the softmax over the similarity scores of the image and the prompt embeddings,
+Given an image \(\bfi\) and a set of text prompts \(\bml\), the likelihood of the image belonging to the class described by a prompt \(\bfl_k \in \bml\) is given by the softmax function over the similarity scores of the image and the prompt embeddings,
 \begin{equation}
     \label{eq:clip-dist}
-    p(\bfl; \bfi, \bml, T) = \frac{\exp(\zeta(\bfi, \bfl)/T)}{\sum_{\bfl' \in \bml} \exp(\zeta(\bfi, \bfl')/T)},
+    p(\bfl_k; \bfi, \bml, T) = \dfrac{\exp(\zeta(\bfi, \bfl_k)/T)}{\sum_{\bfl_j \in \bml} \exp(\zeta(\bfi, \bfl_j)/T)},
 \end{equation}
-where \(T\) is the temperature hyperparameter that controls the flatness of the distribution.
+where \(T \in \nR^+\) is the temperature hyperparameter that controls the flatness of the distribution.
+
+\subsubsection{Prompts for CLIP}
+\label{sec:prompt-engineering}
+Ideally, CLIP should abstract away frivolous phrasing to focus on the semantics of a prompt, but in practice, due to inherent ambiguity in natural language, the exact phrasing can still influence its inference \citep{waffleclip}. 
+We experimented with this in our investigations.
+
+For objective analysis, we break the structure of a language prompt \(\bfc \in \cL\) representing a creative possibility \(c\) in an environment as ``\(\{\text{prefix}\}\{c\}\{\text{suffix}\}\)'', where ``prefix'' and ``suffix'' are optional context phrases.
 
 \section{Semantic Rewards for Free Play}
-\label{sec:reward}
+\label{sec:semantics-reward}
 To enable free play in the agent, we propose an intrinsic reward that encourages the agent to explore its environment in a semantically expressive manner, akin to free play in humans.
-This section describes the mathematical formulation of this semantics entropy reward and the additional regularity reward that complements it.
+This section describes the mathematical formulation of this semantics reward and the additional regularity reward that complements it.
 
 \subsection{Semantics Entropy Reward}
-\label{sec:semantics-reward}
+\label{sec:entropy-reward}
 % - Entropy reward and its regularization hyperparameters derived from the ZEST formulation
 
-Mathematically, in its simplest form, it is formulated as the negative entropy of the likelihood of the predictions of the VLM for an image observation \(\bfo\) over a set of creative possibilities \(\bmc\).
-We call this the \textit{semantics entropy reward},
+Mathematically, in its simplest form, the semantics reward is formulated as the negative entropy of the likelihood of the predictions of the VLM for an image observation \(\bfo \in \cO\) over a set of \(n_c\) creative possibilities \(\bmc = \{ \bfc_1, \bfc_2, \ldots, \bfc_{n_c} \}\);
+We call this the \emph{semantics-entropy reward},
 \begin{equation}
     \label{eq:entropy-reward}
-    r_{\text{semantics}}(\bfs, \bfo; \bmc, T) := -\cH(p(\bmc; \bfo, T)) = \sum_{\bfc \in \bmc} p(\bfc; \bfo, \bmc, T) \log p(\bfc; \bfo, \bmc, T).
+    r_{\text{semantics}}(\bfs, \bfo; \bmc, T) := -\cH(p(\bmc \mid \bfo; T)) = \sum_{\bfc_k \in \bmc} p(\bfc_k \mid \bfo; \bmc, T) \log p(\bfc_k \mid \bfo; \bmc, T).
 \end{equation}
-
+% 
+\subsubsection{Goal-Baseline Regularization}
+\label{sec:goal-baseline}
 To improve the reward quality, we further extend this formulation by adopting a combination of suggestions from other studies on VLMs as a source of goal-conditioned rewards.
 
-\cite{zest} developed ZeST (zero-shot task specification) in which they introduced \textit{delta embeddings} that use the difference in embeddings between the desired and baseline configurations to project out irrelevant CLIP-embedding-space dimensions, for both image and text inputs.
-Given the natural language descriptions \(\bfg, \bfb \in \cL\) of the goal and baseline \(\bfo_0 \in \cI\) respectively, they defined the goal-baseline regularized reward function as the similarity between the delta embeddings,
+The most trivial way to use CLIP as a goal-conditioned reward is to directly use the similarity metric from eq. \eqref{eq:clip-similarity} as the reward function.
+Given a goal description \(\bfg \in \cL\), the reward for an image observation \(\bfo \in \cO\) is given by,
+\begin{equation}
+    \label{eq:trivial-reward}
+    r_{\text{clip}}(\bfs, \bfo; \bfg) = S_c(\psi_I(\bfo), \psi_L(\bfg)).
+\end{equation}
+This captures the projection of the image observation embedding \(\bfo\) onto the direction spanned by the goal embedding \(\bfg\).
+
+\cite{zest} developed an alternative method \emph{ZeST} (zero-shot task specification) in which they introduced \emph{delta embeddings} that use the difference in embeddings between the desired and initial/\emph{baseline} configurations, for both image and text inputs, to directionally remove irrelevant parts of the CLIP representation.
+The goal-baseline regularized reward function in this case is the similarity between the delta embeddings,
 \begin{equation}
     \label{eq:zest}
-    r_{\text{zest}}(\bfs, \bfo; \bfo_0, \bfg, \bfb) = S_c((\psi_I(\bfo)-\psi_I(\bfo_0)), (\psi_L(\bfg)-\psi_L(\bfb))),
+    r_{\text{zest}}(\bfs, \bfo; \bfo_b, \bfg, \bfg_b) = S_c((\psi_I(\bfo) - \psi_I(\bfo_b)), (\psi_L(\bfg) - \psi_L(\bfg_b))).
 \end{equation}
-where \(\bfo_t \in \cI\) is the image observation at time \(t\).
-This proved to improve performance in language-guided goal-conditioned tasks by providing a more focused reward signal.
-\cite{negprompt} further proposed a negative prompt formulation that used the negations of goal states instead of descriptions of the initial states as baselines.
+where \(\bfg_b \in \cL\) is a natural language description of the initial/baseline environment image observation \(\bfo_b \in \cI\).
 
-Similarly, \cite{vlmrm}, in their \textit{VLM-RM} method, proposed a comparable goal-baseline regularization formulation, but also considered the projection of the image observation onto the direction from the baseline towards the goal in the CLIP embedding space;
+Intuitively, proving a baseline sets the context of the setup, and the direction from a baseline \(\bfg_b\) to goal \(\bfg\) captures the desired change from the environment's image baseline \(\bfo_b\) to the target state.
+As an example, consider the case where the goal is to draw a circle starting from a blank canvas i.e. the goal \(\bfg\) is something like ``a circle on a white background''.
+Then the baseline \(\bfg_b\) could be ``a blank canvas'' and the image observation baseline \(\bfo_b\) would be the starting blank canvas image.
+
+\cite{negprompt} further proposed a negative prompt formulation that used the negations of goal states, instead of descriptions of the initial states, as goal baselines.
+In the example, this would be ``not a circle on a white background''.
+
+These delta embeddings considerably improved performance in language-guided goal-conditioned tasks by providing a more focused reward signal.
+However, it is not certain that the direction from the baseline to the goal captures all the relevant information.
+Therefore, instead of using one or the other, \cite{vlmrm} further made a trade-off between the two projections in their \emph{VLM-RM} method and proposed a goal-baseline regularization technique that considered both -- the similarity of the image observation to the target and also the direction from the baseline towards the goal in the CLIP embedding space.
+
+Yet, they did not use delta embeddings or baselines for the image input, but only for the text input.
+Their formulation is given by,
 \begin{equation}
     \label{eq:vlmrm}
-    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfb) = 1 - \frac {1}{2}||\alpha\cdot \text{proj}_{L}\psi_I(\bfo) + (1 - \alpha)\cdot (\psi_I(\bfo) -\psi_L(\bfg))||^{2}_{2},
+    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, \gamma) = 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2,
 \end{equation}
-where \(L\) is the line spanned by \(\psi_I(\bfb)\) and \(\psi_L(\bfg)\), and \(\alpha \in [0, 1]\) is a parameter to control the regularization strength.
+where \(V\) is the direction spanned by \(\psi_I(\bfg) - \psi_L(\bfg_b)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
+Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
+The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).
+% 
+% \begingroup
+% \allowdisplaybreaks
+\vspace{-1.5pt}
+\begin{align}
+    % r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, \gamma) &= 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2, \label{eq:vlmrm}
+    % \intertext{where \(V\) is the direction spanned by \(\psi_I(\bfg_b) - \psi_L(\bfg)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
+    % Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
+    % The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).}
+    \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
+    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
+    \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
+    On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\)'' and only retains the components that align with the direction from the baseline to the goal.}
+    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
+    &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
+    &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
+\end{align}
+% (Refer to eq. \eqref{eq:vlmrm-equivalence-start} to \eqref{eq:vlmrm-equivalence-end} for more details on the derivation.)\\
+Mathematically, this is not equivalent to eq. \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
+\todo[color=red]{Clearly not!}
+% \endgroup
 
-For \(\alpha = 0\), the original CLIP similarity metric from eq. \ref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function.
-On the other hand, for \(\alpha = 1\), the projection removes all components of \(\bfo\) orthogonal to "\(\bfg - \bfb\)".
-Intuitively, the direction from \(\bfb\) to \(\bfg\) captures the change from the environment's baseline to the target state; by projecting the reward in this direction, irrelevant parts of the CLIP representation are directionally removed.
-However, it is not certain that the direction really captures all the relevant information.
-Therefore, instead of using \(\alpha = 1\), it is treated as a hyperparameter.
-The authors found this method to be relatively robust to changes in \(\alpha\) with most intermediate values being better than \(0\) or \(1\).
+\subsubsection{Regularized Semantics Entropy Reward}
+\label{sec:entropy-reward-reg}
+We combine these ideas to derive a \emph{baseline regularized semantics-entropy reward}.
+Let \(\bmp = \text{proj}_{V}\psi_I(\bfo)\), \(\bmo = \psi_I(\bfo),\ \bmg = \psi_L(\bfg),\ \bmg_b = \psi_L(\bfg_b)\) for brevity, then the VLM-RM reward can be simplified as
+\vspace{-1.5pt}
+\begin{align}
+    &1 - \dfrac{1}{2} \norm{\gamma\ \bmp + \left(1 - \gamma\right) \bmo - \bmg}^2_2 \tag{\(r_{\text{goal-reg}}\), from \ref{eq:vlmrm}}\\
+    \label{eq:vlmrm-equivalence-start}
+    &= 1 - \dfrac{1}{2} \Big[\norm{\gamma\ \bmp + \left(1 - \gamma\right) \bmo}^2_2 + \cancelto{1}{\norm{\bmg}^2_2} &&- 2 \left(\gamma\ \bmp + \left(1 - \gamma\right) \bmo\right) \cdot \bmg\Big]\\
+    &= \dfrac{1 - \norm{\gamma\ \bmp + \left(1 - \gamma\right) \bmo}^2_2}{2} &&+ \gamma\ \bmp \cdot \bmg + \left(1 - \gamma\right) \bmo \cdot \bmg\\
+    &= \dfrac{1 - \norm{\gamma \left(\bmp - \bmo\right) + \bmo}^2_2}{2} &&+ \dfrac{\gamma}{2} \left(\bmg - \bmg_b\right) \cdot \bmo + \left(1 - \gamma\right) \bmg \cdot \bmo\\
+    &= \dfrac{1 - \gamma^2\ \norm{\bmp - \bmo}^2_2 - 2 \gamma \left(\bmp - \bmo\right) \cdot \bmo - \cancelto{1}{\norm{\bmo}^2_2}}{2} &&+ \left(\dfrac{\gamma}{2} \left(\bmg - \bmg_b\right) + \left(1 - \gamma\right) \bmg\right) \cdot \bmo\\
+    &= \dfrac{-\gamma^2 \left(\norm{\bmp}^2_2 + \norm{\bmo}^2_2 - 2\ \bmp \cdot \bmo\right) - 2 \gamma \left(\bmp \cdot \bmo - \norm{\bmo}^2_2\right)}{2} &&+ \left(\dfrac{\gamma}{2}\ \bmg - \dfrac{\gamma}{2}\ \bmg_b + \bmg - \gamma\ \bmg\right) \cdot \bmo\\
+    % &= \dfrac{-\gamma^2 \big(\norm{\bmp}^2_2 + \cancelto{1}{\norm{\bmo}^2_2} - 2\ \bmp \cdot \bmo\big) - 2 \gamma \big(\bmp \cdot \bmo - \cancelto{1}{\norm{\bmo}^2_2}\big)}{2} &&+ \left(\dfrac{\gamma}{2}\ \bmg - \dfrac{\gamma}{2}\ \bmg_b + \bmg - \gamma\ \bmg\right) \cdot \bmo\\ % above with cancellations
+    &= \dfrac{-\gamma^2 \left(\norm{\bmp}^2_2 + 1 - 2\ \norm{\bmp}^2_2\right) - 2 \gamma \left(\norm{\bmp}^2_2 - 1\right)}{2} &&+ \left(\bmg - \dfrac{\gamma}{2}\ \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo\\
+    &= \dfrac{-\gamma^2 + 2\gamma}{2} + \dfrac{\gamma^2\ \norm{\bmp}^2_2 - 2 \gamma\ \norm{\bmp}^2_2}{2} &&+ \left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo\\ % additional step
+    %% Option 1 -- p^2 term
+    &= \gamma\left(1 - \dfrac{\gamma}{2}\right)\left(1 -\norm{\bmp}^2_2\right) &&+ \left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo\\
+    &= \underbrace{\gamma\left(1 - \dfrac{\gamma}{2}\right)\left(\sin\left(\vartheta\right)\right)}_{\text{Term \#1 (\(\perp\))}} &&+ \underbrace{\left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo}_{\text{Term \#2 (\(\parallel\))}}.
+    %% Option 2 -- constant term separated
+    % &= \gamma\left(1 - \dfrac{\gamma}{2}\right) -\ \gamma \left(1 - \dfrac{\gamma}{2}\right)\norm{\bmp}^2_2 &&+ \left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo\\
+    % &= \underbrace{\gamma\left(1 - \dfrac{\gamma}{2}\right)}_{\textstyle\text{constant}} -\ \underbrace{\gamma \left(1 - \dfrac{\gamma}{2}\right)\left(\bmo \cdot \dfrac{\left(\bmg - \bmg_b\right)}{\norm{\bmg - \bmg_b}_2}\right)^2}_{\text{Term \#1 (\(\perp\))}} &&+ \underbrace{\left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo}_{\text{Term \#2 (\(\parallel\))}}.
+    \label{eq:vlmrm-equivalence-end}
+\end{align}
+Term \#1 captures the projection perpendicular to the direction from the baseline to the goal and Term \#2 captures the trade-off of projection along this direction and the goal. We adopt the latter as the basis to add baseline regularization to the semantics-entropy reward and consider similar delta embeddings for the image observation space as well.
 
-We simplify and combine these ideas to formulate a baseline regularized semantics entropy reward,
+First, let us formulate a regularized similarity metric for an image observation \(\bfi \in \cI\) with baseline \(\bfi_b \in \cI\) and target label \(\bfl \in \cL\) with baseline \(\bfl_b \in \cL\);
 \begin{equation}
-    \label{eq:entropy-reward-reg}
-    r_{\text{semantics-reg}}(\bfs, \bfo; \bfo_0, \bfg, \bfb, T) = -\cH(p'((\bmc, \bfb, \alpha); (\bfo, \bfo_0, \beta), T)),
+    \label{eq:clip-similarity-reg}
+    \begin{split}
+        \hat{\zeta}(\bfi, \bfl; \bfi_b, \bfl_b, \alpha, \beta)
+        &= S_c(
+            ((1 - \beta)\ \psi_I(\bfi) - \beta\ \psi_I(\bfi_b)),
+            ((1 - \alpha)\ \psi_I(\bfl) - \alpha\ \psi_I(\bfl_b))
+        )
+    \end{split}
 \end{equation}
-where \(\alpha, \beta \in [0, 0.5]\) are the regularization hyperparameters, and \(p'\) is the likelihood of the predictions of the VLM for the image observation \(\bfo\) given the image baseline \(\bfo_0\) over the set of creative possibilities \(\bmc\) and the text baseline \(\bfb\), which could either be the negation of the goal or the initial state description.
+where \(\alpha, \beta \in [0, 0.5]\) are the regularization hyperparameters homologous to \(\gamma / 2\) in eq. \eqref{eq:vlmrm-equivalence-end}, for text and image inputs respectively, and \(T \in \nR^+\) is the temperature hyperparameter.
 
-Although CLIP ideally abstracts away frivolous phrasing to focus on the semantics of a prompt, its phrasing has been shown to influence its inference \citep{waffleclip}. 
-We experimented with this in our analysis.
-Thus, for objective analysis, the phrasing for a language prompt \(\bfc \in \cL\) to represent a creative possibility \(c\) is broken down into \("\{\text{prefix}\}\{c\}\{\text{suffix}\}"\), where "prefix" and "suffix" are optional context phrases.
-
+The regularized semantics-entropy reward is then given by,
+\begin{align}
+    r_{\text{semantics-reg}}(\bfs, \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T)
+    &:= -\cH(\hat{p}(\bmc \mid \bfo; \bfo_b, \bfc_b, \alpha, \beta, T)) \label{eq:entropy-reward-reg}\\
+    &= \sum_{\bfc_k \in \bmc} \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) \log \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T). \nonumber
+\end{align}
+\(\hat{p}\) is the likelihood distribution of the predictions of the VLM for the image observation \(\bfo\) over the creative possibilities \(\bmc\). For \(\bfc_k \in \bmc\),
+\begin{equation}
+    \label{eq:clip-dist-reg}
+    \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) = \dfrac{\exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)}{\sum_{\bfc_j \in \bmc} \exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)},
+\end{equation}
+The text baseline could either be the initial state description or the negation of the goal.
+    
 \subsection{Regularity Reward}
 \label{sec:regularity-reward}
 In addition to the entropy reward, the semantic reward also consists of regularity as an intrinsic reward \citep{rair}, which encourages the agent to create regular and symmetric patterns in its creations, which could promote semantic expression.
-The authors described the regularity reward \textit{RaIR} as "(the) redundancy in the description of the situation, to measure the degree of sub-structure recurrence".
+The authors described the regularity reward \emph{RaIR} as ``(the) redundancy in the description of the situation, to measure the degree of sub-structure recurrence''.
 
 Mathematically, it is considered that the state space can be factorized into a composition of the different entities in the environment and the configuration of the agent, \(\cS = (\cS_{\text{obj}})^N \times \cS_{\text{agent}}\), where \(\cS_{\text{obj}} \in \nR^d\), such that \(n_s = N \cdot d\).
-This allows \textit{RaIR} to be formulated in terms of multiplicities \(m: \cX \mapsto \nN\) (counts of occurrence) of the sub-structures \(\cX\) in the arrangement of the different entities of the environment in the state \(\bfs\),
+This allows \emph{RaIR} to be formulated in terms of multiplicities \(m: \cX \mapsto \nN\) (counts of occurrence) of the sub-structures \(\cX\) in the arrangement of the different entities of the environment in the state \(\bfs\),
 \begin{equation}
     \label{eq:rair}
     r_{\text{RaIR}}(\bfs, \bfo) := -\cH(\phi(\bfs)) = \sum_{\cX \in \phi(\bfs)} p(\cX) \log p(\cX),
@@ -123,15 +213,15 @@ where \(\phi\) is a factorization function that decomposes a state \(\bfs\) into
 and \(p(\cX)\) is the probability of a sub-structure \(\cX\) in the state \(\bfs\) calculated as,
 \begin{equation}
     \label{eq:rair-probability}
-    p(\cX) = \frac{m(\cX)}{\sum_{\cX' \in \phi(\bfs)} m(\cX')}.
+    p(\cX) = \dfrac{m(\cX)}{\sum_{\cX' \in \phi(\bfs)} m(\cX')}.
 \end{equation}
 % 
-For our purposes, following insights from \cite{symmetry} and \cite{compositional}, we use the relational formulation of \textit{RaIR} which captures the pairwise relationships between the entities of the environment in the state \(\bfs\) by calculating the distances between them in the discretized coordinate space;
+For our purposes, following insights from \cite{symmetry} and \cite{compositional}, we use the relational formulation of \emph{RaIR} which captures the pairwise relationships between the entities of the environment in the state \(\bfs\) by calculating the distances between them in the discretized coordinate space;
 \begin{equation}
     \label{eq:rair-relational}
     \phi(\bfs) = \{ \cX^{m(\cX)} : \cX = \lfloor s^{(j)} - s^{(k)} \rceil \mid s^{(j)}, s^{(k)} \in \bfs \},
 \end{equation}
-where the \(\lfloor\cdot\rceil\) operator groups the distances into discrete bins based on a configured resolution.
+where the \(\lfloor \cdot \rceil\) operator groups the distances into discrete bins based on a configured resolution.
 
 \section{iCEM}
 \label{sec:icem}
@@ -141,13 +231,13 @@ In the Model-Based Reinforcement Learning (MBRL) paradigm, the agent learns a mo
 Such policies can be learned with universal function approximators such as neural networks using RL algorithms or planning methods.
 
 The improved Cross-Entropy Method (iCEM) is one such planning method.
-It is a zeroth-order Monte-Carlo trajectory optimizer that works in a Model Predictive Control (MPC) loop to solve finite-horizon planning problems, i.e. it iteratively re-plans after every step in the environment by (1) coming up with several action sequences (by sampling a multi-variate distribution) to 'think' a few steps ahead, (2) imagining/predicting the future states resulting from these actions (using the model of the environment) and assessing their expected returns (using the reward function), (3) picking out the best action sequences, (4) improving the 'thinking' method based on these elite sequences, and (5) taking the first step of the best action sequence.
+It is a zeroth-order Monte-Carlo trajectory optimizer that works in a Model Predictive Control (MPC) loop to solve finite-horizon planning problems, i.e. it iteratively re-plans after every step in the environment by (1) coming up with several action sequences (by sampling a multi-variate distribution) to \emph{think} a few steps ahead, (2) imagining/predicting the future states resulting from these actions (using the model of the environment) and assessing their expected returns (using the reward function), (3) picking out the best action sequences, (4) improving the \emph{thinking} method based on these elite sequences, and (5) taking the first step of the best action sequence.
 
 Concretely, at every timestep \(t\), there are multiple iterations of the following calculations. At iteration \(i\),
-(1) given a starting sampling distribution \(p\) over action sequences (\(\bma = \{ \bfa_0, \bfa_1, \ldots, \bfa_{h-1} \}\)) in a finite horizon \(h\), a fixed-length (\(n\)) set of action sequences (\(\cA_t = \{ \bma_1, \bma_2, \ldots, \bma_n \}\)) is sampled from the distribution.
-These samples are augmented with a fraction of the best action sequences from the previous iteration (called the \textit{elite-set} \(\cE_t^{(i-1)}\)).
+(1) given a starting sampling distribution \(p\) over action sequences (\(\bma^{(h)} = \{ \bfa_0, \bfa_1, \ldots, \bfa_{h-1} \}\)) in a finite horizon \(h\), a fixed-length (\(n\)) set of action sequences (\(\cA_t = \{ \bma^{(h)}_1, \bma^{(h)}_2, \ldots, \bma^{(h)}_n \}\)) is sampled from the distribution.
+These samples are augmented with a fraction of the best action sequences (called the \emph{elite-set} \(\cE_t^{(i-1)}\)) from the previous iteration.
 
-(2) Every action sequence in this augmented set \(\cA'_t\) is then rolled out (in "imagination") using the environment model \(f\) and rendering function \(\theta\) from the current state \(\bfs_t\) to predict their corresponding expected states and image observations respectively,
+(2) Every action sequence in this augmented set \(\cA^+_t\) is then rolled out (in \emph{imagination}) using the environment model \(f\) and rendering function \(\theta\) from the current state \(\bfs_t\) to predict their corresponding expected states and image observations respectively,
 \vspace{-1.5pt}
 \begin{align}
     \cS_t &= \{ \{ \bfs_{t+1}, \bfs_{t+2}, \ldots, \bfs_{t+h} \} \}_{j=1}^{n}, \label{eq:icem-rollout}\\
@@ -158,13 +248,13 @@ These samples are augmented with a fraction of the best action sequences from th
 where \(R_{t} = r(\bfs_t, \bfo_t)\). The corresponding trajectories are,
 \begin{equation}
     \label{eq:icem-trajectories}
-    \cT_t = \{\{(\bfs_t, \bfo_t, R_t, \bfa_t), \ldots, (\bfs_{t+h-1}, \bfo_{t+h-1}, R_{t+h-1}, \bfa_{t+h-1}), (\bfs_{t+h}, \bfo_{t+h}, R_{t+h}, \emptyset) \}\}_{j=1}^{n}.
+    \cT_t = \{\{(\bfs_t, \bfo_t, R_t, \bfa_t), \ldots, (\bfs_{t+h-1}, \bfo_{t+h-1}, R_{t+h-1}, \bfa_{t+h-1}), (\bfs_{t+h}, \bfo_{t+h}, R_{t+h}, \varnothing) \}\}_{j=1}^{n}.
 \end{equation}
 % 
 (3) Subsequently, a new elite-set of actions \(\cE_t^{(i)}\) of size \(K\) is determined; it consists of the best \(K\) action sequence samples that maximize an aggregation of the returns from their expected states according to a reward aggregation function \(g\);
 \begin{equation}
     \label{eq:icem-filter}
-    \cE_t^{(i)} = \underset{\text{Best \(K\) action sequences in the augmented set of samples \(\cA'_t\)}}{\{ \bma_k \in \cA'_t : \ \mid \bma_j \in \cA'_t : g(\bmtau_k) \leq g(\bmtau_j) \mid\ \leq K \}}.
+    \cE_t^{(i)} = \underset{\text{Best \(K\) action sequences in the augmented set of samples \(\cA^+_t\)}}{\{ \bma^{(h)}_k \in \cA^+_t :\ \mid \bma^{(h)}_j \in \cA^+_t : g(\bmtau_k) \leq g(\bmtau_j) \mid\ \leq K \}}.
 \end{equation}
 More information about the reward aggregation strategies used in our experiments is provided in \autoref{sec:reward-aggregation}.
 
@@ -172,30 +262,30 @@ More information about the reward aggregation strategies used in our experiments
 \vspace{-1.5pt}
 \begin{align}
     \label{eq:icem-update}
-    \bmmu_{t}^{(i+1)} &= \alpha\bmmu_t^{(i)} + (1-\alpha)\bmmu^{\cE_t^{(i)}},\\
-    (\bmsigma_{t}^{(i+1)})^2 &= \alpha(\bmsigma_t^{(i)})^2 + (1-\alpha)(\bmsigma^{\cE_t^{(i)}})^2,
+    \bmmu_{t}^{(i+1)} &= \eta\ \bmmu_t^{(i)} + (1-\eta)\bmmu^{\cE_t^{(i)}},\\
+    (\bmsigma_{t}^{(i+1)})^2 &= \eta(\bmsigma_t^{(i)})^2 + (1-\eta)(\bmsigma^{\cE_t^{(i)}})^2,
 \end{align}
-where \(\alpha \in [0, 1]\), and \(\bmmu_{t}^{(i+1)} \in \nR^{n_a \times h}\) is the mean and \(\bmsigma_{t}^{(i+1)} \in \nR^{n_a \times h}\) is the standard deviation of the sampling distribution at time \(t\). Specifically, it is a clipped colored-noise Gaussian distribution given by,
+where \(\eta \in [0, 1]\), and \(\bmmu_{t}^{(i+1)} \in \nR^{n_a \times h}\) is the mean and \(\bmsigma_{t}^{(i+1)} \in \nR^{n_a \times h}\) is the standard deviation of the sampling distribution at time \(t\). Specifically, it is a clipped colored-noise Gaussian distribution given by,
 \begin{equation}
     \label{eq:icem-distribution}
-    p(\bma) = \text{clip}(\bmmu_t + \cC^\beta(n_a, h) \odot \bmsigma_t^2),
+    p(\bma^{(h)}) = \text{clip}(\bmmu_t + \cC^\beta(n_a, h) \odot \bmsigma_t^2),
 \end{equation}
 where \(\cC^\beta(n_a, h)\) is a sampling function that returns \(n_a\) (one for each action dimension) sequences of length \(h\) sampled from colored noise normal distribution with exponent \(\beta\) (\(= 1\) in our experiments; pink noise), zero mean and unit variance. 
-At the end of this process, the above steps are repeated for a fixed number of \textit{inner} iterations for the same timestep.
+At the end of this process, the above steps are repeated for a fixed number of \emph{inner} iterations for the same timestep.
 
-After all \textit{inner} iterations are completed, the distribution concentrates on action sequences with high returns, and the best action sequence converges to an optimum;
+After all \emph{inner} iterations are completed, the distribution concentrates on action sequences with high returns, and the best action sequence converges to an optimum;
 \begin{equation}
     \label{eq:planning-goal}
-    \bma^* = \argmax_{\bma_k \in \cA'} g(\bmtau_k).
+    \bma^{(h)*} = \argmax_{\bma^{(h)}_k \in \cA^+} g(\bmtau_k).
 \end{equation}
-(5) Finally, the first action of the best elite sequence of actions \(\bma^*_t\) is executed in the environment.
+(5) Finally, the first action of the best elite sequence of actions \(\bma^{(h)*}_t\) is executed in the environment.
 The process is repeated for a specified number of steps or until a terminal state or reward/cost threshold is reached.
 
 In our experiments, the sparse-reward setting and computational bottleneck due to the comparatively long inference times for CLIP made iCEM a suitable choice.
 The colored noise of the iCEM distribution leads to temporally correlated action sequences over the horizon for smoother trajectories which is helpful for sparse-reward scenarios.
 Furthermore, the addition of memory gives it good sample efficiency, which was essential for our case.
 
-Since we are using a zero-order trajectory optimizer with a limited sample budget and finite-horizon planning, we don't necessarily converge to the global optima.
+Since we are using a zero-order trajectory optimizer with a limited sample budget and finite-horizon planning, we do not necessarily converge to the global optima.
 Although this does not solve the full reinforcement learning problem (infinite horizon and stochastic environments), it is very powerful in optimizing for tasks ad-lib without further adaptation, which makes it suitable for optimizing changing exploration targets.
 
 For this to be successful, a good transition model \(f\) needs to be learned, and the reward function needs to be known or discovered.
@@ -212,14 +302,14 @@ This is treated as one of the hyperparameters in our experiments.
 \intertext{A trivial reward aggregation function is the sum of the rewards over the horizon (\texttt{sum}),}
 \texttt{sum}(\bmtau) &= \sum_{k=1}^{h} R_k. \label{eq:reward-aggregation-sum}
 \intertext{We further experimented with a discount factor \(\gamma \in \nR^+\) over the horizon, which is treated as an additional hyperparameter,}
-\texttt{sum-\textit{\(\gamma\)}}(\bmtau) &= \sum_{k=1}^{h} \gamma^{k-1} R_k. \label{eq:reward-aggregation-sum-discount}
+\texttt{sum-\emph{\(\gamma\)}}(\bmtau) &= \sum_{k=1}^{h} \gamma^{k-1} R_k. \label{eq:reward-aggregation-sum-discount}
 \intertext{However, this type of consolidating aggregation strategy is not suitable for cases where an increase in return can be preceded by an initial decrease (as a consequence of leaving local optima). So we also considered the \texttt{best} method, which uses the best return over the planning horizon;}
 \texttt{best}(\bmtau) &= \max_{k=1}^{h} R_k. \label{eq:reward-aggregation-best}
-\intertext{Additionally, to combine the better qualities of both the \texttt{sum} and \texttt{best} methods; we formulated a dynamic reward aggregation method that ranks trajectories based on the highest sum of consecutive rewards in a window of a predefined (hyperparamterized) length \(l\), \texttt{best-\textit{l}};}
-\texttt{best-\textit{l}}(\bmtau) &= \max_{k=1}^{h-l+1} \sum_{j=k}^{k+l-1} R_{k+j}. \label{eq:reward-aggregation-best-dynamic}
+\intertext{Additionally, to combine the better qualities of both the \texttt{sum} and \texttt{best} methods; we formulated a dynamic reward aggregation method that ranks trajectories based on the highest sum of consecutive rewards in a window of a predefined (hyperparamterized) length \(l\), \texttt{best-\emph{l}};}
+\texttt{best-\emph{l}}(\bmtau) &= \max_{k=1}^{h-l+1} \sum_{j=k}^{k+l-1} R_{k+j}. \label{eq:reward-aggregation-best-dynamic}
 \intertext{Another strategy is to assess the trajectories based on their last states (\texttt{last}), i.e. to simply consider only what the agent could potentially achieve at the end of the horizon.
 This is particularly useful when inferring the reward is expensive, as in our case, because only one final state needs to be evaluated;}
 \texttt{last}(\bmtau) &= R_h. \label{eq:reward-aggregation-last}
-\intertext{Finally, we also experimented with a combination of the \texttt{sum} and \texttt{last} methods with \texttt{last-\textit{l}}, which is the sum of the returns of the last \(l\) steps of the trajectory;}
-\texttt{last-\textit{l}}(\bmtau) &= \sum_{k=h-l+1}^{h} R_k. \label{eq:reward-aggregation-sum-last}
+\intertext{Finally, we also experimented with a combination of the \texttt{sum} and \texttt{last} methods with \texttt{last-\emph{l}}, which is the sum of the returns of the last \(l\) steps of the trajectory;}
+\texttt{last-\emph{l}}(\bmtau) &= \sum_{k=h-l+1}^{h} R_k. \label{eq:reward-aggregation-sum-last}
 \end{align}
