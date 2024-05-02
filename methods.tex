@@ -3,12 +3,12 @@
 \label{sec:methods}
 
 We use a family of VLMs called CLIP \citep{clip} for semantic inference and a model-based planning controller using an improved Cross-Entropy Method (iCEM) \citep{icem} as our artificial agent.
-This section describes the components of our approach, including the mathematical setup, the CLIP model, the intrinsic semantics rewards, and the iCEM controller.
+This chapter describes the components of our approach, including the mathematical setup, the CLIP model, the intrinsic semantics rewards, and the iCEM controller.
 
 \section{Preliminaries}
 \label{sec:preliminaries}
 % - Notation
-We consider environments that can be described by a fully observable Markov Decision Process (MDP), given by the tuple \((\cS, \cA, \cO, \theta, f, r)\), with state-space \(\cS \in \nR^{n_s}\), action-space \(\cA \in \nR^{n_a}\), observation-space (image-space) \(\cO \in \nR^{n_o}\), rendering function \(\theta: \cS \mapsto \cO\), transition kernel (environment model) \(f: \cS \times \cA \mapsto \cS\), and reward function \(r: \cS \times \cO \mapsto \nR\).
+We formulate the problem as a fully observable Markov Decision Process (MDP) given by the tuple \((\cS, \cA, \cO, \theta, f, r, \bfs_0, \bfo_0)\), with state-space \(\cS \in \nR^{n_s}\), action-space \(\cA \in \nR^{n_a}\), observation-space (image-space) \(\cO \in \nR^{n_o}\), rendering function \(\theta: \cS \mapsto \cO\), transition kernel (environment model) \(f: \cS \times \cA \mapsto \cS\), reward function \(r: \cS \times \cO \mapsto \nR\), initial state \(\bfs_0 \in \cS\), and its corresponding initial image observation \(\bfo_0 = \theta(\bfs_0), \bfo_0 \in \cO\).
 
 A trajectory \(\bmtau_t = \{(\bfs_t, \bfo_t, R_t, \bfa_t), (\bfs_{t+1}, \bfo_{t+1}, R_{t+1}, \bfa_{t+1}), \ldots \}\) at time \(t\) is a sequence of observation-action pairs starting from the current state \(\bfs_t\), where \(\bfs_k \in \cS\), \(\bfs_k \in \cO\), \(R_k \in \nR\), and \(\bfa_k \in \cA\).
 
@@ -17,7 +17,7 @@ In a typical RL setting, the returns of such a trajectory \(\bmtau_t\) are the d
     \label{eq:rl-goal}
     g(\bmtau_t) = \sum_{k=0} \gamma^k R_{t+k},
 \end{equation}
-where \(R_t = r(\bfs_t, \bfo_t)\) is the expected reward at time \(t\) and \(\gamma \in [0, 1]\) is the discount factor. The agent’s goal is to learn an action policy that maximizes its expected reward;
+where \(R_t\) is the expected reward at time \(t\) and \(\gamma \in [0, 1]\) is the discount factor. The agent’s goal is to learn an action policy that maximizes its expected reward;
 \begin{equation}
     \label{eq:rl-policy}
     \pi^* = \argmax_{\pi} E_{\bmtau \sim \pi} \left[ g(\bmtau) \right],
@@ -26,6 +26,7 @@ where the expectation is under trajectories \emph{rolled-out} with \(\bfa_t \sim
 
 In our formulations, we consider a finite-horizon problem, where the agent is tasked with maximizing the expected return over a limited planning horizon \(h\).
 
+\newpage
 \section{Vision-Language Models}
 \label{sec:vlms}
 
@@ -62,12 +63,12 @@ where \(T \in \nR^+\) is the temperature hyperparameter that controls the flatne
 Ideally, CLIP should abstract away frivolous phrasing to focus on the semantics of a prompt, but in practice, due to inherent ambiguity in natural language, the exact phrasing can still influence its inference \citep{waffleclip}. 
 We experimented with this in our investigations.
 
-For objective analysis, we break the structure of a language prompt \(\bfc \in \cL\) representing a creative possibility \(c\) in an environment as ``\(\{\text{prefix}\}\{c\}\{\text{suffix}\}\)'', where ``prefix'' and ``suffix'' are optional context phrases.
+For objective analysis, we break the structure of a language prompt \(\bfc \in \cL\) representing a creative possibility \(c\) in an environment as ``\(\{\text{prefix}\}\{c\}\{\text{suffix}\}\)'', where ``prefix'' and ``suffix'' are optional context phrases. For example, if \(c\) is ``apple'', then the prompt could be ``picture of an apple, on a white background'', where ``picture of an '' is the prefix and ``, on a white background'' is the suffix.
 
 \section{Semantic Rewards for Free Play}
 \label{sec:semantics-reward}
-To enable free play in the agent, we propose an intrinsic reward that encourages the agent to explore its environment in a semantically expressive manner, akin to free play in humans.
-This section describes the mathematical formulation of this semantics reward and the additional regularity reward that complements it.
+This section describes the mathematical formulation of the intrinsic semantic reward we developed to encourage the agent to explore its environment in a semantically expressive manner, akin to free play in humans.
+It also gives the necessary background on the additional intrinsic regularity reward that complements it.
 
 \subsection{Semantics Entropy Reward}
 \label{sec:entropy-reward}
@@ -98,7 +99,7 @@ The goal-baseline regularized reward function in this case is the similarity bet
     \label{eq:zest}
     r_{\text{zest}}(\bfs, \bfo; \bfo_b, \bfg, \bfg_b) = S_c((\psi_I(\bfo) - \psi_I(\bfo_b)), (\psi_L(\bfg) - \psi_L(\bfg_b))).
 \end{equation}
-where \(\bfg_b \in \cL\) is a natural language description of the initial/baseline environment image observation \(\bfo_b \in \cI\).
+where \(\bfg_b \in \cL\) is a natural language description of the initial/baseline environment image observation \(\bfo_b = \bfo_0\).
 
 Intuitively, proving a baseline sets the context of the setup, and the direction from a baseline \(\bfg_b\) to goal \(\bfg\) captures the desired change from the environment's image baseline \(\bfo_b\) to the target state.
 As an example, consider the case where the goal is to draw a circle starting from a blank canvas i.e. the goal \(\bfg\) is something like ``a circle on a white background''.
@@ -138,8 +139,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
 \end{align}
 % (Refer to eq. \eqref{eq:vlmrm-equivalence-start} to \eqref{eq:vlmrm-equivalence-end} for more details on the derivation.)\\
-Mathematically, this is not equivalent to eq. \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
-\todo[color=red]{Clearly not!}
+% Mathematically, this is not equivalent to eq. \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
 % \endgroup
 
 \subsubsection{Regularized Semantics Entropy Reward}
@@ -181,17 +181,17 @@ First, let us formulate a regularized similarity metric for an image observation
 \end{equation}
 where \(\alpha, \beta \in [0, 0.5]\) are the regularization hyperparameters homologous to \(\gamma / 2\) in eq. \eqref{eq:vlmrm-equivalence-end}, for text and image inputs respectively, and \(T \in \nR^+\) is the temperature hyperparameter.
 
-The regularized semantics-entropy reward is then given by,
+The likelihood distribution \(\hat{p}\) of the predictions of the VLM for the image observation \(\bfo\) over the creative possibilities \(\bmc\). For \(\bfc_k \in \bmc\) is then given by,
+\begin{equation}
+    \label{eq:clip-dist-reg}
+    \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) = \dfrac{\exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)}{\sum_{\bfc_j \in \bmc} \exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)},
+\end{equation}
+The regularized semantics-entropy reward is thus defined as,
 \begin{align}
     r_{\text{semantics-reg}}(\bfs, \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T)
     &:= -\cH(\hat{p}(\bmc \mid \bfo; \bfo_b, \bfc_b, \alpha, \beta, T)) \label{eq:entropy-reward-reg}\\
     &= \sum_{\bfc_k \in \bmc} \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) \log \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T). \nonumber
 \end{align}
-\(\hat{p}\) is the likelihood distribution of the predictions of the VLM for the image observation \(\bfo\) over the creative possibilities \(\bmc\). For \(\bfc_k \in \bmc\),
-\begin{equation}
-    \label{eq:clip-dist-reg}
-    \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) = \dfrac{\exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)}{\sum_{\bfc_j \in \bmc} \exp(\hat{\zeta}(\bfo, \bfc_k; \bfo_b, \bfc_b, \alpha, \beta)/T)},
-\end{equation}
 The text baseline could either be the initial state description or the negation of the goal.
     
 \subsection{Regularity Reward}
@@ -245,7 +245,8 @@ These samples are augmented with a fraction of the best action sequences (called
     \intertext{where \(\bfs_t = f(\bfs_{t-1}, \bfa_{t-1})\) and \(\bfo_t = \theta(\bfs_t)\). The predicted states are evaluated according to the reward function \(r\) to get their corresponding rewards,}
     \cR_t &= \{ \{ R_{t+1}, R_{t+2}, \ldots, R_{t+h} \} \}_{j=1}^{n}, \label{eq:icem-rewards}
 \end{align}
-where \(R_{t} = r(\bfs_t, \bfo_t)\). The corresponding trajectories are,
+where \(R_{t} = r(\bfs_t, \bfo_t) = \sum_k \lambda_k r_k(\bfs_t, \bfo_t)\) is the weighted sum of all the rewards.
+The corresponding trajectories are,
 \begin{equation}
     \label{eq:icem-trajectories}
     \cT_t = \{\{(\bfs_t, \bfo_t, R_t, \bfa_t), \ldots, (\bfs_{t+h-1}, \bfo_{t+h-1}, R_{t+h-1}, \bfa_{t+h-1}), (\bfs_{t+h}, \bfo_{t+h}, R_{t+h}, \varnothing) \}\}_{j=1}^{n}.
