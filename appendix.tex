@@ -1,12 +1,44 @@
 \chapter{Environments}
 The following sections provide additional details about the custom environments used in our experiments.
 
-\section{Tangram}
-\label{sec:tangram-details}
-
 
 \section{ShapeGridWorld}
 \label{sec:sgw-details}
+% Added color
+% Added object_persistency 0
+% Added step_size > 1
+% Improved rendering
+% Added partial reset with control and control boundaries
+% Added controlled reset with max_dist
+% Added partial control with control and control boundaries
+
+
+The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
+
+\subsection{ShapeGridWorld Registration Technique}
+\label{sec:sgw-registration}
+
+
+
+\section{Tangram}
+\label{sec:tangram-details}
+% flip
+% rotate
+% x_size
+% r_size
+% x_step
+% object_persistency
+% max_dist
+% control
+% control_boundaries
+% staging_boundaries
+
+
+The relevant code is hosted on \url{https://github.com/pulkitgoyal56/Tangram}.
+
+\chapter{Comparing CLIP Models}
+\label{sec:clip-comparison}
+
 
 
 \chapter{Flatnet}
@@ -14,12 +46,12 @@ The following sections provide additional details about the custom environments 
 To test the feasibility and efficacy of fine-tuning CLIP with some regularization techniques to reduce its noise for the entropy reward, we conducted some experiments on a smaller toy setup with convolutional neural networks trained as an MNIST classifier.
 
 
-\chapter{Hyperparameter Tuning}
+\chapter{Complete List of Hyperparameters}
 \label{sec:hyperparameters}
 Here, we provide a detailed description of the hyperparameters used in our experiments.
 
 
-\chapter{Materials}
-\label{sec:materials}
-Compute resources of the Max Planck Institute for Intelligent Systems were used for all experiments in this work.
-Depending on the parameters multiple NVIDIA V100 and A100 GPUs were used for inference.
+\chapter{Computing Resources}
+\label{sec:computing-resources}
+The computing resources of the Max Planck Institute for Intelligent Systems were used for all experiments in this work.
+Depending on the parameters, multiple NVIDIA V100 and A100 GPUs were used for inference.

@@ -22,37 +22,173 @@ Tangram is a puzzle environment consisting of a canvas and seven geometric shape
 Even though the shapes are simple, they can be arranged in different configurations to create expressive abstract patterns.
 This environment was developed specifically for this work and more details are given in the appendix \ref{sec:tangram-details}.
 
-% - Comparing CLIP Models
-% - CLIP on sketches
-%     - Effect of the number of categories
-%     - CLIP on MNIST
-% - CLIP on SGW (since it’s reminiscent of the pinboard study)
-%     - Registration technique — move to appendix
-%     - Effect of resolution
-%     - Effect of using general vs specific labels
-%     - Effect of changing prefix
-%     - Effect of changing suffix
-%     - Effect of inversions
-%     - Jibberish and adding concepts in post-suffix (WaffleCLIP)
-% - CLIP on rollouts
-%     - [Comparing CLIP Models](https://www.notion.so/Comparing-CLIP-Models-ae60ab2be1f44dbd9d1b5db87efa5862?pvs=21)
-% - Simulations on SGW with Ground Truth Model
-%     - +- RaIR
-% - Problems with CLIP
-%     - Sparse rewards
-%     - Inference noise — confidence in random images
-% - Closeness rewards
-% - Tangram
-%     - Effect of post-suffix
-%     - Effect of negative embeddings
-%     - Effect of image operations
-%         - Shearing
-%         - Hatching
-% - Simulations on Tangram with Ground Truth Model
-%     - With and without RaIR
 
-\section{Simulations on SGW with Ground Truth Model}
+\section{Initial Tests with CLIP}
+\label{sec:clip-custom}
 
-\section{Prompt Engineering with CLIP}
-\label{sec:prompt-engineering-experiments}
-\cite{waffleclip} found that the exact structure of the phrase, and even tailing it a random string of jibberish, can affect the reward. 
+
+\subsection{CLIP on Sketches}
+\label{sec:clip-sketches}
+
+
+\subsection{CLIP on MNIST}
+\label{sec:clip-mnist}
+
+
+\subsection{CLIP on ShapeGridWorld}
+\label{sec:clip-sgw}
+
+
+\subsection{CLIP on Tangram}
+\label{sec:clip-tangram}
+
+
+\subsection{Effect of Resolution}
+\label{sec:clip-resolution}
+
+
+\subsection{Effect of Inversions}
+\label{sec:clip-inversions}
+
+
+\subsection{Effect of Color}
+\label{sec:clip-color}
+
+
+\subsection{Effect of General vs Specific Labels}
+\label{sec:clip-labels}
+
+
+\section{Trajectory Analysis with Random Rollouts}
+\label{sec:random-rollouts}
+% Problems with CLIP
+
+
+\subsection{Sparse Rewards} % Suddent changes in rewards
+\label{sec:sparse-rewards}
+
+
+\subsection{Inference Noise} % Confidence in random images
+\label{sec:inference-noise}
+
+
+
+\section{Improving CLIP Rewards}
+\label{sec:improving-rewards}
+
+\subsection{Effect of the Number of Creative Possibilities}
+\label{sec:clip-categories}
+% categories
+
+\subsection{Entropy Regularization}
+\label{sec:entropy-regularization}
+
+
+\subsection{Adversarial Performance}
+\label{sec:adversarial-performance}
+
+
+\subsection{Post-hoc Analysis on Rollouts with Closeness Costs}
+\label{sec:closeness-rollouts}
+% closeness_reward_scale
+% closeness_reward_threshold
+
+% Manual ranking and entropy ranking
+
+\subsubsection{Sparse Incremental Closeness Rewards}
+\label{sec:sparse-incremental-closeness}
+
+
+\subsubsection{Sparse Shaped Closeness Rewards}
+\label{sec:sparse-shaped-closeness}
+
+
+\subsubsection{Dense Closeness Rewards}
+\label{sec:dense-closeness}
+
+
+\subsection{Tuning Environment Parameters}
+\label{sec:env-hyperparameters}
+% render_kwargs.invert
+% render_kwargs.color
+
+\subsubsection{ShapeGridWorld}
+\label{sec:sgw-parameters}
+% width
+% x_step
+% render_delta
+% object_persistency
+% max_dist
+% control
+% control_boundaries
+
+
+\subsubsection{Tangram}
+\label{sec:tangram-parameters}
+% flip
+% rotate
+% x_size
+% r_size
+% x_step
+% object_persistency
+% max_dist
+% control
+% control_boundaries
+% staging_boundaries
+
+
+\subsection{Tuning Controller Hyperparameters}
+\label{sec:icem-hyperparameters}
+% action_sampler_params.opt_iterations
+% action_sampler_params.init_std
+% action_sampler_params.elites_size
+% num_simulated_trajectories
+% horizon
+% cost_along_trajectory
+% discount_along_trajectory
+
+
+\subsection{Effect of Target Baseline Regularization}
+\label{sec:reg-alpha}
+% semantics_alpha_target
+
+
+\subsection{Effect of Image Baseline Regularization}
+\label{sec:reg-beta}
+% semantics_beta_image
+
+
+\subsection{Effect of Temperature}
+\label{sec:reg-temperature}
+% semantics_model_temperature
+
+
+\subsection{Effect of Changing Prefix and Suffix}
+\label{sec:prefix-suffix}
+% label_prefix
+% label_suffix
+
+
+\subsection{Effect of Adding Post-Suffix}
+\label{sec:post-suffix}
+% Jibberish and adding concepts in post-suffix (WaffleCLIP)
+% \cite{waffleclip} found that the exact structure of the phrase, and even tailing it a random string of jibberish, can affect the reward. 
+
+\subsection{Effect of Negative Embeddings}
+\label{sec:negative-embeddings}
+
+
+\subsection{Effect of Image Operations}
+\label{sec:image-operations}
+% Shearing and Hatching
+
+
+
+\section{Simulations}
+\label{sec:simulations}
+
+
+\subsection{Effect of RaIR}
+\label{sec:effect-rair}
+% compression_precision
+% 1 / semantics_reward_scale

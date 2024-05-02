@@ -45,7 +45,7 @@ Eponymously, CLIP encoders are jointly trained using a contrastive loss which di
 
 There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
 We use the vision transformer variant (\emph{ViT-L/14}) with \(14 \times 14\) patch size for most of our experiments as it gave a good balance of performance and computational efficiency.
-The comparison of the different models from the original paper for our use case is presented in the appendix.
+The comparison of the different models from the original paper for our use case is presented in the appendix \secref{sec:clip-comparison}.
 
 \subsubsection{CLIP as Zero-Shot Image Classifier}
 \label{sec:clip-classifier}
@@ -74,11 +74,11 @@ It also gives the necessary background on the additional intrinsic regularity re
 \label{sec:entropy-reward}
 % - Entropy reward and its regularization hyperparameters derived from the ZEST formulation
 
-Mathematically, in its simplest form, the semantics reward is formulated as the negative entropy of the likelihood of the predictions of the VLM for an image observation \(\bfo \in \cO\) over a set of \(n_c\) creative possibilities \(\bmc = \{ \bfc_1, \bfc_2, \ldots, \bfc_{n_c} \}\);
+Mathematically, in its simplest form, the semantics reward \(r_{\text{semantics-entropy}}: \cO \mapsto \nR\) is formulated as the negative entropy of the likelihood of the predictions of the VLM for an image observation \(\bfo \in \cO\) over a set of \(n_c\) creative possibilities \(\bmc = \{ \bfc_1, \bfc_2, \ldots, \bfc_{n_c} \}\);
 We call this the \emph{semantics-entropy reward},
 \begin{equation}
     \label{eq:entropy-reward}
-    r_{\text{semantics}}(\bfs, \bfo; \bmc, T) := -\cH(p(\bmc \mid \bfo; T)) = \sum_{\bfc_k \in \bmc} p(\bfc_k \mid \bfo; \bmc, T) \log p(\bfc_k \mid \bfo; \bmc, T).
+    r_{\text{semantics-entropy}}(\bfo; \bmc, T) := -\cH(p(\bmc \mid \bfo; T)) = \sum_{\bfc_k \in \bmc} p(\bfc_k \mid \bfo; \bmc, T) \log p(\bfc_k \mid \bfo; \bmc, T).
 \end{equation}
 % 
 \subsubsection{Goal-Baseline Regularization}
@@ -89,7 +89,7 @@ The most trivial way to use CLIP as a goal-conditioned reward is to directly use
 Given a goal description \(\bfg \in \cL\), the reward for an image observation \(\bfo \in \cO\) is given by,
 \begin{equation}
     \label{eq:trivial-reward}
-    r_{\text{clip}}(\bfs, \bfo; \bfg) = S_c(\psi_I(\bfo), \psi_L(\bfg)).
+    r_{\text{clip}}(\bfo; \bfg) = S_c(\psi_I(\bfo), \psi_L(\bfg)).
 \end{equation}
 This captures the projection of the image observation embedding \(\bfo\) onto the direction spanned by the goal embedding \(\bfg\).
 
@@ -97,7 +97,7 @@ This captures the projection of the image observation embedding \(\bfo\) onto th
 The goal-baseline regularized reward function in this case is the similarity between the delta embeddings,
 \begin{equation}
     \label{eq:zest}
-    r_{\text{zest}}(\bfs, \bfo; \bfo_b, \bfg, \bfg_b) = S_c((\psi_I(\bfo) - \psi_I(\bfo_b)), (\psi_L(\bfg) - \psi_L(\bfg_b))).
+    r_{\text{zest}}(\bfo; \bfo_b, \bfg, \bfg_b) = S_c((\psi_I(\bfo) - \psi_I(\bfo_b)), (\psi_L(\bfg) - \psi_L(\bfg_b))).
 \end{equation}
 where \(\bfg_b \in \cL\) is a natural language description of the initial/baseline environment image observation \(\bfo_b = \bfo_0\).
 
@@ -116,7 +116,7 @@ Yet, they did not use delta embeddings or baselines for the image input, but onl
 Their formulation is given by,
 \begin{equation}
     \label{eq:vlmrm}
-    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, \gamma) = 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2,
+    r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, \gamma) = 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2,
 \end{equation}
 where \(V\) is the direction spanned by \(\psi_I(\bfg) - \psi_L(\bfg_b)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
 Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
@@ -126,17 +126,17 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
 % \allowdisplaybreaks
 \vspace{-1.5pt}
 \begin{align}
-    % r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, \gamma) &= 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2, \label{eq:vlmrm}
+    % r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, \gamma) &= 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2, \label{eq:vlmrm}
     % \intertext{where \(V\) is the direction spanned by \(\psi_I(\bfg_b) - \psi_L(\bfg)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
     % Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
     % The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).}
     \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
-    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
+    r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
     \textcolor{red}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\)''
     % and only retains the components that align with the direction from the baseline to the goal
     .}}
-    r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
+    r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
     &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
 \end{align}
@@ -190,7 +190,7 @@ The likelihood distribution \(\hat{p}\) of the predictions of the VLM for the im
 \end{equation}
 The regularized semantics-entropy reward is thus defined as,
 \begin{align}
-    r_{\text{semantics-reg}}(\bfs, \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T)
+    r_{\text{semantics-entropy-reg}}(\bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T)
     &:= -\cH(\hat{p}(\bmc \mid \bfo; \bfo_b, \bfc_b, \alpha, \beta, T)) \label{eq:entropy-reward-reg}\\
     &= \sum_{\bfc_k \in \bmc} \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) \log \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T). \nonumber
 \end{align}
@@ -202,20 +202,20 @@ In addition to the entropy reward, the semantic reward also consists of regulari
 The authors described the regularity reward \emph{RaIR} as ``(the) redundancy in the description of the situation, to measure the degree of sub-structure recurrence''.
 
 Mathematically, it is considered that the state space can be factorized into a composition of the different entities in the environment and the configuration of the agent, \(\cS = (\cS_{\text{obj}})^N \times \cS_{\text{agent}}\), where \(\cS_{\text{obj}} \in \nR^d\), such that \(n_s = N \cdot d\).
-This allows \emph{RaIR} to be formulated in terms of multiplicities \(m: \cX \mapsto \nN\) (counts of occurrence) of the sub-structures \(\cX\) in the arrangement of the different entities of the environment in the state \(\bfs\),
+This allows the\emph {RaIR} reward \(r_{\text{RaIR}}: \cS \mapsto \nR\) to be formulated in terms of multiplicities \(m: \cX \mapsto \nN\) (counts of occurrence) of the sub-structures \(\cX\) in the arrangement of the different entities of the environment in the state \(\bfs\),
 \begin{equation}
     \label{eq:rair}
-    r_{\text{RaIR}}(\bfs, \bfo) := -\cH(\phi(\bfs)) = \sum_{\cX \in \phi(\bfs)} p(\cX) \log p(\cX),
+    r_{\text{RaIR}}(\bfs; h) := -\cH(\phi(\bfs; h)) = \sum_{\cX \in \phi(\bfs)} p(\cX; h) \log p(\cX; h),
 \end{equation}
-where \(\phi\) is a factorization function that decomposes a state \(\bfs\) into a multiset of its unique sub-structures,
+where \(\phi\) is a factorization function that decomposes a state \(\bfs\) into a multiset of its unique sub-structures given the hyperparameters \(h\) (resolution, bidirectionality),
 \begin{equation}
     \label{eq:rair-factorization}
     \phi : (\cS_{obj})^{N} \mapsto \{ \cX_1^{m(\cX_1)}, \cX_2^{m(\cX_2)}, \ldots \},
 \end{equation}
-and \(p(\cX)\) is the probability of a sub-structure \(\cX\) in the state \(\bfs\) calculated as,
+and \(p(\cX; h)\) is the probability of a sub-structure \(\cX \in \phi(\bfs; h)\) in the state \(\bfs\) calculated as,
 \begin{equation}
     \label{eq:rair-probability}
-    p(\cX) = \dfrac{m(\cX)}{\sum_{\cX' \in \phi(\bfs)} m(\cX')}.
+    p(\cX; h) = \dfrac{m(\cX)}{\sum_{\cX' \in \phi(\bfs; h)} m(\cX')}.
 \end{equation}
 % 
 For our purposes, following insights from \cite{symmetry} and \cite{compositional}, we use the relational formulation of \emph{RaIR} which captures the pairwise relationships between the entities of the environment in the state \(\bfs\) by calculating the distances between them in the discretized coordinate space;
@@ -223,7 +223,21 @@ For our purposes, following insights from \cite{symmetry} and \cite{compositiona
     \label{eq:rair-relational}
     \phi(\bfs) = \{ \cX^{m(\cX)} : \cX = \lfloor s^{(j)} - s^{(k)} \rceil \mid s^{(j)}, s^{(k)} \in \bfs \},
 \end{equation}
-where the \(\lfloor \cdot \rceil\) operator groups the distances into discrete bins based on a configured resolution.
+where the \(\lfloor \cdot \rceil\) operator groups the distances into discrete bins based on the configured resolution.
+
+\subsection{Complete Intrinsic Semantics Reward}
+\label{sec:complete-semantics-reward}
+The complete intrinsic semantics reward \(r_{\text{semantics}}\) is then given as the weighted sum of the regularity reward \(r_{\text{RaIR}}\) and the regularized semantics-entropy reward \(r_{\text{semantics-entropy-reg}}\);
+\begin{equation}
+    \label{eq:semantics-reward}
+    r_{\text{semantics}}(\bfs, \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) =r_{\text{semantics-entropy-reg}}(\bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) + \lambda\ r_{\text{RaIR}}(\bfs),
+\end{equation}
+where \(\lambda\) is a hyperparameter that controls the trade-off between the two rewards.
+
+To be able to properly compare the two rewards, we normalize the regularity reward by the maximum possible entropy of the multiset \(\log\left(\binom{n_s}{2}\right)\), which is equal to the entropy of a uniform distribution over the \(\binom{n_s}{2}\) possible pairwise distances in the state space.
+This constrains it to the range \([0, 1]\).
+
+Similarly, the semantics-entropy reward is normalized by the maximum possible entropy of the likelihood distribution over the creative possibilities, which is \(\log(n_c)\), where \(n_c\) is the number of creative possibilities.
 
 \section{iCEM}
 \label{sec:icem}
