@@ -93,7 +93,7 @@ Given a goal description \(\bfg \in \cL\), the reward for an image observation \
 \end{equation}
 This captures the projection of the image observation embedding \(\bfo\) onto the direction spanned by the goal embedding \(\bfg\).
 
-\cite{zest} developed an alternative method \emph{ZeST} (zero-shot task specification) in which they introduced \emph{delta embeddings} that use the difference in embeddings between the desired and initial/\emph{baseline} configurations, for both image and text inputs, to directionally remove irrelevant parts of the CLIP representation.
+\cite{zest} developed an alternative method called \emph{ZeST} (zero-shot task specification) in which they introduced \emph{delta embeddings} that use the difference in embeddings between the desired and initial/\emph{baseline} configurations, for both image and text inputs, to directionally remove irrelevant parts of the CLIP representation.
 The goal-baseline regularized reward function in this case is the similarity between the delta embeddings,
 \begin{equation}
     \label{eq:zest}
@@ -133,7 +133,9 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
     r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
-    On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\)'' and only retains the components that align with the direction from the baseline to the goal.}
+    \textcolor{red}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\)''
+    % and only retains the components that align with the direction from the baseline to the goal
+    .}}
     r_{\text{goal-reg}}(\bfs, \bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
     &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
@@ -145,7 +147,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
 \subsubsection{Regularized Semantics Entropy Reward}
 \label{sec:entropy-reward-reg}
 We combine these ideas to derive a \emph{baseline regularized semantics-entropy reward}.
-Let \(\bmp = \text{proj}_{V}\psi_I(\bfo)\), \(\bmo = \psi_I(\bfo),\ \bmg = \psi_L(\bfg),\ \bmg_b = \psi_L(\bfg_b)\) for brevity, then the VLM-RM reward can be simplified as
+Let \(\bmp = \text{proj}_{V}\psi_I(\bfo)\), \(\bmo = \psi_I(\bfo),\ \bmg = \psi_L(\bfg),\ \bmg_b = \psi_L(\bfg_b)\) for brevity, then using the property \(\norm{\bmo}_2 = \norm{\bmg}_2 = \norm{\bmg_b}_2 = 1\) and the results \(\bmp \cdot \bmo = \norm{p}^2_2\) and \(\bmp \cdot \bmg = (\bmg - \bmg_b) \cdot \bmo\ /\ 2\), the VLM-RM reward can be simplified as,
 \vspace{-1.5pt}
 \begin{align}
     &1 - \dfrac{1}{2} \norm{\gamma\ \bmp + \left(1 - \gamma\right) \bmo - \bmg}^2_2 \tag{\(r_{\text{goal-reg}}\), from \ref{eq:vlmrm}}\\
