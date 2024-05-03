@@ -11,14 +11,62 @@ The following sections provide additional details about the custom environments 
 % Added partial reset with control and control boundaries
 % Added controlled reset with max_dist
 % Added partial control with control and control boundaries
+The original ShapeGridWorld environment from \cite{rair} has the following parameters.
 
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c c c|}
+        \hline
+        Property & Description & Fixed Value (if fixed)\\
+        \hline\hline
+        \texttt{width} & Width of the grid. & \\
+        \texttt{height} & Height of the grid. & Same as \texttt{width}.\\
+        \texttt{n\_pixels} & Number of ``On'' pixels. & \\
+        \texttt{shape} & Shape of a pixel block. & Circle\\
+        \texttt{size} & Size of a pixel block. & \(\{7\}\)\\
+        \texttt{object\_persistency} & Number of time steps an object (pixel block) \\should to be moved before moving on to the next one. & \(\{7\}\)\\
+        \hline
+    \end{tabular}
+\end{table}
 
-The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
+The state space of this environment is composed of the \(x\) and \(y\) coordinates of the block pixels, with the addition of two dimension -- one that specifies which object is currently in focus and another that specifies how many times it has already moved, i.e. \(\cS \in \nN^{n_o + 2} \ni n_o = 2 n + 2\).
+The observation space is a rendering of the grid as an image of shape \(\texttt{width} * \texttt{size} \times \texttt{height} * \texttt{size}\).
+\todo{Add action space}
+% The action space is continuous, \(\cA \in \nR^{n_a + 2} \ni n_o = 2 n + 2\)
+
+In this work, we added the following addition features to this environment for our experiments.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c c c|}
+        \hline
+        Property & Description & Fixed Value (if fixed)\\
+        \hline\hline
+        \texttt{step\_size} & Number of steps an object can be translated. & \\
+        \texttt{object\_persistency} & The ability to move all objects at once was added if this is set to \(0\). &\\
+        \texttt{color} & Grayscale value of the pixel. & \\
+        \texttt{control\_boundaries} & If specified, the objects inside these boundaries in the initial state will be marked. & \\
+        \texttt{control} & A flag that indicates whether the controller can control all objects or only the ones in the control boundaries. & \\
+        \texttt{reset\_dist} & Maximum distance an object should be moved from its original position after reset. Only the objects inside the control boundaries are ``reset''. & \\
+        \hline
+    \end{tabular}
+\end{table}
+
+If all objects are moved at once, the state space of this environment is composed of only the \(x\) and \(y\) coordinates of the block pixels, i.e. \(\cS \in \nN^{n_o} \ni n_o = 2 n\).
+\todo{Add action space}
+% The action space is continuous, \(\cA \in \nR^{n_a + 2} \ni n_o = 2 n + 2\)
+
+Furthermore, the rendering function was reimplemented using faster libraries.
+
 
 \subsection{ShapeGridWorld Registration Technique}
 \label{sec:sgw-registration}
 
+In order to able to test CLIP inference on ShapeGridWorld and simulate the controller on partial drawings, a registration method for images was developed that recreates a given image on a grid.
 
+\todo{Add imagelib registration method description.}
+
+The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
 
 \section{Tangram}
 \label{sec:tangram-details}
@@ -34,7 +82,8 @@ The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
 % staging_boundaries
 
 
-The relevant code is hosted on \url{https://github.com/pulkitgoyal56/Tangram}.
+The environment is available on \url{https://github.com/pulkitgoyal56/Tangram}.
+
 
 \chapter{Comparing CLIP Models}
 \label{sec:clip-comparison}

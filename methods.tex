@@ -44,7 +44,8 @@ For a label \(\bfl \in \cL\) and an image \(\bfi \in \cI\), the similarity is gi
 Eponymously, CLIP encoders are jointly trained using a contrastive loss which directs the model to semantically align the labeled image and text pairs (in the latent space) by increasing their similarity while simultaneously pushing apart the embeddings of the mismatched pairs by decreasing their similarity.
 
 There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
-We use the vision transformer variant (\emph{ViT-L/14}) with \(14 \times 14\) patch size for most of our experiments as it gave a good balance of performance and computational efficiency.
+We use the vision transformer variant (\emph{ViT-L/14}) for most of our experiments as it gave a good balance of performance and computational efficiency.
+It takes image inputs of size \(224 \times 224\) and tokenizes them in patch sizes of \(14 \times 14\) for the vision transformer.
 The comparison of the different models from the original paper for our use case is presented in the appendix \secref{sec:clip-comparison}.
 
 \subsubsection{CLIP as Zero-Shot Image Classifier}
