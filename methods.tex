@@ -134,9 +134,10 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
-    \textcolor{red}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\)''
-    % and only retains the components that align with the direction from the baseline to the goal
-    .}}
+    \textcolor{orange}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\).''
+    % Thus, it only retains the components that align with the direction from the baseline to the goal.
+    \texttt{-- A claim from the original paper; is incorrect!}
+    }}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
     &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}

@@ -6,29 +6,35 @@ We perform these experiments to showcase that we can indeed get semantically exp
 
 \section{Environments}
 
-We use two custom environments in the following experiments which allow for rich creative expression.
+We use two custom environments in our experiments which allow for rich creative expression.
+
+\begin{figure}[h]
+    \centering
+    \subfloat[\centering ShapeGridWorld]{\fbox{\includegraphics[width=0.4\textwidth]{images/sgw_random.png}}}
+    \qquad
+    \subfloat[\centering Tangram]{\fbox{\includegraphics[width=0.4\textwidth]{images/tangram_random.png}}}
+    \caption{The environments.}
+    \label{fig:environments}
+\end{figure}
 
 \subsection{ShapeGridWorld}
 \label{sec:sgw}
-The ShapeGridWorld (SGW) is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
-This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs}.
+ShapeGridWorld is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
+This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs} (\figref{fig:diggs}).
 By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
 This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in the appendix \ref{sec:sgw-details}.
 
-\missingfigure{Picture of SGW environment}
-
-ShapeGridWorld was mostly used in the initial experiments but it later proved to promote noise in CLIP inferences.
+ShapeGridWorld was mostly used in the initial experiments but it later proved to promote noise in CLIP inferences which led to underwhelming results.
 To work around the problems, the Tangram environment was developed.
 
 \subsection{Tangram}
 \label{sec:tangram}
-Tangram is a puzzle environment consisting of a canvas and seven geometric shapes -- five right triangles, one square, and one parallelogram, which traditionally have distinct colors.
+Tangram is a traditional puzzle game consisting of a canvas and seven geometric shapes -- five right isosceles triangles (two large, one medium, and two small), one square, and one parallelogram, which conventionally have distinct colors.
 These shapes can be rotated, flipped, and translated on the canvas.
-Even though they are simple, they can be arranged in different configurations to create expressive abstract patterns.
-\missingfigure{Picture of Tangram environment}
+Even though this is a very simple setup, these pieces can be arranged in very different configurations to create expressive abstract patterns.
 
-This environment was developed specifically for this work and more details are given in the appendix \ref{sec:tangram-details}.
-
+This virtual environment was developed specifically for our experiments as it worked around the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of this work.
+Please refer to appendices \ref{sec:tangram-details} for more details about this environment.
 
 \section{Initial Tests with CLIP}
 \label{sec:clip-custom}
