@@ -44,7 +44,7 @@ For a label \(\bfl \in \cL\) and an image \(\bfi \in \cI\), the similarity is gi
 Eponymously, CLIP encoders are jointly trained using a contrastive loss which directs the model to semantically align the labeled image and text pairs (in the latent space) by increasing their similarity while simultaneously pushing apart the embeddings of the mismatched pairs by decreasing their similarity.
 
 There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
-We use the vision transformer variant (\emph{ViT-L/14}) for most of our experiments as it gave a good balance of performance and computational efficiency.
+We used the vision transformer variant (\emph{ViT-L/14}) for most of our experiments as it gave a good balance of performance and computational efficiency.
 It takes image inputs of size \(224 \times 224\) and tokenizes them in patch sizes of \(14 \times 14\) for the vision transformer.
 The comparison of the different models from the original paper for our use case is presented in the appendix \secref{sec:clip-comparison}.
 
@@ -113,13 +113,13 @@ These delta embeddings considerably improved performance in language-guided goal
 However, it is not certain that the direction from the baseline to the goal captures all the relevant information.
 Therefore, instead of using one or the other, \cite{vlmrm} further made a trade-off between the two projections in their \emph{VLM-RM} method and proposed a goal-baseline regularization technique that considered both -- the similarity of the image observation to the target and also the direction from the baseline towards the goal in the CLIP embedding space.
 
-Yet, they did not use delta embeddings or baselines for the image input, but only for the text input.
+They did not use delta embeddings or baselines for the image input, but only for the text input.
 Their formulation is given by,
 \begin{equation}
     \label{eq:vlmrm}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, \gamma) = 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2,
 \end{equation}
-where \(V\) is the direction spanned by \(\psi_I(\bfg) - \psi_L(\bfg_b)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
+where \(V\) is the direction spanned by \(\psi_I(\bfg) - \psi_L(\bfg_b)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the trade-off/regularization strength.
 Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
 The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).
 % 
@@ -251,7 +251,7 @@ The improved Cross-Entropy Method (iCEM) is one such planning method.
 It is a zeroth-order Monte-Carlo trajectory optimizer that works in a Model Predictive Control (MPC) loop to solve finite-horizon planning problems, i.e. it iteratively re-plans after every step in the environment by (1) coming up with several action sequences (by sampling a multi-variate distribution) to \emph{think} a few steps ahead, (2) imagining/predicting the future states resulting from these actions (using the model of the environment) and assessing their expected returns (using the reward function), (3) picking out the best action sequences, (4) improving the \emph{thinking} method based on these elite sequences, and (5) taking the first step of the best action sequence.
 
 Concretely, at every timestep \(t\), there are multiple iterations of the following calculations. At iteration \(i\),
-(1) given a starting sampling distribution \(p\) over action sequences (\(\bma^{(h)} = \{ \bfa_0, \bfa_1, \ldots, \bfa_{h-1} \}\)) in a finite horizon \(h\), a fixed-length (\(n\)) set of action sequences (\(\cA_t = \{ \bma^{(h)}_1, \bma^{(h)}_2, \ldots, \bma^{(h)}_n \}\)) is sampled from the distribution.
+(1) given a starting sampling distribution \(p\) over action sequences (\(\bma^{(h)} = \{ \bfa_0, \bfa_1, \ldots, \bfa_{h-1} \}\)) in a finite horizon \(h\), a fixed-length (\(n_t\)) set of action sequences (\(\cA_t = \{ \bma^{(h)}_1, \bma^{(h)}_2, \ldots, \bma^{(h)}_{n_t} \}\)) is sampled from the distribution.
 These samples are augmented with a fraction of the best action sequences (called the \emph{elite-set} \(\cE_t^{(i-1)}\)) from the previous iteration.
 
 (2) Every action sequence in this augmented set \(\cA^+_t\) is then rolled out (in \emph{imagination}) using the environment model \(f\) and rendering function \(\theta\) from the current state \(\bfs_t\) to predict their corresponding expected states and image observations respectively,
@@ -289,7 +289,7 @@ where \(\eta \in [0, 1]\), and \(\bmmu_{t}^{(i+1)} \in \nR^{n_a \times h}\) is t
     p(\bma^{(h)}) = \text{clip}(\bmmu_t + \cC^\beta(n_a, h) \odot \bmsigma_t^2),
 \end{equation}
 where \(\cC^\beta(n_a, h)\) is a sampling function that returns \(n_a\) (one for each action dimension) sequences of length \(h\) sampled from colored noise normal distribution with exponent \(\beta\) (\(= 1\) in our experiments; pink noise), zero mean and unit variance. 
-At the end of this process, the above steps are repeated for a fixed number of \emph{inner} iterations for the same timestep.
+At the end of this process, the above steps are repeated for a fixed number of \emph{inner} iterations \(n_i\) for the same timestep.
 
 After all \emph{inner} iterations are completed, the distribution concentrates on action sequences with high returns, and the best action sequence converges to an optimum;
 \begin{equation}
@@ -323,7 +323,7 @@ This is treated as one of the hyperparameters in our experiments.
 \texttt{sum-\emph{\(\gamma\)}}(\bmtau) &= \sum_{k=1}^{h} \gamma^{k-1} R_k. \label{eq:reward-aggregation-sum-discount}
 \intertext{However, this type of consolidating aggregation strategy is not suitable for cases where an increase in return can be preceded by an initial decrease (as a consequence of leaving local optima). So we also considered the \texttt{best} method, which uses the best return over the planning horizon;}
 \texttt{best}(\bmtau) &= \max_{k=1}^{h} R_k. \label{eq:reward-aggregation-best}
-\intertext{Additionally, to combine the better qualities of both the \texttt{sum} and \texttt{best} methods; we formulated a dynamic reward aggregation method that ranks trajectories based on the highest sum of consecutive rewards in a window of a predefined (hyperparamterized) length \(l\), \texttt{best-\emph{l}};}
+\intertext{Additionally, to combine the better qualities of both the \texttt{sum} and \texttt{best} methods; we formulated a dynamic reward aggregation method that ranks trajectories based on the highest sum of consecutive rewards in a window of a predefined hyperparamterized length \(l\), \texttt{best-\emph{l}};}
 \texttt{best-\emph{l}}(\bmtau) &= \max_{k=1}^{h-l+1} \sum_{j=k}^{k+l-1} R_{k+j}. \label{eq:reward-aggregation-best-dynamic}
 \intertext{Another strategy is to assess the trajectories based on their last states (\texttt{last}), i.e. to simply consider only what the agent could potentially achieve at the end of the horizon.
 This is particularly useful when inferring the reward is expensive, as in our case, because only one final state needs to be evaluated;}
