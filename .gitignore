@@ -303,3 +303,5 @@ TSWLatexianTemp*
 # custom
 .vscode/
 main.pdf
+
+*.ignore*

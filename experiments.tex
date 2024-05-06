@@ -22,7 +22,7 @@ We use two custom environments in our experiments which allow for rich creative 
 ShapeGridWorld is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
 This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs} (\figref{fig:diggs}).
 By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
-This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in the appendix \ref{sec:sgw-details}.
+This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in appendix \ref{sec:sgw-details}.
 
 ShapeGridWorld was mostly used in the initial experiments but it later proved to promote noise in CLIP inferences which led to underwhelming results.
 To work around the problems, the Tangram environment was developed.
@@ -30,22 +30,40 @@ To work around the problems, the Tangram environment was developed.
 \subsection{Tangram}
 \label{sec:tangram}
 Tangram is a traditional puzzle game consisting of a canvas and seven geometric shapes -- five right isosceles triangles (two large, one medium, and two small), one square, and one parallelogram, which conventionally have distinct colors.
-These shapes can be rotated, flipped, and translated on the canvas.
+These shapes can be rotated, flipped, and translated on the canvas, without overlapping.
 Even though this is a very simple setup, these pieces can be arranged in very different configurations to create expressive abstract patterns.
 
-This virtual environment was developed specifically for our experiments as it worked around the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of this work.
-Please refer to appendices \ref{sec:tangram-details} for more details about this environment.
+The Tangram virtual environment was developed specifically for our experiments as it worked around the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of our work.
+
+We mostly configured the environment to correspond with the traditional Tangram game.
+The shapes involved were the same, no overlap was allowed, and the shapes could be rotated, flipped, and translated.
+Yet, we did experiments with colors to improve the performance of CLIP and also gave the agent the freedom to use a subset of the shapes to make its creations.
+Please refer to appendix \ref{sec:tangram-details} for more technical details about this environment.
 
 \section{Initial Tests with CLIP}
 \label{sec:clip-custom}
 
+% Talk about the initial tests with CLIP that were motivated by poor performance of CLIP on abstract images and sketches.
+CLIP was trained on a large dataset of captioned natural images foraged from the internet.
+While it generalizes well to many natural-image distributions and has proved to be a powerful zero-shot model for various tasks, it was not clear how well it would perform on abstract images. 
+
+CLIP has been shown to not perform much better than chance on some tasks as they were not well represented in its pre-training dataset.
+% For example, it only achieved 88\% accuracy on the handwritten digits of MNIST.
+The authors of CLIP also noted that it was particularly poor on tasks for fine-grained classification such as differentiating models of cars, species of flowers, and variants of aircraft.
+It also struggles with more abstract and systematic tasks such as counting the number of objects in an image.
+
+Moreover, \cite{vlmrm}, from their experiments with CLIP as a source of goal-conditioned rewards, reported that CLIP rewards are only meaningful and well-shaped for environments that are photorealistic enough for the CLIP visual encoder to interpret correctly.
+They found it crucial to add textures and shading to the images to make them more realistic for CLIP to perform well.
+
+Influenced by these observations and caveats, we suspected that our environments, since they are not photorealistic and quite abstract, might also be out-of-distribution. 
+Yet, we expected them to be simple enough for CLIP to interpret correctly.
+
+Thus, before testing our reward function, we conducted a series of simple experiments on the inference capabilities of CLIP on ShapeGridWorld and Tangram.
+At the same time, there were several hyperparameters in the environments and CLIP into which we took insights with these initial tests.
 
 \subsection{CLIP on Sketches}
 \label{sec:clip-sketches}
 
-
-\subsection{CLIP on MNIST}
-\label{sec:clip-mnist}
 
 
 \subsection{CLIP on ShapeGridWorld}
@@ -66,6 +84,7 @@ Please refer to appendices \ref{sec:tangram-details} for more details about this
 
 \subsection{Effect of General vs Specific Labels}
 \label{sec:clip-labels}
+
 
 
 
@@ -101,6 +120,13 @@ Please refer to appendices \ref{sec:tangram-details} for more details about this
 
 \subsection{Comparing CLIP Models}
 \label{sec:clip-comparison}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/clip_inference_times.png}
+    \caption{Comparing times of different original CLIP models for embedding a single image.}
+    \label{fig:clip-comparison}
+\end{figure}
 
 
 \subsection{Entropy Regularization}
