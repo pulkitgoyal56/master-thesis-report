@@ -1,4 +1,5 @@
-\chapter{Environments}
+\chapter{Environments' Details}
+\label{sec:environments-details}
 The sections of this chapter provide additional details about the custom environments used in our experiments.
 Both of these environments were developed in Python.
 
@@ -14,7 +15,7 @@ Both of these environments were developed in Python.
 \tabref{tab:original-sgw-params} lists the parameters of the original ShapeGridWorld environment developed by \cite{rair}.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{4.2cm} L}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
         \hline
         Property & Description\\
         \hline
@@ -26,7 +27,7 @@ Both of these environments were developed in Python.
         \texttt{persistency} & Number of time steps an object (pixel block) is moved. \\
         \hline
     \end{tabularx}
-    \caption{Original ShapeGridWorld Parameters}
+    \caption{Original ShapeGridWorld parameters.}
     \label{tab:original-sgw-params}
 \end{table}
 The state space of this environment is composed of the \(x\) and \(y\) coordinates of the \(n\) block pixels, with the addition of two dimensions -- one that specifies which object is currently in focus and another that specifies how many times it has already moved, i.e. \(\cS \in \nN^{2 n + 2}\).
@@ -43,20 +44,21 @@ Furthermore, the rendering function was reimplemented using faster methods from 
 
 \begin{table}[h]
     \centering
-    \begin{tabularx}{\textwidth}{C{4.2cm} L}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
         \hline
         Property & Description\\
         \hline
         \texttt{step\_x} & Maximum number of steps an object can be translated in the x-direction in one action.\\
         \texttt{step\_y} & Maximum number of steps an object can be translated in the y-direction in one action. Kept same as \texttt{step\_x}.\\
         \texttt{persistency*} & Added the ability to move all objects at once.\\
-        \texttt{color} & Grayscale value of the pixel. \\
+        \texttt{color} & A flag that indicates if pixels should have a grayscale value. \\
+        \texttt{invert} & A flag to control the inversion of the rendered images. \\
         \texttt{control\_boundaries} & If specified, objects inside these limits \emph{initially} are marked.\\
         \texttt{control} & A flag that indicates whether the controller can move all the objects or those marked initially by the control boundaries.\\
-        \texttt{max\_reset\_dist} & Maximum distance an object can be moved from its original position on reset. Only the objects marked initially are reset.\\
+        \texttt{max\_reset\_dist} & Maximum distance an object can be moved from its original position on reset. Only the objects marked initially are reset (default: \(5\)).\\
         \hline
     \end{tabularx}
-    \caption{Additional ShapeGridWorld Parameters}
+    \caption{Additional ShapeGridWorld parameters.}
     \label{tab:additional-sgw-params}
 \end{table}
 
@@ -73,14 +75,33 @@ This is done using a circular convolution kernel over the image to find the corr
 Optionally, it makes the lines in the image thinner by finding its skeleton using morphological operations before the convolution.
 See \figref{fig:sgw-registration} for a demonstration.
 
+\vspace{10pt}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/grid_registration.png}
+    \includegraphics[width=0.6\textwidth]{images/grid_registration.png}
     \caption{ShapeGridWorld image registration on images from the MNIST dataset.}
     \label{fig:sgw-registration}
 \end{figure}
 
+\vspace{10pt}
+We developed a wrapper around the PIL Python library \citep{pil} to conveniently perform these operations and generate ShapeGridWorld environments.
 The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
+\tabref{tab:imagelib-params} lists the relevant parameters of this image registration library.
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{mode} & PIL Image mode in which the image is read.\\
+        \texttt{invert} & A flag to control the inversion of the read image. \\
+        \texttt{threshold\_ratio} & Threshold on the convolution sum, for binary grids with no color.\\
+        \hline
+    \end{tabularx}
+    \caption{Image registration parameters.}
+    \label{tab:imagelib-params}
+\end{table}
+
 
 \newpage
 \section{Tangram}
@@ -96,32 +117,30 @@ The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
 % control_boundaries
 % staging_boundaries
 
-The Tangram environment is initialized with a list of polygon objects created using the provided Polygon class, which define a polygon's size, shape, and color.
+The Tangram environment is initialized with a list of polygon objects created using the provided \texttt{Polygon} class, which defines a polygon's size, shape, and color.
 The additional parameters of the Tangram environment are tabulated in table \tabref{tab:tangram-params}.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{4.2cm} L}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
         \hline
         Property & Description\\
         \hline
-        \texttt{x\_size} & Span of the discrete grid; number of steps in the x-direction. If set to \(1\), grid is continuous in \([0, 1]\).\\
-        \texttt{y\_size} & Span of the discrete grid; number of steps in the y-direction. If set to \(1\), grid is continuous in \([0, 1]\). Kept same as \texttt{x\_size}.\\
-        \texttt{r\_size} & Span of the discrete grid; number of rotation steps in \(360^\circ\). If set to \(1\), rotation is continuous in \([0, 360^\circ]\).\\
-        \texttt{x\_step} & Maximum number of steps a polygon can be translated in the x-direction in one action.\\
-        \texttt{y\_step} & Maximum number of steps a polygon can be translated in the y-direction in one action. Kept same as \texttt{y\_step}.\\
+        \texttt{x\_size, y\_size} & Span of the discrete grid; number of steps in the x and y directions. If set to \(1\), grid is continuous in \([0, 1]\) (default: \texttt{y\_size} = \texttt{x\_size}).\\
+        \texttt{x\_step, y\_step} & Maximum number of steps a polygon can be translated in the x and y directions in one action (default: \texttt{y\_step} = \texttt{x\_step}).\\
+        \texttt{r\_size} & Span of the discrete grid; number of rotation steps in \(180^\circ\). If set to \(1\), rotation is continuous in \([0, 180^\circ]\).\\
         \texttt{r\_step} & Maximum number of steps a polygon can be rotated in one action.\\
-        \texttt{rotation} & A flag to enable/disable rotation.\\
+        \texttt{rotate} & A flag to enable/disable rotation.\\
         \texttt{flip} & A flag to enable/disable flipping.\\
         \texttt{persistency} & Number of time steps a polygon (pixel block) is moved. If set to \(1\), all polygons are moved at once.\\
-        \texttt{control\_boundaries} & If specified, polygons inside these limits \emph{initially} are marked.\\
-        \texttt{control\_criteria} & The point inside the polygon used to determine if the polygon is inside or outside the control boundaries. Can be a Python lambda function or an attribute of a polygon, such as ``centroid'', ``center'', or ``complete''.\\
-        \texttt{control} & A flag that indicates whether the controller can move all the polygons or those marked initially by the control boundaries.\\
-        \texttt{staging\_boundaries} & If specified, only polygons inside these limits are rendered to get the state's corresponding image observation.\\
-        \texttt{staging\_criteria} & Similar to \texttt{control\_criteria} but for staging boundaries.\\
-        \texttt{max\_reset\_dist} & Maximum distance a polygon can be moved from its original position on reset. Only the polygons marked initially are reset.\\
+        \texttt{control\_boundaries} & If specified, polygons inside these limits \emph{initially} are marked (default: NA).\\
+        \texttt{control\_criteria} & The point inside the polygon that determines if the polygon is inside or outside the control boundaries. A Python lambda function or an attribute of \texttt{Polygon}, such as ``centroid'', ``center'', or ``complete'' (default: ``center'').\\
+        \texttt{control} & A flag that indicates whether the controller can move all the polygons or those marked initially by the control boundaries (default: ``all'').\\
+        \texttt{staging\_boundaries} & If specified, only polygons inside these limits are rendered to get the state's corresponding image observation (default: NA).\\
+        \texttt{staging\_criteria} & Similar to \texttt{control\_criteria} but for staging boundaries (default: ``complete'').\\
+        \texttt{max\_reset\_dist} & Maximum distance a polygon can be moved from its original position on reset. Only the polygons marked initially are reset (default: \(-1\); no constraints).\\
         \hline
     \end{tabularx}
-    \caption{Tangram Parameters}
+    \caption{Tangram parameters.}
     \label{tab:tangram-params}
 \end{table}
 
@@ -139,9 +158,200 @@ For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1]
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
 
 
+\chapter{Controller Hyperparameters}
+\label{sec:icem-details}
+% task_horizon
+% horizon
+% num_simulated_trajectories
+% cost_along_trajectory
+% action_sampler_params.opt_iterations
+% action_sampler_params.init_std
+% action_sampler_params.elites_size
+% discount_along_trajectory
+The iCEM controller introduced in \secref{sec:icem} has several hyperparameters that need to be tuned for optimal performance.
+\tabref{tab:icem-params} lists the hyperparameters we tweaked in our experiments.
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{C{4.7cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{horizon} & Number of steps in the future to plan, \(h\).\\
+        \texttt{n\_trajectories} & Number of trajectories to sample, \(n\).\\
+        \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations.\\
+        \texttt{n\_inner\_iterations} & Number of iterations for the inner optimization loop, \(m\).\\
+        \texttt{init\_std} & Standard deviation at which the sampling distribution is initialized, \(\bmsigma_0\).\\
+        \texttt{elites\_size} & Size of the elite set, \(K\). See eq. \eqref{eq:icem-filter}.\\
+        \texttt{discount\_factor} & Discount factor for returns expected in the future, \(\gamma\). See eq. \eqref{eq:reward-aggregation-sum-discount} (default: \(1.0\); pink noise).\\ 
+        \hline
+    \end{tabularx}
+    \caption{iCEM controller parameters.}
+    \label{tab:icem-params}
+\end{table}
+
+The other important hyperparameters that we did not tweak in our experiments are listed in \tabref{tab:icem-params-fixed}.
+
+% factor_decrease_num: 1
+% alpha: 0.1
+% relative_init: true
+% keep_previous_elites: true
+% shift_elites_over_time: true
+% fraction_elites_reused: 0.3
+% use_mean_actions: true
+% noise_beta: 3.5
+
+\todo[color=red]{check and complete this}
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{C{4.7cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{factor\_decrease\_num} & \\
+        \texttt{alpha} & Momentum term for updating parameters of the sampling distribution.\\
+        \texttt{relative\_init} & \\
+        \texttt{keep\_previous\_elites} & A flag to enable passing elites to the next timestamp (outer iteration).\\
+        \texttt{shift\_elites\_over\_time} & A flag to enable passing elites over inner iterations.\\
+        \texttt{fraction\_elites\_reused} & Fraction of passed elites from the previous inner/outer iteration added to the sampled trajectory set.\\
+        \texttt{use\_mean\_actions} & If the mean of the sampling distribution is appended to the elite set at the end of inner iterations.\\
+        \texttt{noise\_beta} & Colored noise exponent of the distribution, \(\beta\) (default: \(1\)).\\
+        \hline
+    \end{tabularx}
+    \caption{iCEM controller fixed parameters.}
+    \label{tab:icem-params-fixed}
+\end{table}
+
+Please refer to the original paper for more details on the parameters of iCEM.
+
+
+\chapter{Reward Hyperparameters}
+\label{sec:reward-details}
+
+This chapter lists the hyperparameters of the reward functions used in our experiments.
+
+\section{Semantics Reward}
+\label{sec:semantics-reward-details}
+
+\subsection{Semantics Entropy Reward}
+\label{sec:semantics-entropy-reward-details}
+% label_prefix
+% label_suffix
+% categories
+% semantics_baseline
+% semantics_image_baseline
+% semantics_alpha_target
+% semantics_beta_image
+% semantics_model_temperature
+% semantics_model_version
+% semantics_normalize
+% semantics_reward_scale
+
+\tabref{tab:entropy-reward-params} lists the parameters of the regularized semantics entropy reward from eq. \eqref{eq:entropy-reward-reg}.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{categories} & List of creative possibilities, \(\bml\).\\
+        \texttt{label\_prefix} & Prefix to be added to the categories to create text labels.\\
+        \texttt{label\_suffix} & Suffix to be added to the categories to create text labels.\\
+        \texttt{baseline} & Baseline text input, \(\bfl_b\).\\
+        \texttt{image\_baseline} & Baseline image input, \(\bfi_b\).\\
+        \texttt{alpha\_target} & Regularization parameter for target text, \(\alpha\).\\
+        \texttt{beta\_image} & Regularization parameter for input image observation, \(\beta\).\\
+        \texttt{model\_version} & Name of the CLIP variant used.\\
+        \texttt{model\_temperature} & Temperature for the softmax function in the semantics entropy reward, \(T\).\\
+        \texttt{normalize} & If the reward should be normalized by maximum entropy, \(\log(|\bml|)\) (default: True).\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the regularity reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward} (default: \(1\)).\\
+        \hline
+    \end{tabularx}
+    \caption{Semantics entropy reward parameters.}
+    \label{tab:entropy-reward-params}
+\end{table}
+
+
+\subsection{Regularity Reward}
+\label{sec:regularity-reward-details}
+% compression_precision
+% compression_granularity
+% compression_bidirectional
+% compression_normalize
+% compression_reward_scale
+
+In the introduction to the regularity reward in \secref{sec:regularity-reward}, we mentioned the additional hyperparameters \(h\) -- \emph{resolution} and \emph{bidirectionality}.
+This section provides more details about these hyperparameters.
+
+The hyperparameter for resolution consists of two parts -- precision and granularity.
+Equation \eqref{eq:rair-relational-extended} extends eq. \eqref{eq:rair-relational} with these hyperparameters to define the \(\lfloor \cdot \rceil\) operator.
+\begin{equation}
+    \lfloor s^{(j)} - s^{(k)} \rceil = \begin{cases}\begin{aligned}
+        \left\lfloor \left| s^{(j)} - s^{(k)} \right| \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity} &\text{if bidirectionality} = \text{False}\\
+        \left\lfloor \left( s^{(j)} - s^{(k)} \right) \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity} &\text{if bidirectionality} = \text{True}\\
+    \end{aligned}\end{cases}
+    \label{eq:rair-relational-extended}
+\end{equation}
+\tabref{tab:regularity-reward-params} lists the parameters of the regularity reward.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{precision} & Precision of the compression algorithm.\\
+        \texttt{granularity} & Granularity of the compression algorithm.\\
+        \texttt{bidirectional} & If the compression should be bidirectional.\\
+        \texttt{normalize} & If the reward should be normalized by the maximum possible entropy, \(\log\left(\binom{N}{2}\right)\) (default: True).\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the semantics entropy reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}.\\
+        \hline
+    \end{tabularx}
+    \caption{Regularity reward parameters.}
+    \label{tab:regularity-reward-params}
+\end{table}
+
+Please refer to the original paper for more details on the theory and implementation of \emph{RaIR}.
+
+\section{Closeness Reward}
+\label{sec:closeness-reward-details}
+% closeness_reward_type
+% closeness_reward_scale
+% closeness_reward_threshold
+
+\tabref{tab:closeness-reward-params} lists the parameters of the closeness reward from \secref{sec:closeness-rollouts}.
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+        \hline
+        Property & Description\\
+        \hline
+        \texttt{reward\_type} & Type of closeness reward -- \emph{sparse-incremental} or \emph{dense}.\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled.\\
+        \texttt{reward\_threshold} & Threshold, \(\varepsilon\), for sparse rewards, eq. \eqref{eq:closeness-reward-sparse}.\\
+        \hline
+    \end{tabularx}
+    \caption{Closeness reward parameters.}
+    \label{tab:closeness-reward-params}
+\end{table}
+
+
+\chapter{Comparing CLIP Models}
+\label{sec:clip-comparison}
+
+The vision transformer (ViT) models have better accuracy than Resnet models.
+Resnet models have a gradual slope in rollouts compared to ViT models and flatter distributions on random images.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/clip_inference_times.png}
+    \caption{Comparing times of different original CLIP models for embedding a single image.}
+    \label{fig:clip-comparison}
+\end{figure}
+
+
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique to reduce its inference noise, we conducted some experiments on a smaller toy setup with convolutional neural networks trained as an MNIST classifier.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted some experiments on a smaller toy setup with convolutional neural networks trained as an MNIST classifier.
 
 
 % \chapter{Descriptive List of Main Hyperparameters}
@@ -156,14 +366,14 @@ At every planning step, a total of \(\text{n\_trajectories} \times \text{horizon
 This was further multiplied by the number of steps in the simulation.
 This total ranged anywhere from \(~200,000\) to \(~2,000,000\) in our many experiments which corresponded to about \(2\) to \(20\) hours of simulation time if run in a single batch of inference on multiple GPUs.
 
-Reducing this time was critical for us to be able to do any hyperparameter analysis properly.
-We implemented several optimization strategies to improve this, which mainly involved \emph{vectorization} of all computation, parallelization, and cutting down on redundant operations.
-In particular, two of these optimizations, for rendering and inference, are briefly introduced in the sections of this appendix chapter.
+Reducing simulation time was critical for us to be able to do any hyperparameter analysis.
+We implemented several optimization techniques to improve this, which mainly involved efficient \emph{vectorization} of all computations, lazy evaluation, caching, parallelization, and cutting down on redundant operations.
+In particular, two of these, for rendering and inference, are briefly introduced in the following sections.
 
 \section{Reducing Rendering Time}
 \label{sec:improving-render}
 The rendering time was a major bottleneck for the simulations.
-To improve this, we experimented with three popular open-source graphics Python libraries; \emph{Matplotlib} \citep{matplotlib}, \emph{Scikit-Image} \citep{skimage}, and \emph{OpenCV} \citep{opencv}, for colored and grayscale renderings.
+To improve this, we experimented with three popular open-source graphics Python libraries; \emph{Matplotlib} \citep{matplotlib}, \emph{Scikit-Image} \citep{skimage}, and \emph{OpenCV} \citep{opencv}, for both colored and grayscale renderings.
 We used their functions in different formulations to further optimize their use.
 The results of the best formulation for each of these libraries are summarized in \tabref{tab:render-time-color} and \tabref{tab:render-time-bw}.\\
 
@@ -178,7 +388,7 @@ The results of the best formulation for each of these libraries are summarized i
         OpenCV & \texttt{fillPoly} & 66.3 ± 0.85\\
         \hline
     \end{tabular}
-    \caption{Colored Rendering Time Comparison}
+    \caption{Colored rendering-time comparison.}
     \label{tab:render-time-color}
 \end{table}
 \begin{table}[H]
@@ -192,7 +402,7 @@ The results of the best formulation for each of these libraries are summarized i
         OpenCV & \texttt{fillConvexPoly} & 52.2 ± 1.04\\
         \hline
     \end{tabular}
-    \caption{Grayscale Rendering Time Comparison}
+    \caption{Grayscale rendering-time comparison.}
     \label{tab:render-time-bw}
 \end{table}
 * - Mean \(\pm\) standard deviation of \(7\) runs; \(1,000 - 10,000\) loops each.
@@ -208,7 +418,7 @@ Depending on their size, the simulations were run concurrently on multiple NVIDI
 
 To reduce the inference time, we tweaked the image preprocessing functions of CLIP to be adaptive to the input to ensure that no redundant operations were performed.
 
-Furthermore, we typically chose the rendering configurations for the environments such that the resulting renders did not require any preprocessing in the form of resizing, cropping, type conversions, or copying, which was computationally expensive.
+Furthermore, we typically chose the rendering configurations for the environments such that the resulting renders required minimal preprocessing in the form of resizing, cropping, type conversions, or copying, which was computationally expensive.
 For example, all renderings concurred with the required input for the used CLIP model (eg. \(224 \times 224\) for the \texttt{ViT-L/14} variant) used for inference to avoid any resizing.
 This also helped to improve the simulation times significantly.\\
 

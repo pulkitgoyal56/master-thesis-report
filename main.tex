@@ -56,11 +56,17 @@
 \include{coverpage}
 \include{secondpage}
 
+\pagenumbering{roman}
 \tableofcontents
 % \newpage
-% \listoftables
-% \listoffigures
+\listoffigures
+\begingroup
+\let\clearpage\relax
+\listoftables
+\endgroup
 
+\clearpage
+\pagenumbering{arabic}
 \pagestyle{fancy}
 \include{abstract}
 \input{introduction}
