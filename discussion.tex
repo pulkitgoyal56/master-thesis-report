@@ -11,23 +11,20 @@ We did not get major performance improvements with additional prompt engineering
 We think that these failures are related to capability limitations in the CLIP model we use.
 This is similar to the findings observed by \cite{vlmrm} in their use of CLIP as a source of goal-conditioned rewards.
 
+\todo{Summary of things. Things that could be helpful.}
+
 % Comments on regularization
 
 % RaIR was very helpful
 We observed that the complementary RaIR reward was very helpful in improving the quality of the semantics reward.
-It helped with grounding and coalescing the structures in more human recognizable forms and patterns.
+It helped with grounding and coalescing the structures in more human-recognizable forms and patterns.
 
 % Comments on the environments
 
 % Future work
-Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the LAION-5B dataset \cite{laion5b} might lead to some performance improvements.
+Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
 
 % Comments on creativity
 
 % Comments on exploration
-When used as an additional reward to augment traditional novelty-seeking intrinsic rewards, 
-\begin{equation}
-    \label{eq:intrinsic-reward}
-    r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}},
-\end{equation}
-it can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.
+When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), it can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.

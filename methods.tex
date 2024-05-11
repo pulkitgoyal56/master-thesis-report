@@ -97,7 +97,7 @@ Given a goal description \(\bfg \in \cL\), the reward for an image observation \
 \end{equation}
 This captures the projection of the image observation embedding \(\bfo\) onto the direction spanned by the goal embedding \(\bfg\).
 
-\cite{zest} developed an alternative method called \emph{ZeST} (zero-shot task specification) in which they introduced \emph{delta embeddings} that use the difference in embeddings between the desired and initial/\emph{baseline} configurations, for both image and text inputs, to directionally remove irrelevant parts of the CLIP representation.
+\cite{zest} developed an alternative method called \emph{ZeST} (zero-shot task specification) which employs \emph{delta embeddings} that use the difference in embeddings between the desired and initial/\emph{baseline} configurations, for both image and text inputs, to directionally remove irrelevant parts of the CLIP representation.
 The goal-baseline regularized reward function in this case is the similarity between the delta embeddings,
 \begin{equation}
     \label{eq:zest}
@@ -116,14 +116,14 @@ These delta embeddings considerably improved performance in language-guided goal
 However, it is not certain that the direction from the baseline to the goal captures all the relevant information.
 Therefore, instead of using one or the other, \cite{vlmrm} further made a trade-off between the two projections in their \emph{VLM-RM} method and proposed a goal-baseline regularization technique that considered both -- the similarity of the image observation to the target and also the direction from the baseline towards the goal in the CLIP embedding space.
 
-They did not use delta embeddings or baselines for the image input, but only for the text input.
+\emph{VLM-RM} does not use delta embeddings or baselines for the image input, but only for the text input.
 Their formulation is given by,
 \begin{equation}
     \label{eq:vlmrm}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, \gamma) = 1 - \dfrac{1}{2}\ \norm{\gamma\ \text{proj}_{V}\psi_I(\bfo) + (1 - \gamma)\ \psi_I(\bfo) - \psi_L(\bfg)}^2_2,
 \end{equation}
-where \(V\) is the direction spanned by \(\psi_I(\bfg) - \psi_L(\bfg_b)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the trade-off/regularization strength.
-Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
+where \(V := \frac{\psi_I(\bfg) - \psi_L(\bfg_b)}{\norm{\psi_I(\bfg) - \psi_L(\bfg_b)}}\) is the direction spanned by the vector between the embeddings of \(\bfg\) and \(\bfg_b\), \(\text{proj}_{V}\psi_I(\bfo) := (\bfo \cdot V)\,V\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the trade-off/regularization strength.
+Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equal to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\psi_I(\bfo)\) perpendicular to this direction.
 The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).
 % 
 % \begingroup
@@ -135,7 +135,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     % Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
     % The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).}
     \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
-    r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 \equiv S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
+    r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
     \textcolor{orange}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\).''
     % Thus, it only retains the components that align with the direction from the baseline to the goal.

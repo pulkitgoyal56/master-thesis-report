@@ -60,23 +60,25 @@
 \tableofcontents
 % \newpage
 \listoffigures
-\begingroup
-\let\clearpage\relax
+% \begingroup
+% \let\clearpage\relax
 \listoftables
-\endgroup
+% \endgroup
 
 \clearpage
 \pagenumbering{arabic}
 \pagestyle{fancy}
 \include{abstract}
-\input{introduction}
+\include{introduction}
 \include{methods}
 \include{experiments}
 \include{discussion}
+
 \pagestyle{plain}
 \include{acknowledgements}
 \include{bibliography}
-\begin{appendices}    
+
+\begin{appendices}
 \include{appendix}
 \end{appendices}
 
