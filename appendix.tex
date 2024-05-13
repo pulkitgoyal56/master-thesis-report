@@ -157,6 +157,14 @@ For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1]
 
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
 
+\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/tangram_fish_10.pdf}
+    \caption{CLIP on different inversions of the same Tangram creations. \(T = 0.1\).}
+    \label{fig:clip-tangram-inversions}
+\end{figure}
+
 
 \chapter{Controller Hyperparameters}
 \label{sec:icem-details}
@@ -343,7 +351,7 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/clip_inference_times.png}
+    \includegraphics[width=\textwidth]{images/clip_inference_times.pdf}
     \caption{Comparing times of different original CLIP models for embedding a single image.}
     \label{fig:clip-comparison}
 \end{figure}
@@ -351,8 +359,18 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
 
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted some experiments on a smaller toy setup with convolutional neural networks trained as an MNIST classifier.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller toy setup with convolutional neural networks trained as an number classifier on ShapeGridWorld images using the MNIST dataset.
+We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, labelled with an uniform distribution of confidence over the output of the model.
 
+We treated the entropy regularization strength and the addition of random samples as hyperparameters and trained a series of models with different combinations of the two.
+\figref{fig:flatnet-comparison} shows the resulting trajectories over the 
+
+\begin{figure}[h]
+    \centering
+    \missingfigure{Flatnet comparison over the 495 closeness trajectory}
+    \caption{Comparing times of different original CLIP models for embedding a single image.}
+    \label{fig:flatnet-comparison}
+\end{figure}
 
 % \chapter{Descriptive List of Main Hyperparameters}
 % \label{sec:hyperparameters}
@@ -424,9 +442,9 @@ This also helped to improve the simulation times significantly.\\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/full_transform.png}\vspace{-15pt}
+    \includegraphics[width=\textwidth]{images/full_transform.pdf}\vspace{-15pt}
     \caption{Preprocessing times before optimizations.}\vspace{15pt}
-    \includegraphics[width=\textwidth]{images/fast_transform.png}\vspace{-15pt}
+    \includegraphics[width=\textwidth]{images/fast_transform.pdf}\vspace{-15pt}
     \caption{Preprocessing times after optimizations.}
     \label{fig:preprocessing-time-improvement}
 \end{figure}

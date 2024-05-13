@@ -26,6 +26,8 @@ where the expectation is under trajectories \emph{rolled-out} with \(\bfa_t \sim
 
 In our formulations, we consider a finite-horizon problem, where the agent is tasked with maximizing the expected return over a limited planning horizon \(h\).
 
+We use boldface to denote 
+
 \newpage
 \section{Vision-Language Models}
 \label{sec:vlms}
@@ -41,7 +43,11 @@ For a label \(\bfl \in \cL\) and an image \(\bfi \in \cI\), the similarity is gi
     \label{eq:clip-similarity}
     \zeta(\bfi, \bfl) = S_c(\psi_I(\bfi), \psi_L(\bfl)) = \dfrac{\psi_I(\bfi) \cdot \psi_L(\bfl)}{\| \psi_I(\bfi) \| \| \psi_L(\bfl) \|} = \psi_I(\bfi) \cdot \psi_L(\bfl).
 \end{equation}
+
 Eponymously, the CLIP image and text encoders are jointly trained using a contrastive loss which directs the model to semantically align the correct image and text pairs (in the latent space) by increasing their similarity while simultaneously pushing apart the embeddings of the mismatched pairs by decreasing their similarity.
+
+Given a batch of \(N\) image-caption pairs; images \(\bmi^{(N)} = \{ \bfi_1, \dots, \bfi_N \}\) and captions \(\bml^{(N)} = \{ \bfl_1, \dots, \bfl_N \}\), such that the corresponding entries are paired, CLIP first computes the matrix of cosine similarities, \(\zeta^{(N)}(\bmi, \bml) \in \nR^{N \times N}\), where each item \(\zeta^{(N)}_{j,k}\) computes the cosine similarity between the image \(\bfi_j\) and caption \(\bfl_k\).
+The training batch loss is then computed as the difference between the similarities corresponding to the correct image-caption pairs and the mismatched caption-image pairs, which is then minimized.
 
 There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
 We used the vision transformer variant (\texttt{ViT-L/14}) for most of our experiments as it gave a good balance of performance and computational efficiency.
@@ -67,7 +73,7 @@ See \secref{sec:reg-temperature} for details.
 Ideally, CLIP should abstract away frivolous phrasing to focus on the semantics of a prompt, but in practice, due to inherent ambiguity in natural language, the exact phrasing can still influence its inference \citep{waffleclip}. 
 We experimented with this in our investigations.
 
-For objective analysis, we break the structure of a language prompt \(\bfc \in \cL\) representing a creative possibility \(c\) in an environment as ``\(\{\text{prefix}\}\{c\}\{\text{suffix}\}\)'', where ``prefix'' and ``suffix'' are optional context phrases. For example, if \(c\) is ``apple'', then the prompt could be ``picture of an apple, on a white background'', where ``picture of an '' is the prefix and ``, on a white background'' is the suffix.
+For objective analysis, we break the structure of a language prompt \(\bfc \in \cL\) representing a creative possibility \(c\) in an environment as ``\(\{\text{prefix}\}\{c\}\{\text{suffix}\}\)'', where ``prefix'' and ``suffix'' are optional context phrases. For example, if \(c =\) ``apple'', then the prompt could be ``picture of an apple, on a white background'', where ``picture of an '' is the prefix and ``, on a white background'' is the suffix.
 
 \section{Semantic Rewards for Free Play}
 \label{sec:semantics-reward}
@@ -332,7 +338,7 @@ Thus, we can perform multi-horizon planning without accumulating any model error
 \label{sec:reward-aggregation}
 There are many different ways to aggregate the rewards of the trajectory samples over the horizon.
 This is treated as one of the hyperparameters in our experiments.
-\vspace{-1.5pt}
+\vspace{-12.5pt}
 \begin{align}
 \intertext{A trivial reward aggregation function is the sum of the rewards over the horizon (\texttt{sum}),}
 \texttt{sum}(\bmtau^{(h)}) &= \sum_{k=1}^{h} R_k. \label{eq:reward-aggregation-sum}

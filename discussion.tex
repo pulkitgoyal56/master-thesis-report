@@ -3,26 +3,44 @@
 \label{sec:discussion}
 
 % Summary of CLIP reward analysis
+Semantic expression is an innate nature of human exploration during creative free-play.
+Motivated by these observations from experiments in cognitive science and developmental psychology, in this thesis, we tried to leverage multimodal foundational models to realize this behaviour in artificial agents.
+We built upon recent work on using VLMs as a source of goal-conditioned rewards to formulate the semantics entropy reward to give the agent a freedom akin to free-play and enable it to reach semantically meaningful states.
 
-% Limitations
-% - CLIP is noisy
+To test this reward formulation in creative settings, we extended the ShapeGridWorld environment and created the Tangram environment.
+Subsequently, we analysed the performance of the popular vision language model CLIP on these abstract settings and developed methods to improve its use for our purposes.
+
+% Comments on regularization
+We demonstrate that CLIP is noisy and requires additional regularization, but with careful tweaking of the hyperparameters, the regularized semantics entropy reward can indeed be used to guide the agent towards semantically meaningful states.
+
+Additionally, we show that the complementary RaIR reward was helpful in improving the quality of the final creations.
+
+We did not get major performance improvements with additional prompt engineering.
+
+Since the controller uses finite-horizon planning, we do not necessarily converge to global optima.
+
+
+Currently, we are restricted to fully-observable MDPs.
+
+We embrace object-centric representations as a suitable inductive bias in RL, where the observations per object (consisting of poses and velocities) are naturally disentangled. We also assume that this state space is interpretable such that we take, for instance, only the positions and color. The representational space, in which the RaIR measure
+is computed, is specified by the designer. Exciting future work would be to learn a representation under which the human relevant structures in the real-world (e.g. towers, bridges) are indeed regular.
+
+
+
+
+
+% Limitations of the work and failures
 % - Should/Could improve with better models
-We did not get major performance improvements with additional prompt engineering and hyperparameter tuning.
-We think that these failures are related to capability limitations in the CLIP model we use.
-This is similar to the findings observed by \cite{vlmrm} in their use of CLIP as a source of goal-conditioned rewards.
+Although we were not able to overcome 
+We think that these failures are related to capability limitations in the current VLM models.
+Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
 
 \todo{Summary of things. Things that could be helpful.}
 
-% Comments on regularization
-
-% RaIR was very helpful
-We observed that the complementary RaIR reward was very helpful in improving the quality of the semantics reward.
-It helped with grounding and coalescing the structures in more human-recognizable forms and patterns.
 
 % Comments on the environments
 
 % Future work
-Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
 
 % Comments on creativity
 

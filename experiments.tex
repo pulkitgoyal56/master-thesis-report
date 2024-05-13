@@ -65,40 +65,42 @@ At the same time, there were several hyperparameters in the environments and CLI
 \subsection{CLIP on Sketches and ShapeGridWorld}
 \label{sec:clip-sketches}
 
-We first tested CLIP on sketches of simple shapes from the ImageNet-Sketch \cite{imagenet} dataset.
+We first tested CLIP on sketches of simple shapes from the ImageNet-Sketch dataset \citep{imagenet}.
 
 We also compared these results with renderings of these sketches on ShapeGridWorld grids of different resolutions by registering them (see \secref{sec:sgw-registration} for more details).
 
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=\textwidth]{images/grid_comparison_orange.png}
-    % % \includegraphics[width=\textwidth]{images/grid_comparison_images.png}
-    % \includegraphics[width=\textwidth]{images/grid_comparison_accuracy_orange.png}
-    \includegraphics[width=\textwidth]{images/grid_comparison.png}
-    % \includegraphics[width=\textwidth]{images/grid_comparison_images.png}
-    \includegraphics[width=\textwidth]{images/grid_comparison_accuracy.png}
-    % \includegraphics[width=\textwidth]{images/grid_comparison_color.png}
-    % % \includegraphics[width=\textwidth]{images/grid_comparison_images.png}
-    % \includegraphics[width=\textwidth]{images/grid_comparison_accuracy_color.png}
+    \includegraphics[width=\textwidth]{images/grid_comparison.pdf}
+    \includegraphics[width=\textwidth]{images/grid_comparison_images.png}
+    \includegraphics[width=\textwidth]{images/grid_comparison_accuracy.pdf}
     \caption{CLIP on sketches and ShapeGridWorld grids of different resolutions.}
     \label{fig:clip-sketches}
-    % \includegraphics[width=\textwidth]{images/grid_comparison_inverted.png}
+    % \includegraphics[width=\textwidth]{images/grid_comparison_inverted.pdf}
+    % \includegraphics[width=\textwidth]{images/grid_comparison_accuracy_inverted.pdf}
     % \caption{CLIP on \emph{inverted} sketches and ShapeGridWorld grids of different resolutions.}
     % \label{fig:clip-sketches-inv}
 \end{figure}
 
-As an example, \figref{fig:clip-sketches} shows the comparative similarity of the embeddings of \(150\) sketches of apples (and their grid counterparts) to the label ``sketch of an apple'' using the CLIP variant \texttt{ViT-L/14}, as a probability.
-The probabilities are calculated using the equation \eqref{eq:clip-dist}, with a higher temperature \(T = 1\), to show the trend.
+As an example, \figref{fig:clip-sketches} shows the comparative similarity of the embeddings of \(80\) sketches of apples (and their grid counterparts) to the label ``sketch of an apple'' using the CLIP variant \texttt{ViT-L/14}, as a probability.
+The probabilities are calculated using the equation \eqref{eq:clip-dist}, with temperature \(T = 1\), to show the trend.
 The categories for this example are ``apple'', ``chair'', ``car'', ``flower'', ``pencil'', ``house'', ``tree'', ``fish'', ``star'', and ``bird''.
 The middle row shows a sample of the images for each of the cases.
 The bottom row shows the accuracy (percentage of correct predictions) for each of the cases.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.36\textwidth]{images/hypercategory_comparison_2.pdf}
+    \caption{CLIP on different specificity of labels.}
+    \label{fig:clip-hypercategory}
+\end{wrapfigure}
 
 We found that CLIP can recognize these sketches quite well.
 As the grid became coarser, the confidence and accuracy of CLIP decreased significantly.
 For very coarse grids, the accuracy is almost as bad as random guessing.
 We also experimented with inverting the images and found that results were consistently slightly better with black-on-white sketches (shown here) than with white-on-black sketches.
 Yet, we did not notice any difference in performance with the addition of grayscale values in the pixel blocks.
-We also noticed that using generic labels like ``fruit'' performed worse than using specific labels like ``apple''.
+In most cases, we also noticed that using specific labels like ``apple'' for a picture of an apple had better accuracy than using hypernyms like ``fruit'' (\figref{fig:clip-hypercategory}).
 
 Additionally, we found that the bigger CLIP models performed significantly better on these tasks than the smaller ones which is in line with observations from other studies on VLMs as a source of rewards.
 Furthermore, we tried the same experiments with different sets of categories, prefixes, and suffixes, but the results followed similar trends.
@@ -110,24 +112,18 @@ The later sections give more results for experiments on these hyperparameters.
 
 Tangram has lesser degrees of freedom than ShapeGridWorld and it is more abstract but it still allows for rich creative expression.
 To test if it would be a feasible environment for our study, we used some images of creations on Tangram from the internet and used CLIP as a zero-shot classifier as above to test its performance.
-
 We again found it to be quite good at recognizing these creations with very high confidence.
 \figref{fig:clip-tangram} shows a few examples.
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/tangram_comparison_orange.png}
+    \includegraphics[width=\textwidth]{images/tangram_comparison_10.pdf}
     \caption{CLIP on a few simple Tangram creations.}
     \label{fig:clip-tangram}
 \end{figure}
 
-Unlike ShapeGridWorld, we found no clear trend in the effect of inversions on the performance of CLIP, but colors seemed to barely affect the semantic biases in the inferences in certain cases.
-For example, on a colored image of a tangram creation that resembled a fish or an airplane, CLIP showed slightly more confidence in a label corresponding to "bird" compared to a black-white rendering of the same creation.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{images/tangram_inversions.png}
-    \caption{CLIP on different inversions of the same Tangram creations.}
-    \label{fig:clip-tangram-inversions}
-\end{figure}
+We did not find a significant trend in the effect of colors on the performance of CLIP, but inversions seemed to slightly affect the distribution of inferences in certain cases
+(one such example is given in the appendix \figref{fig:clip-tangram-inversions}, where the distribution of CLIP was skewed in grayscale and white-on-black cases).
+Consequently, we used colored or black-on-white binary renderings for our experiments.
 
 More experiments on these hyperparameters are discussed in the later sections.
 
@@ -153,7 +149,7 @@ We destroy the image pixel by pixel using random actions left to right and see h
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/p_sparse_rewards.png}
-    \caption{Random rollouts in ShapeGridWorld and Tangram.}
+    \caption{Random rollouts in ShapeGridWorld.}
     \label{fig:sparse-rewards}
 \end{figure}
 
@@ -173,7 +169,7 @@ The other consequence of the noise in CLIP inference is that can sometimes confi
 \begin{figure}[h]
     \centering
     % \includegraphics[width=0.6\textwidth]{images/p_random_semantic_bias.png}
-    \includegraphics[width=\textwidth]{images/adversarial_samples.png}
+    \includegraphics[width=\textwidth]{images/adversarial_samples.pdf}
     \caption{Large semantic bias in random images.}
     \label{fig:semantic-bias-random}
 \end{figure}
@@ -190,6 +186,7 @@ That is, increasing reward density involves increasing confidence in imperfect/p
 \label{sec:class-preference}
 Another complementary problem we faced related to the problem of semantic bias in random images was that of class imbalance.
 Simply put, there were some classes in which CLIP was consistently more confident than others and leaned towards them over others when unsure.
+This included classes that signified broad concepts like ``animal'', ``fruit'', ``number'', ``letter'', or ``object''.
 
 % \begin{figure}[H]
 %     \centering
@@ -301,24 +298,21 @@ Namely, the choice of categories/creative possibilities (\(c\)), the prefix and 
 
 The complex nature of the reward landscape and the high dimensionality of the state space made it difficult to analyze the effects of these hyperparameters.
 To gain an intuition over these parameters and reduce the search space before we ran simulations using them in the full semantics reward, we instead used the best of the previously rolled-out trajectories with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP and calculated the trajectories of the resulting semantics reward.
-Subsequently, we performed an ablation study on these hyperparameters to gain insights into their effects.
+Subsequently, we performed an ablation study on these hyperparameters to gain insights into their effects \footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
+Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters to see their effects}.
 
 The following sections discuss the results of these analyses.
-
-Additionally, we have made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ}.
-The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
-
 
 \subsection{Effect of the Number of Creative Possibilities}
 \label{sec:clip-categories}
 We found that the number of creative possibilities in the environment can also affect the performance of CLIP.
 Too few categories can promote semantic bias and class preference in random images, but too many categories can exacerbate the problem of sparse rewards.
-We found that the best results were obtained with a moderate number of categories, i.e. around \(10 \sim 15\).
+We found that the best results were obtained with a moderate number of categories (\(\sim 10\)).
 This helped in mitigating the class preference in CLIP.
 
 \begin{figure}[H]
     \centering
-    \missingfigure{Trajectories with few categories vs many categories.}
+    \includegraphics[width=\textwidth]{images/category_comparison_tangram.pdf}
     \caption{Effect of the number of categories on CLIP rewards.}
     \label{fig:clip-categories}
 \end{figure}
@@ -328,10 +322,20 @@ This helped in mitigating the class preference in CLIP.
 % semantics_model_temperature
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/temperature_comparison.png}
+    \includegraphics[width=\textwidth]{images/temperature_comparison.pdf}
     \caption{Effect of temperature on semantics reward trajectories.}
     \label{fig:clip-temperature}
 \end{figure}
+
+\subsection{Effect of Target Baseline Regularization}
+\label{sec:reg-alpha}
+% semantics_alpha_target
+
+
+\subsection{Effect of Image Baseline Regularization}
+\label{sec:reg-beta}
+% semantics_beta_image
+
 
 \subsection{Effect of Changing Prefix and Suffix}
 \label{sec:prefix-suffix}
@@ -346,22 +350,18 @@ Different prefixes/suffixes and combinations of them also affected the performan
     \label{fig:prefix-suffix}
 \end{figure}
 
-
-\subsection{Effect of Target Baseline Regularization}
-\label{sec:reg-alpha}
-% semantics_alpha_target
-
-
-\subsection{Effect of Image Baseline Regularization}
-\label{sec:reg-beta}
-% semantics_beta_image
-
-
-\subsubsection{Effect of Adding Post-Suffix}
+\subsection{Effect of Adding Post-Suffix}
 \label{sec:post-suffix}
 Following the insights from \cite{waffleclip}, we also experimented with adding concepts and/or a random string of jibberish to the end of the label as a \emph{post-}suffix to see if it affected the reward. 
 
 While it did affect the reward, the effect was not significant, and we could not realize the exact mechanism for choosing a post-suffix that would work well in general.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/post_suffix_comparison.pdf}
+    \caption{Effect of different prefixes and suffixes.}
+    \label{fig:post-suffix}
+\end{figure}
 
 
 \subsection{Effect of Negative Embeddings}
@@ -369,6 +369,15 @@ While it did affect the reward, the effect was not significant, and we could not
 \cite{negprompt} used negative embeddings in their goal-conditioned CLIP reward function to make the reward landscape smoother.
 We experimented with this as well, and instead of using the initial description of the environment as the text baseline, we used a negative embedding of the target creation.
 
+We did not find this to be helpful in our experiments, instead it seemed to flatten the reward landscape.
+We think this is a consequence of CLIP's language encoder being a bag-of-words model, and the negative embeddings being essentially close to the target embeddings, which effectively zeros out the target embeddings.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/baseline_comparison.pdf}
+    \caption{Effect of different baselines.}
+    \label{fig:baseline}
+\end{figure}
 
 \subsection{Effect of Image Texturing}
 \label{sec:image-texturing}
@@ -385,18 +394,17 @@ While rotating did not have a significant effect, we found that shearing the ima
 
 \begin{figure}[H]
     \centering
-    \missingfigure{For the previous four sections, it'll be a grid of plots for a range of \(\alpha\) and \(\beta\) values, with each plot in the grid showing the respective ablation plot from the figure below.}
-    \includegraphics[width=\textwidth]{images/p_clip_hyperparams.png}
-    \caption{Placeholder image for how graphs would look like.}
-    \label{fig:clip-hyperparams}
+    \includegraphics[width=\textwidth]{images/texturing_operations_comparison.pdf}
+    \caption{Effect of texturing and image operations.}
+    \label{fig:texturing-operations}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \missingfigure{As a consolidation of everything before, a bar plot with ablations.}
-    \caption{Ablations of the different methods to improve semantics entropy reward.}
-    \label{fig:clip-ablation}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \missingfigure{As a consolidation of everything before, a bar plot with ablations.}
+%     \caption{Ablations of the different methods to improve semantics entropy reward.}
+%     \label{fig:clip-ablation}
+% \end{figure}
 
 
 \subsection{Entropy Regularization}
@@ -421,10 +429,16 @@ The results of this analysis can be found in appendix \ref{sec:flatnet}.
 To tackle the problem of semantic bias in random images, we collected samples of the false positive image observations from our rollouts, called \emph{adversarial observations}, by filtering out the image observations with low entropy from all our runs and then manually removing the ones that were true positives.
 Then, we searched for the semantics reward regularization hyperparameters that would decrease its specificity while maintaining its sensitivity, i.e. make CLIP less confident in the adversarial images while maintaining its inference for the truly semantically expressive images.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/temperature_adversarial.pdf}
+    \caption{Effect of temperature on discerning true positives from false positives.}
+    \label{fig:clip-temperature-adversarial}
+\end{figure}
+
 \figref{fig:adversarial-images} shows the results of our analysis.
 \begin{figure}[H]
     \centering
-    \missingfigure{Heatmap over the combinations over the adversarial observations.}
     \includegraphics[width=\textwidth]{images/p_adversarial_histogram.png}
     \includegraphics[width=\textwidth]{images/p_adversarial_histogram_1.png}
     \missingfigure{Trajectories of the same CLIP parameters. Compare them to the previous ones from the closeness costs post hoc ablation studies.}
@@ -443,16 +457,26 @@ Once we had found suitable combinations of the controller and environment hyperp
 
 To evaluate these creations, in addition to the cumulative reward, we also asked two human evaluators to manually rank the final creations on a scale of \(1\) to \(5\) based on their apparent semantic expressiveness.
 
-\subsection{Evaluating Regularized Entropy Reward Formulation in Goal-Conditioned Tasks}
-\label{sec:evaluating-regularized-entropy}
-% alpha_target
-% beta_image
+% \subsection{Evaluating Regularized Entropy Reward Formulation in Goal-Conditioned Tasks}
+% \label{sec:evaluating-regularized-entropy}
+% % alpha_target
+% % beta_image
+
+
+% What makes CLIP think that the creation is a certain class?
+% - Apple with the red and the green/yellow triangle
+% - Hammer with the parallelogram and the square
+% - Heart with the red triangle pointing down
+% - House with a triangle and the square
+
 
 
 \subsection{Effect of RaIR}
 \label{sec:effect-rair}
 % compression_precision
 % 1 / semantics_reward_scale
+
+The additional structural bias helped with grounding and coalescing the creations in more human-recognizable forms and patterns.
 
 
 \subsection{Partial Completions on ShapeGridWorld}
