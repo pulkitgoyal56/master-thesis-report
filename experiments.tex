@@ -148,7 +148,7 @@ We destroy the image pixel by pixel using random actions left to right and see h
 
 \begin{figure}[h]
     \centering
-    \missingfigure{Random rollouts in ShapeGridWorld. }
+    \missingfigure{Random rollouts in ShapeGridWorld.}
     \caption{Random rollouts in ShapeGridWorld.}
     \label{fig:sparse-rewards}
 \end{figure}
@@ -313,7 +313,7 @@ This helped in mitigating the class preference in CLIP.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/category_comparison_tangram.pdf}
-    \caption{Effect of the number of categories on CLIP rewards.}
+    \caption{Effect of the number of categories on CLIP inference distribution over a random image.}
     \label{fig:clip-categories}
 \end{figure}
 
@@ -323,7 +323,7 @@ This helped in mitigating the class preference in CLIP.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/temperature_comparison.pdf}
-    \caption{Effect of temperature on semantics reward trajectories.}
+    \caption{Effect of temperature on semantics entropy reward trajectories.}
     \label{fig:clip-temperature}    
 \end{figure}
 
@@ -338,24 +338,24 @@ This helped in mitigating the class preference in CLIP.
 
 \begin{figure}[H]
     \centering
-    \missingfigure{Effect of regularization strength on semantics reward trajectories.}
-    \caption{Effect of regularization strength on semantics reward trajectories.}
+    \includegraphics[width=\textwidth]{images/alpha_beta_temp12avg_noneg.pdf}
+    \caption{Effect of regularization strength on semantics entropy reward trajectories.}
     \label{fig:clip-alpha-beta}
 \end{figure}
 
 
-\subsection{Effect of Changing Prefix and Suffix}
-\label{sec:prefix-suffix}
-% label_prefix
-% label_suffix
-Different prefixes/suffixes and combinations of them also affected the performance of CLIP.
+% \subsection{Effect of Changing Prefix and Suffix}
+% \label{sec:prefix-suffix}
+% % label_prefix
+% % label_suffix
+% Different prefixes/suffixes and combinations of them also affected the performance of CLIP.
 
-\begin{figure}[H]
-    \centering
-    \missingfigure{Effect of changing the prefix suffix.}
-    \caption{Effect of different prefixes and suffixes.}
-    \label{fig:prefix-suffix}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     \missingfigure{Effect of changing the prefix suffix.}
+%     \caption{Effect of different prefixes and suffixes.}
+%     \label{fig:prefix-suffix}
+% \end{figure}
 
 \subsection{Effect of Adding Post-Suffix}
 \label{sec:post-suffix}
@@ -366,7 +366,7 @@ While it did affect the reward, the effect was not significant, and we could not
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post_suffix_comparison.pdf}
-    \caption{Effect of different post-suffixes.}
+    \caption{Effect of different post-suffixes on semantics entropy reward trajectories.}
     \label{fig:post-suffix}
 \end{figure}
 
@@ -382,7 +382,7 @@ We think this is a consequence of CLIP's language encoder being a bag-of-words m
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/baseline_comparison.pdf}
-    \caption{Effect of different text baselines on semantics reward trajectories.}
+    \caption{Effect of different text baselines on semantics entropy reward trajectories.}
     \label{fig:baseline}
 \end{figure}
 
@@ -402,7 +402,7 @@ While rotating did not have a significant effect, we found that shearing the ima
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/texturing_operations_comparison.pdf}
-    \caption{Effect of texturing and image operations on semantics reward trajectories.}
+    \caption{Effect of texturing and image operations on semantics entropy reward trajectories.}
     \label{fig:texturing-operations}
 \end{figure}
 
@@ -446,18 +446,38 @@ Then, we searched for the semantics reward regularization hyperparameters that w
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta_adversarial.pdf}
-    \caption{Effect of regularization strength on semantics reward trajectories.}
+    \caption{Effect of regularization strength on discerning true positives from false positives.}
     \label{fig:clip-alpha-beta-adversarial}
 \end{figure}
 
-\figref{fig:adversarial-images} shows the results of our analysis.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/p_adversarial_histogram.png}
-    \missingfigure{Trajectories of the same CLIP parameters. Compare them to the previous ones from the closeness costs post hoc ablation studies.}
-    \caption{Adversarial analysis.}
-    \label{fig:adversarial-images}
+    \includegraphics[width=\textwidth]{images/post-suffix_adversarial.pdf}
+    \caption{Effect of different post-suffixes on discerning true positives from false positives.}
+    \label{fig:post-suffix-adversarial}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/baseline_adversarial.pdf}
+    \caption{Effect of different text baselines on discerning true positives from false positives.}
+    \label{fig:baseline-adversarial}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/texturing-operations_adversarial.pdf}
+    \caption{Effect of image operations on discerning true positives from false positives.}
+    \label{fig:texturing-operations-adversarial}
+\end{figure}
+
+% \figref{fig:adversarial-images} shows the results of our analysis.
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/p_adversarial_histogram.png}
+%     \caption{Effect of different prefixes and suffixes.}
+%     \label{fig:prefix-suffix-adversarial}
+% \end{figure}
 
 By choosing the right hyperparameters for the semantics reward, we were able to improve the predictive value of CLIP for our environments.
 
