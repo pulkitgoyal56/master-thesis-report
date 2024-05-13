@@ -148,7 +148,7 @@ We destroy the image pixel by pixel using random actions left to right and see h
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/p_sparse_rewards.png}
+    \missingfigure{Random rollouts in ShapeGridWorld. }
     \caption{Random rollouts in ShapeGridWorld.}
     \label{fig:sparse-rewards}
 \end{figure}
@@ -324,7 +324,7 @@ This helped in mitigating the class preference in CLIP.
     \centering
     \includegraphics[width=\textwidth]{images/temperature_comparison.pdf}
     \caption{Effect of temperature on semantics reward trajectories.}
-    \label{fig:clip-temperature}
+    \label{fig:clip-temperature}    
 \end{figure}
 
 \subsection{Effect of Target Baseline Regularization}
@@ -335,6 +335,13 @@ This helped in mitigating the class preference in CLIP.
 \subsection{Effect of Image Baseline Regularization}
 \label{sec:reg-beta}
 % semantics_beta_image
+
+\begin{figure}[H]
+    \centering
+    \missingfigure{Effect of regularization strength on semantics reward trajectories.}
+    \caption{Effect of regularization strength on semantics reward trajectories.}
+    \label{fig:clip-alpha-beta}
+\end{figure}
 
 
 \subsection{Effect of Changing Prefix and Suffix}
@@ -359,7 +366,7 @@ While it did affect the reward, the effect was not significant, and we could not
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post_suffix_comparison.pdf}
-    \caption{Effect of different prefixes and suffixes.}
+    \caption{Effect of different post-suffixes.}
     \label{fig:post-suffix}
 \end{figure}
 
@@ -375,7 +382,7 @@ We think this is a consequence of CLIP's language encoder being a bag-of-words m
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/baseline_comparison.pdf}
-    \caption{Effect of different baselines.}
+    \caption{Effect of different text baselines on semantics reward trajectories.}
     \label{fig:baseline}
 \end{figure}
 
@@ -395,7 +402,7 @@ While rotating did not have a significant effect, we found that shearing the ima
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/texturing_operations_comparison.pdf}
-    \caption{Effect of texturing and image operations.}
+    \caption{Effect of texturing and image operations on semantics reward trajectories.}
     \label{fig:texturing-operations}
 \end{figure}
 
@@ -436,11 +443,17 @@ Then, we searched for the semantics reward regularization hyperparameters that w
     \label{fig:clip-temperature-adversarial}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/alpha_beta_adversarial.pdf}
+    \caption{Effect of regularization strength on semantics reward trajectories.}
+    \label{fig:clip-alpha-beta-adversarial}
+\end{figure}
+
 \figref{fig:adversarial-images} shows the results of our analysis.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/p_adversarial_histogram.png}
-    \includegraphics[width=\textwidth]{images/p_adversarial_histogram_1.png}
     \missingfigure{Trajectories of the same CLIP parameters. Compare them to the previous ones from the closeness costs post hoc ablation studies.}
     \caption{Adversarial analysis.}
     \label{fig:adversarial-images}
