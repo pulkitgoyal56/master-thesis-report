@@ -161,7 +161,7 @@ The developed code to create Tangram-like environments with any number of arbitr
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/tangram_fish_10.pdf}
-    \caption{CLIP on different inversions of the same Tangram creations. \(T = 0.1\).}
+    \caption{CLIP on different inversions of the same Tangram creation. \(T = 0.1\).}
     \label{fig:clip-tangram-inversions}
 \end{figure}
 
@@ -209,16 +209,15 @@ The other important hyperparameters that we did not tweak in our experiments are
 % use_mean_actions: true
 % noise_beta: 3.5
 
-\todo[color=red]{check and complete this}
 \begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{C{4.7cm} L}
         \hline
         Property & Description\\
         \hline
-        \texttt{factor\_decrease\_num} & \\
+        \texttt{factor\_decrease\_num} & Factor by which population size is decreased over iterations (default: \(1\)).\\
         \texttt{alpha} & Momentum term for updating parameters of the sampling distribution.\\
-        \texttt{relative\_init} & \\
+        % \texttt{relative\_init} & \\
         \texttt{keep\_previous\_elites} & A flag to enable passing elites to the next timestamp (outer iteration).\\
         \texttt{shift\_elites\_over\_time} & A flag to enable passing elites over inner iterations.\\
         \texttt{fraction\_elites\_reused} & Fraction of passed elites from the previous inner/outer iteration added to the sampled trajectory set.\\

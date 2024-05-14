@@ -425,8 +425,7 @@ This is given by,
 where \(L_{\iota}\) is the contrastive cosine-similarity loss used to train CLIP and \(p(\bfi_k, \bml)\) is the classification probability distribution of image \(\bfi_k\) over the labels \(\bml\) predicted by CLIP.
 
 We experimented with this regularization method on a toy convolutional neural network (CNN) for classifying handwritten digits, which we called \emph{Flatnet}.
-We found it to be quite effective in smoothing the reward landscape.
-Both our problems from \secref{sec:clip-problems} were relieved -- the reward trajectory was smoother and we observed less semantic bias in random images.
+We found it to be quite effective in smoothing the reward landscape; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory was smoother and we observed less semantic bias in random images.
 
 Yet, we did not use it to fine-tune CLIP to limit the scope of the project given the limited time.
 The results of this analysis can be found in appendix \ref{sec:flatnet}.

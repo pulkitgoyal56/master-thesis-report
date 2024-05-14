@@ -4,37 +4,41 @@
 
 % - Free Play
 Humans are capable of exploring and learning about the world in a self-supervised free-form manner with no explicit predefined goal. 
-This ability is crucial for the development of cognitive skills, acquisition of knowledge about the world \citep{exploration,chu2020play}, and adaptation to new environments.
+Children spend substantial time fiddling with toys, scribbling, or playing with building blocks, eventually creating patterns and structures that are meaningful to them.
+This \emph{free play} has been established as a crucial component for the development of cognitive skills, acquisition of knowledge about the world, and adaptation to new environments \citep{exploration,chu2020play}.
 
 \todo{TODO: Add more developmental psychology and cognitive science references about creative exploration in children and adults}
 
-In the context of artificial intelligence, self-supervised learning has been a topic of interest for researchers in the fields of robotics and machine learning (ML), and the ability to efficiently and sufficiently explore is a fundamental challenge.
+% - Bias towards semantics in cognitive science
+As we constantly seek to understand the meaning (semantics) of the objects and scenes we encounter, free play in humans is deeply intertwined with visual perception, and our inherent preferences for visual semantics play a pivotal role in guiding our curiosity-driven exploration.
+In a study on free play conducted by \citet{diggs}, participants predominantly showed a preference for semantic expression in the form of regular and symmetric patterns.
+This suggests that humans have an intrinsic bias or motivation towards visual semantics, i.e. a propensity to explore their environments in expressive styles that manifest their previous knowledge and understanding of the world.
+
+\vspace{12pt}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/diggs.png}
+    \caption{Some creations from the free-play study on humans by \cite{diggs}. (Taken from the original publication.)}
+    \label{fig:diggs}
+\end{figure}
+\vspace{12pt}
+
+\todo{TODO: Find more references on this bias towards semantics in cognitive science}
+% Cedric Collas and Pierre-Yves Oudeyer have some papers on this bias towards semantics in developmental psychology.
+
+In the context of artificial intelligence, self-supervised learning has been a topic of interest for researchers in the fields of robotics and machine learning (ML), and the ability to efficiently and sufficiently explore remains a fundamental challenge.
 In recent years, reinforcement learning (RL) has emerged as a powerful framework for training agents to learn complex behaviors through trial and error.
 However, most RL algorithms are designed to solve specific tasks and are not well-suited for free-form exploration.
-Complementary formulations of novelty-based or uncertainty-based exploration methods have been proposed to encourage agents to explore their environment in a self-supervised manner \citep{rnd,icm,disagreement,exploration_survey}. 
+Instead, complementary formulations of novelty-based or uncertainty-based exploration methods have been proposed to encourage agents to explore their environment in a self-supervised manner \citep{rnd,icm,disagreement,exploration_survey}. 
 Yet, these methods are often unable to generate diverse and creative behaviors that are characteristic of human exploration.
 
 % image captioning
 
 \todo{TODO: Better segregate the different exploration methods (maybe in methods)}
 
-% - Bias towards semantics in cognitive science
-In a human study on free play conducted by \citet{diggs}, participants predominantly showed a preference for semantic expression in the form of regular and symmetric patterns.
-This suggests that humans have an intrinsic bias or motivation towards visual semantics, i.e. a propensity to explore their environments in expressive styles that manifest their knowledge and understanding of the world.
-
-\todo{Cedric Collas and Pierre-Yves Oudeyer have some papers on this bias towards semantics in developmental psychology.}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{images/diggs.png}
-    \caption{Some creations from the free-play study on humans by \cite{diggs}. (Taken from the original publication.)}
-    \label{fig:diggs}
-\end{figure}
-
-\todo{TODO: Find more references on this bias towards semantics in cognitive science}
-
 % - Vision Language Models
-Our work aims to imbue artificial agents with an effectively similar visual semantics bias during free play.
+This thesis focuses on the role of visual semantic bias in shaping these choices, proposing that our innate visual preferences act as a compass, directing our attention and interactions during free play.
+Our work tried to imbue artificial agents with a visual semantics bias, akin to that in humans.
 We do this by leveraging large vision language models (VLMs).
 Also termed "foundational models", these deep neural networks are trained on massive generic text and image datasets using the recent advances in self-supervised learning. 
 The abstractions of natural language, which reflect the semantics of the world, allow them to learn efficient representations that essentially encapsulate human visual understanding.
@@ -44,25 +48,23 @@ VLMs are capable of successfully transferring to a diverse range of downstream a
 However, the use of foundation models for control and embodied intelligence is relatively new and under-explored.
 % CLIPort (Shridhar et al., 2021) combines CLIP embedding with a transporter network to learn language-conditioned robot manipulation policies from demonstrations.
 % The concurrent works of Khandelwal et al. (2021) and Parisi et al. (2022), study the use of CLIP and other self-supervised representation networks as a perception module for control tasks and observe they outperform traditional ImageNet-pretrained backbones.
-
-In RL, pretraining has been used to improve the representations of the policy network. 
-Pretrained CLIP features have been used in various recent robotics papers to speed up control and navigation tasks.
-These features can condition the policy network [26] or can be fused throughout the visual encoder to integrate semantic information about the environment [37]. 
-The goal of these works is to improve the perception of the policy.
-Pretrained language models can also provide useful initializations for training policies to imitate offline trajectories [42, 27].
-These successes demonstrate that large pre-trained models contain prior knowledge that can be useful for RL. While the existing literature uses pre-trained embeddings directly in the agent, we instead allow the policy network to learn from scratch and only utilize pre-trained embeddings to guide exploration during training (Figure S2).
-We imagine that future work may benefit from combining both approaches.
-
+% 
+% In RL, pretraining has been used to improve the representations of the policy network. 
+% Pretrained CLIP features have been used in various recent robotics papers to speed up control and navigation tasks.
+% These features can condition the policy network [26] or can be fused throughout the visual encoder to integrate semantic information about the environment [37]. 
+% The goal of these works is to improve the perception of the policy.
+% Pretrained language models can also provide useful initializations for training policies to imitate offline trajectories [42, 27].
+% These successes demonstrate that large pre-trained models contain prior knowledge that can be useful for RL. While the existing literature uses pre-trained embeddings directly in the agent, we instead allow the policy network to learn from scratch and only utilize pre-trained embeddings to guide exploration during training (Figure S2).
+% We imagine that future work may benefit from combining both approaches.
+% 
 % - VLM as Rewards
 Recent work \citep{zest,negprompt,vlmrm,lamp} has shown that they can be used as effective abstractions to generate zero-shot rewards for language-guided goal-conditioned tasks.
 There are also other studies on using VLMs for exploration \citep{vlmlang,vlmdistill} that use them for refining intrinsic reward signals by abstracting away pseudo-novelty. 
 
 % - Entropy Rewards
 Yet this is fundamentally different from our goal as we are specifically interested in creative semantic expression.
-Moreover, they do not consider the free-form exploration paradigm that is of interest to us as these studies require a specific goal to be achieved, either self-generated or manually defined.
-
-We instead use VLMs to generate exploratory intrinsic rewards that incentivize the agent to play with the environment and build something meaningful, akin to the semantic expression observed in humans during free play.
-
+Moreover, the existing studies do not consider the free-form exploration paradigm that is of interest to us; they require a specific goal to be achieved, either self-generated or manually defined.
+We instead use VLMs to generate exploratory intrinsic rewards that incentivize the agent to play with the environment and build something meaningful.
 This reward is based on minimizing the entropy of a VLM's predictions over a set of creative possibilities that the environment offers.
 Without any explicit goal specification, our controller exploits this reward to guide the agent to semantically expressive states, i.e. to automatically converge to a state that the VLM finds confidently meaningful.
 
@@ -74,4 +76,4 @@ Furthermore, since there is an implicit structure in meaningful creations, and g
 We tested our formulations in two rich creative environments: the puzzle Tangram and a pixel grid, where we were able to achieve the desired semantically expressive behavior in our planning agent.
 % We show the effect of all the different bells and whistles in an ablation study.
 
-This work provides a novel perspective on imbuing free-form creativity in artificial agents and furthers the use of VLMs as a source of rewards in robotics and AI.
+This thesis provides a novel perspective on imbuing free-form creativity in artificial agents and furthers the use of VLMs as a source of rewards in robotics and AI.
