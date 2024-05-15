@@ -305,4 +305,7 @@ TSWLatexianTemp*
 main.pdf
 
 *.ignore*
-p_*.png
+p_*
+
+sgw/
+tangram/
