@@ -24,7 +24,7 @@ This is reminiscent of the pin-board platform used in the free play study conduc
 By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
 This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in appendix \ref{sec:sgw-details}.
 
-ShapeGridWorld was mostly used in the initial experiments but it later proved to promote noise in CLIP inferences which led to underwhelming results.
+ShapeGridWorld was mostly used in the initial experiments but it eventually proved to promote noise in CLIP inferences which led to underwhelming results.
 To work around the problems, the Tangram environment was developed.
 
 \subsection{Tangram}
@@ -47,7 +47,7 @@ Please refer to appendix \ref{sec:tangram-details} for more technical details ab
 CLIP was trained on a large dataset of captioned natural images foraged from the internet.
 While it generalizes well to many natural-image distributions and has proved to be a powerful zero-shot model for various tasks, it was not clear how well it would perform on sketches and abstract images. 
 
-CLIP has been shown to not perform much better than chance on some tasks as they were not well represented in its pre-training dataset.
+CLIP has been shown to not perform much better than chance on many tasks which were not well represented in its pre-training dataset.
 % For example, it only achieved 88\% accuracy on the handwritten digits of MNIST.
 The authors of CLIP also noted that it is particularly poor on tasks for fine-grained classification such as differentiating models of cars, species of flowers, and variants of aircraft.
 It also struggles with more abstract and systematic tasks such as counting the number of objects in an image.
@@ -148,8 +148,8 @@ We destroy the image pixel by pixel using random actions left to right and see h
 
 \begin{figure}[h]
     \centering
-    \missingfigure{Random rollouts in ShapeGridWorld.}
-    \caption{Random rollouts in ShapeGridWorld.}
+    \includegraphics[width=\textwidth]{images/p_sparse_rewards.png}
+    \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld.}
     \label{fig:sparse-rewards}
 \end{figure}
 
@@ -239,14 +239,14 @@ Yet, we were able to find the minimal set of hyperparameters that allowed the co
 
 \begin{figure}[H]
     \centering
-    \missingfigure{Closeness rollouts in Tangram.}
+    \includegraphics[width=\textwidth]{images/closeness_trajectory_495.pdf}
     \caption{Closeness rollouts in Tangram.}
     \label{fig:closeness-rollouts}
 \end{figure}
 
 To assess and compare the results of different parameters in these experiments we compared their cumulative rewards over the rollouts.
 
-The results for the sparse incremental closeness cost on the Tangram environment are shown in \figref{fig:closeness-rollouts}.
+The results for the dense closeness cost on the Tangram environment are shown in \figref{fig:closeness-rollouts}.
 
 \subsubsection{Tuning Environment Parameters}
 \label{sec:env-hyperparameters}
@@ -444,7 +444,7 @@ Then, we searched for the semantics reward regularization hyperparameters that w
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/alpha_beta_adversarial_2.pdf}
+    \includegraphics[width=\textwidth]{images/alpha_beta_adversarial.pdf}
     \caption{Effect of regularization strength on discerning true positives from false positives.}
     \label{fig:clip-alpha-beta-adversarial}
 \end{figure}
