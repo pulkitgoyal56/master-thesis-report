@@ -143,10 +143,10 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
-    \textcolor{orange}{On the other hand, for \(\gamma = 1\), the projection removes all components of \(\bfo\) orthogonal to ``\(\bfg - \bfg_b\).''
+    For \(\gamma = 1\), there is a trade-off of components of \(\bfo\) orthogonal and parallel to ``\(\bfg - \bfg_b\)''.
     % Thus, it only retains the components that align with the direction from the baseline to the goal.
-    \texttt{-- A claim from the original paper; is incorrect!}
-    }}
+    % \texttt{-- A claim from the original paper; is incorrect!}
+    }
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 1) &= 1 - \dfrac{1}{2}\ \norm{\text{proj}_{V}\psi_I(\bfo) - \psi_L(\bfg)}^2_2\\
     &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
@@ -179,7 +179,9 @@ Let \(\bmp = \text{proj}_{V}\psi_I(\bfo)\), \(\bmo = \psi_I(\bfo),\ \bmg = \psi_
     % &= \underbrace{\gamma\left(1 - \dfrac{\gamma}{2}\right)}_{\textstyle\text{constant}} -\ \underbrace{\gamma \left(1 - \dfrac{\gamma}{2}\right)\left(\bmo \cdot \dfrac{\left(\bmg - \bmg_b\right)}{\norm{\bmg - \bmg_b}_2}\right)^2}_{\text{Term \#1 (\(\perp\))}} &&+ \underbrace{\left(\left(1 - \dfrac{\gamma}{2}\right) \bmg - \dfrac{\gamma}{2}\ \bmg_b\right) \cdot \bmo}_{\text{Term \#2 (\(\parallel\))}}.
     \label{eq:vlmrm-equivalence-end}
 \end{align}
-Term \#1 captures the projection perpendicular to the direction from the baseline to the goal and Term \#2 captures the trade-off of projection along this direction and the goal. We adopt the latter as the basis to add baseline regularization to the semantics-entropy reward and consider similar delta embeddings for the image observation space as well.
+Term \#1 captures the projection perpendicular to the direction from the baseline to the goal and Term \#2 captures the trade-off of projection along this direction and the goal.
+To simplify, we consider only the latter in our formulation as it contains the desired information about the goal.
+We adopt this term as the basis to add baseline regularization to the semantics-entropy reward and consider similar delta embeddings for the image observation space as well.
 
 First, let us formulate a regularized similarity metric for an image observation \(\bfi \in \cI\) with baseline image \(\bfi_b \in \cI\) and target label \(\bfl \in \cL\) with baseline \(\bfl_b \in \cL\);
 \begin{equation}
@@ -206,7 +208,8 @@ The regularized semantics-entropy reward is thus defined as,
     &= \sum_{\bfc_k \in \bmc} \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T) \log \hat{p}(\bfc_k \mid \bfo; \bfo_b, \bmc, \bfc_b, \alpha, \beta, T). \nonumber
 \end{align}
 The text baseline could either be the initial state description or the negation of the goal.
-    
+
+\newpage
 \subsection{Regularity Reward}
 \label{sec:regularity-reward}
 In addition to the entropy reward, the semantic reward also consists of regularity as an intrinsic reward \citep{rair}, which encourages the agent to create regular and symmetric patterns in its creations, which could promote semantic expression.

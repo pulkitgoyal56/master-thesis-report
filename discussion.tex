@@ -4,38 +4,49 @@
 
 % Summary of CLIP reward analysis
 Semantic expression is an innate nature of human exploration during creative free-play.
-Motivated by these observations from experiments in cognitive science and developmental psychology, in this thesis, we tried to leverage multimodal foundational models to realize this behaviour in artificial agents.
-We built upon recent work on using VLMs as a source of goal-conditioned rewards to formulate the semantics entropy reward to give the agent a freedom akin to free-play and enable it to reach semantically meaningful states.
+Motivated by these observations from experiments in cognitive science and developmental psychology, in this thesis, we tried to leverage multimodal foundational models to realize this behavior in artificial agents.
+We formulated the semantics entropy reward to give the agent a freedom akin to free-play and enable it to reach semantically meaningful states.
 
 To test this reward formulation in creative settings, we extended the ShapeGridWorld environment and created the Tangram environment.
-Subsequently, we analysed the performance of the popular vision language model CLIP on these abstract settings and developed methods to improve its use for our purposes.
+Subsequently, we showed the performance of the popular vision language model CLIP on these abstract settings and developed methods to improve its use for our purposes.
+We demonstrate that CLIP is noisy and consequently has problems such as sparse rewards and semantic biases in random images.
+
+Thus we built upon recent work on using VLMs as a source of goal-conditioned rewards to formulate the regularized semantics entropy reward.
+We further showed how the different components of the revised reward formulation affect the reward trajectories with our initial experiments using the ersatz closeness reward trajectories in a post hoc simulation and adversarial analysis.
+Subsequently, we used insights from these experiments to guide the hyperparameter choice and search in the main experiments using the full reward.
 
 % Comments on regularization
-We demonstrate that CLIP is noisy and requires additional regularization, but with careful tweaking of the hyperparameters, the regularized semantics entropy reward can indeed be used to guide the agent towards semantically meaningful states.
+We found that tweaking the regularization strengths with the temperature was enough to achieve good reward signals.
+Their effects are complementary but not quite the same.
+Regularization improved reward trajectories by aligning the reward function to semantically meaningful states in the CLIP embedding space which makes the reward signals more dense and a better guide to semantic expression.
+The temperature helps smoothen the reward trajectories and reduce the noise of CLIP in imperfect creations, thus reducing the semantic bias in random images.
+Moderate values of the regularization strengths \(\sim (0.3, 0.3)\) and temperature somewhere between \(0.01 - 0.02\)  were found to be the best for the reward signal to guide the agent to semantically meaningful states, but slight variations in these values did not have a significant effect on the reward signal.
 
-Additionally, we show that the complementary RaIR reward was helpful in improving the quality of the final creations.
+Other hyperparameters such as the use of negative embeddings, and tweaking the rendering function (adding texturing or modifying the images with other operations) had different effects on the reward signal, but we found them to be less important than the regularization strengths and temperature.
+Additionally, we show that the complementary RaIR reward helped improve the quality of the final creations in most conditions.
 
-We did not get major performance improvements with additional prompt engineering.
+We used our insights into these method to successfully create a range of semantically expressive creations in both environments.
 
-Since the controller uses finite-horizon planning, we do not necessarily converge to global optima.
+% Since the controller uses finite-horizon planning, we do not necessarily converge to global optima.
+% Currently, we are restricted to fully-observable MDPs.
 
-
-Currently, we are restricted to fully-observable MDPs.
-
-We embrace object-centric representations as a suitable inductive bias in RL, where the observations per object (consisting of poses and velocities) are naturally disentangled. We also assume that this state space is interpretable such that we take, for instance, only the positions and color. The representational space, in which the RaIR measure
-is computed, is specified by the designer. Exciting future work would be to learn a representation under which the human relevant structures in the real-world (e.g. towers, bridges) are indeed regular.
-
-
-
+% We embrace object-centric representations as a suitable inductive bias in RL, where the observations per object (consisting of poses and velocities) are naturally disentangled. We also assume that this state space is interpretable such that we take, for instance, only the positions and color. The representational space, in which the RaIR measure
+% is computed, is specified by the designer. Exciting future work would be to learn a representation under which the human-relevant structures in the real-world (e.g. towers, bridges) are indeed regular.
 
 
 % Limitations of the work and failures
 % - Should/Could improve with better models
-Although we were not able to overcome 
+Although we were not able to overcome the class preference of CLIP and we got some categories such as ``house'' in Tangram much more than others.
+Even removing these categories just gave rise to other categories that were preferred by CLIP.
 We think that these failures are related to capability limitations in the current VLM models.
-Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
+Perhaps using newer models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the bigger LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
 
-\todo{Summary of things. Things that could be helpful.}
+We also explored the possibility of fine-tuning CLIP with entropy regularization and re-training with random images to decrease its noise with our toy models, but did not scale it to the full CLIP model.
+We got some promising results with the toy models, and we think that this could be a good direction for future work.
+
+Additionally, introducing a temporal dependency in the strengths of the regularity and semantics reward might lead to better results as RaIR might help start with the creation and bring it to a regime where the regularization methods of the semantics reward can be more effective in guiding it to a semantically meaningful state.
+
+% \todo{Summary of things. Things that could be helpful.}
 
 
 % Comments on the environments
@@ -45,4 +56,4 @@ Perhaps using bigger models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{op
 % Comments on creativity
 
 % Comments on exploration
-When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), it can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.
+When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), the semantics entropy reward can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.

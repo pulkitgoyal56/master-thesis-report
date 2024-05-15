@@ -155,6 +155,12 @@ If the dimension is continuous (because its \texttt{size} is set to \(1\)), the 
 For example, if \texttt{x\_size} is \(1\) and \texttt{x\_step} is \(3\), the resulting support of the action distribution for any action sampled for x-dimension will be \([-1/3, 1/3]\).
 For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1] \mapsto \texttt{True}\)).
 
+% \todo{add staging images}
+% staging_crop.png
+% staging_crop_color.png
+% staging_nocrop.png
+% staging_nocrop_color.png
+
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
 
 \newpage
@@ -352,24 +358,78 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
     \centering
     \includegraphics[width=\textwidth]{images/clip_inference_times.pdf}
     \caption{Comparing times of different original CLIP models for embedding a single image.}
-    \label{fig:clip-comparison}
+    \label{fig:clip-time-comparison}
+\end{figure}
+
+\figref{fig:clip-traj-comparison} shows the trajectories of different CLIP models on the Tangram environment.
+\begin{figure}[h]
+    \centering
+    % model_comparison.pdf
+    \includegraphics[width=\textwidth]{images/model_comparison.pdf}
+    % model_comparison_boxplot.pdf
+    \includegraphics[width=\textwidth]{images/model_comparison_boxplot.pdf}
+    % model_samples.pdf
+    \includegraphics[width=0.9\textwidth]{images/model_samples.pdf}
+    \caption{Comparing reward trajectories of different original CLIP models on black and white Tangram environment. 10 seeds were used for each model.}
+    \label{fig:clip-traj-comparison}
+\end{figure}
+
+\begin{figure}[h]
+    \centering    
+    % model_comparison_color.pdf
+    \includegraphics[width=\textwidth]{images/model_comparison_color.pdf}
+    % model_comparison_boxplot_color.pdf
+    \includegraphics[width=\textwidth]{images/model_comparison_boxplot_color.pdf}
+    % model_samples_color.pdf
+    \includegraphics[width=0.9\textwidth]{images/model_samples_color.pdf}
+    \caption{Comparing reward trajectories of different original CLIP models on a colored Tangram environment. 10 seeds were used for each model.}    
 \end{figure}
 
 
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller toy setup with convolutional neural networks trained as an number classifier on ShapeGridWorld images using the MNIST dataset.
-We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, labelled with an uniform distribution of confidence over the output of the model.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller toy setup with convolutional neural networks trained as a number classifier on ShapeGridWorld images using the MNIST dataset.
+We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, labeled with a uniform distribution of confidence over the output of the model.
 
 We treated the entropy regularization strength and the addition of random samples as hyperparameters and trained a series of models with different combinations of the two.
-\figref{fig:flatnet-comparison} shows the resulting trajectories over the 
+% \figref{fig:flatnet-comparison} shows the resulting trajectories of the models.
 
-\begin{figure}[h]
+The models were trained with the Adam optimizer \citep{adam} with a learning rate of \(0.001\) and a batch size of \(128\).
+\tabref{tab:flatnet-models} summarizes the models we trained.
+\vspace{12pt}
+\begin{table}[H]
     \centering
-    \missingfigure{Flatnet comparison over the 495 closeness trajectory}
-    \caption{Comparing times of different original CLIP models for embedding a single image.}
-    \label{fig:flatnet-comparison}
-\end{figure}
+    \begin{tabularx}{0.7\textwidth}{c c c c}
+    \hline
+        Serial & Name & Random Training Data Size & \(\lambda\) \\ \hline
+        Flatnet 0 (lite) & flatnetlite & 0 & 0.0 \\ \hline
+        Flatnet 1 (lite) & flatnetlite & 0 & 0.2 \\ \hline
+        Flatnet 2 & flatnet & 0 & 0.2 \\ \hline
+        Flatnet 3 & flatnet & 0 & 0.4 \\ \hline
+        Flatnet 4 & flatnet & 0 & 0.6 \\ \hline
+        Flatnet 5 & flatnet & 0 & 0.8 \\ \hline
+        Flatnet 6 & flatnet & 0 & 1.0 \\ \hline
+        Flatnet 7 & flatnet & 10000 & 0.0 \\ \hline
+        Flatnet 8 & flatnet & 10000 & 0.3 \\ \hline
+        Flatnet 9 & flatnet & 10000 & 0.7 \\ \hline
+        Flatnet 10 & flatnet & 10000 & 0.8 \\ \hline
+        Flatnet 11 & flatnet & 10000 & 1.0 \\ \hline
+        Flatnet 12 & flatnet & 0 & 1.0 \\ \hline
+        Flatnet 13 & flatnet & 60000 & 0.0 \\ \hline
+        Flatnet 15 & flatnet & 0 & 0.0 \\ \hline
+    \end{tabularx}
+    \caption{Summary of the Flatnet models.}
+    \label{tab:flatnet-models}
+\end{table}
+
+Both, the entropy regularization and the addition of random samples, helped improve the reward trajectories of the models.
+
+% \begin{figure}[h]
+%     \centering
+%     \missingfigure{Flatnet comparison over the 495 closeness trajectory}
+%     \caption{Comparing times of different original CLIP models for embedding a single image.}
+%     \label{fig:flatnet-comparison}
+% \end{figure}
 
 % \chapter{Descriptive List of Main Hyperparameters}
 % \label{sec:hyperparameters}
@@ -451,6 +511,82 @@ This also helped to improve the simulation times significantly.\\
 These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/tree/preprocess-tweaks}.
 
 
+
+\chapter{Additional Simulations on ShapeGridWorld}
+\label{sec:sgw-semantics-additional}
+
+% Categories
+% categories_boxplot_sgw_rair.pdf
+% categories_comparison_sgw_rair.pdf
+% categories_samples_sgw_rair.pdf
+The effect of the choice of categories on the semantics entropy reward in ShapeGridWorld was also significant.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair.pdf}
+    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:categories-boxplot-sgw}
+\end{figure}
+
+\figref{fig:categories-sgw} shows the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw} shows some samples of the creations with different categories.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_rair.pdf}
+    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:categories-sgw}
+    \vspace{12pt}
+    \includegraphics[width=0.5\textwidth]{images/categories_samples_sgw_rair.pdf}
+    \caption{Samples of creations with different categories in ShapeGridWorld.}
+    \label{fig:categories-samples-sgw}
+\end{figure}
+
+% Mode
+% mode_comparison_sgw.pdf
+% mode_samples_sgw.pdf
+Observing the effect of the grayscale values on the effect of RaIR in ShapeGridWorld, we also ran simulations with different categories of colors in the pixels.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/mode_comparison_sgw.pdf}
+    \caption{Effect of the presence of grayscale pixels on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:mode-sgw}
+    \vspace{12pt}
+    \includegraphics[width=0.5\textwidth]{images/mode_samples_sgw.pdf}
+    \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
+    \label{fig:mode-samples-sgw}
+\end{figure}
+
+% Threshold Ratio
+% n_objects_comparison_sgw.pdf
+% n_objects_samples_sgw.pdf
+
+% Object Persistency
+% object_persistency_comparison_sgw.pdf
+% object_persistency_samples_sgw.pdf
+
+% nobj_mode_rair_sgw_boxplot.pdf
+
+
+\chapter{Additional Graphs}
+\label{sec:additional-graphs}
+
+% alpha_beta-semantics_std_rair.pdf
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
+    \caption{Standard deviation of regularization strength performance on the semantics reward.}
+    \label{fig:alpha_beta-semantics_std_rair}
+\end{figure}
+
+
+% categories_boxplot_sgw_norair.pdf
+% categories_comparison_sgw_norair.pdf
+% categories_samples_sgw_norair.pdf
+
+% creations_distribution_sgw.pdf
+
+
 \chapter{Curated Gallery}
 \label{sec:gallery}
 
@@ -491,7 +627,15 @@ These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.66\textwidth]{images/curation_letters.pdf}
+    \includegraphics[width=0.8\textwidth]{images/curation_letters.pdf}
     \caption{Letters on Tangram.}
     \label{fig:curation_letters}
+\end{figure}
+
+% sgw_reruns.pdf
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/sgw_reruns.pdf}
+    \caption{Letters on ShapeGridWorld.}
+    \label{fig:sgw-trajectories}
 \end{figure}
