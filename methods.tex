@@ -130,7 +130,7 @@ Their formulation is given by,
 \end{equation}
 where \(V := \frac{\psi_I(\bfg) - \psi_L(\bfg_b)}{\norm{\psi_I(\bfg) - \psi_L(\bfg_b)}}\) is the direction spanned by the vector between the embeddings of \(\bfg\) and \(\bfg_b\), \(\text{proj}_{V}\psi_I(\bfo) := (\bfo \cdot V)\,V\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the trade-off/regularization strength.
 Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equal to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\psi_I(\bfo)\) perpendicular to this direction.
-The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).
+The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\)\footnote{We want to note here that the official implementation of VLM-RM available at \url{https://github.com/AlignmentResearch/vlmrm} is slightly different from the formulation presented in the original paper, which is used here. Simplifying the other formulation leads to an additional term in the simplified form, but the overall essence of the reward from a conceptual standpoint remains the same.}.
 % 
 % \begingroup
 % \allowdisplaybreaks
@@ -155,6 +155,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
 % Mathematically, this is not equivalent to eq. \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
 % \endgroup
 
+\newpage
 \subsubsection{Regularized Semantics Entropy Reward}
 \label{sec:entropy-reward-reg}
 We combine these ideas to derive a \emph{baseline regularized semantics-entropy reward}.

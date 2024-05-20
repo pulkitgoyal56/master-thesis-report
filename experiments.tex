@@ -91,7 +91,7 @@ The bottom row shows the accuracy (percentage of correct predictions) for each o
 \begin{wrapfigure}{r}{0.4\textwidth}
     \centering
     \includegraphics[width=0.36\textwidth]{images/hypercategory_comparison_2.pdf}
-    \caption{CLIP on different specificity of labels.}
+    \caption{CLIP on different levels of hypernymy and hyponymy of labels.}
     \label{fig:clip-hypercategory}
 \end{wrapfigure}
 
@@ -146,11 +146,12 @@ This results in a sparse semantics entropy reward landscape.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/p_sparse_rewards.png}
+    \includegraphics[width=\textwidth]{images/sparse_rewards.pdf}
     \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld. Going from left to right in time, we perturb the grid pixel-by-pixel and observe CLIP's confidence change. The top row shows the distribution of CLIP's inferences over the labels ``giraffe'', ``number'', and ``random'' in red, green, and blue respectively. The first and last images in the bottom row are the initial and final images respectively.
     The middle three images in the bottom row show the images where the distribution changed its trend, at the last time when ``giraffe'' was the most confident category, at the time when the distribution was equally split between the categories, and the first time when ``random'' was the confident category.
     They are all just a few pixels away from each other but essentially still the same, yet they are much different for CLIP.}
     \label{fig:sparse-rewards}
+    
 \end{figure}
 
 Sparse rewards are a problem in reinforcement learning in general because underly a lack of continuous feedback. 
@@ -232,7 +233,7 @@ The dense closeness cost is formulated as the \(L^2\) distance between the curre
 \end{equation}
 where \(\bfi, \bft \in \cS\) are the current and target creations respectively, \(\varepsilon\) is a small threshold, and \(\bm{1}_\varepsilon\) is the indicator function such that \(\bm{1}_\varepsilon(x) = 1\) if \(|x| > \varepsilon\) and \(0\) otherwise.
 
-% \todo{add more details about the hyperparameters optimized here.}
+\todo{add more details about the hyperparameters optimized here.}
 
 Using the closeness reward/cost formulations, we performed an extensive grid search over the many hyperparameters of the iCEM controller and the environment together to find the best combinations and study their effects.
 To assess and compare the results in these experiments, we compared their cumulative rewards over the rollouts.
@@ -244,7 +245,8 @@ The tuning was more difficult under sparse incremental rewards, which required a
 This directly corresponds to a higher computational cost.
 
 The cost aggregation functions \texttt{best} and \texttt{sum} were comparable in performance and performed better than \texttt{best-\emph{l}}, \emph{last}, and \emph{last-\emph{l}}.
-Although the greedier \texttt{best} aggregation function was more efficient in reaching the goal, for our semantics reward simulations, we mainly considered the \texttt{sum} aggregation function as it's more robust to noise due to its summation.
+We typically employed the \texttt{sum} aggregation function as it is more robust to noise due to its summation.
+In other runs, we found the greedier \texttt{best} aggregation function to be more efficient in reaching the goal and escaping local minima.
 
 The comparison results are omitted here for brevity. Please refer to the appendix sections \ref{sec:icem-details} and \ref{sec:environments-details} for more details about these hyperparameters of the iCEM controller and the environments respectively.
 
@@ -446,21 +448,23 @@ Another promising way to make the reward landscape of CLIP smoother is to fine-t
 This is given by,
 \begin{equation}
     \label{eq:entropy-regularization}
-    L(\bmi, \bml) = L_{\iota}(\bmi, \bml) \underbrace{- \sum_{\bfi_k \in \bmi}\sum_{\bfl_j \in \bml} p(\bfl_j; \bfi_k, \bml) \log p(\bfl_j; \bfi_k, \bml)}_{\text{Entropy Regularization}},\\
+    L(\bmi, \bml) = L_{\iota}(\bmi, \bml) \underbrace{+ \kappa \sum_{\bfi_k \in \bmi}\sum_{\bfl_j \in \bml} p(\bfl_j; \bfi_k, \bml) \log p(\bfl_j; \bfi_k, \bml)}_{\text{Entropy Regularization}},\\
 \end{equation}
-where \(L_{\iota}\) is the contrastive cosine-similarity loss used to train CLIP and \(p(\bfi_k, \bml)\) is the classification probability distribution of image \(\bfi_k\) over the labels \(\bml\) predicted by CLIP.
+where \(L_{\iota}\) is the contrastive cosine-similarity loss used to train CLIP, $\kappa$ is the regularization strength, and \(p(\bfi_k, \bml)\) is the classification probability distribution of image \(\bfi_k\) over the labels \(\bml\) predicted by CLIP.
 
-We experimented with this regularization method on a toy convolutional neural network (CNN) for classifying handwritten digits, which we called \emph{Flatnet}.
-We found it to be quite effective in smoothing the reward landscape; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory was smoother and we observed less semantic bias in random images.
+We experimented with this regularization method to train a toy convolutional neural network (CNN) for classifying handwritten digits from the MNIST dataset \citep{mnist}, which we called \emph{Flatnet}.
+Additionally, we used this in tandem with an augmented training dataset with varying sizes of random-image samples labeled with a uniform distribution over the categories.
 
-Yet, we did not use it to fine-tune CLIP to limit the scope of the project given the limited time.
-More information of this analysis can be found in appendix \ref{sec:flatnet}.
+This was quite effective in reducing the noise of the model; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory was smoother, and we observed less semantic bias in random images and even less class preference for random inputs.
+
+Yet, we did not use it to fine-tune CLIP to constrain the scope of the project given the limited time.
+More information on this analysis can be found in appendix \ref{sec:flatnet}.
 
 % \newpage
 \subsection{Adversarial Performance}
 \label{sec:adversarial-performance}
 To tackle the problem of semantic bias in random images, we collected samples of the false positive image observations from our rollouts, called \emph{adversarial observations} (\figref{fig:semantic-bias-random}), by filtering out the image observations with low entropy from all our runs and then manually removing the ones that were true positives.
-Then, we searched for the semantics reward regularization hyperparameters that make CLIP less confident in the adversarial images while maintaining its inference for the truly semantically expressive images, i.e. decrease its specificity while maintaining its sensitivity.
+Then, we searched for the semantics reward regularization hyperparameters that make CLIP less confident in the adversarial images while maintaining its inference for the truly semantically expressive images, i.e. increase its specificity while maintaining its sensitivity.
 
 We used the difference in mean entropy of distributions for the false positive and true positive images as a metric to gauge the performance of CLIP.
 \figref{fig:clip-temperature-adversarial} to \ref{fig:post-suffix-adversarial} show the effect of temperature, regularization, negative embeddings, and post-suffixes on discerning true positives from false positives.
@@ -583,13 +587,14 @@ We were generally able to generate meaningful creations in both environments, bu
 
 We further investigated the effects of a few hyperparameters on the quality of the creations.
 To evaluate these creations, in addition to the cumulative reward, we also asked three human evaluators to manually rank the final creations on a scale of \(1\) to \(5\) based on their apparent semantic expressiveness.
+In the following parts, shown creations (in Tangram) not particularly interesting according to these rankings are desaturated to avoid visual clutter.
 
 These simulations were computationally expensive and required a lot of time to run.
 We were limited in our ability to fine-tune all the hyperparameters to the fullest extent, so we focused on the main few -- the regularization strengths and the effect of additional regularity reward RaIR.
 We showcase the results of these analyses in the following sections.
 
 While we ran many additional simulations to confirm our intuitions about the hyperparameters, only a few of our analyses used enough restarts with different random seeds to have enough statistical power to make justified claims.
-Interesting creations from these simulations are shown in \secref{sec:gallery}.
+Interesting creations from these simulations are curated in \secref{sec:gallery}\footnote{Additionally, videos and summary graphs of some simulations are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}}.
 
 % \subsection{Evaluating Regularized Entropy Reward Formulation in Goal-Conditioned Tasks}
 % \label{sec:evaluating-regularized-entropy}
@@ -609,7 +614,7 @@ We ran simulations with different regularization strengths to reconcile their ef
     \caption{Effect of regularization strengths on semantics entropy reward trajectories.}
     \label{fig:alpha-beta-trajectories}
 \end{figure}
-% \todo{Explain this}
+\todo{Explain this}
 \vspace{12pt}
 
 We find that the mid-values of the regularization strengths are the best for the performance of the controller, which is in line with the results from the ablation study in \secref{sec:reg-alpha-beta}.
@@ -637,6 +642,8 @@ Indeed, adding the structural bias from RaIR helped with grounding and coalescin
 This was particularly helpful in the beginning of the planning as the agent starts building regular structures to bring it closer to a semantically meaningful state which is then further refined by the semantics entropy reward.
 We found that creations simulated with RaIR were much more recognizable than without it.
 \figref{fig:rair} shows the effect and \figref{fig:rair-samples} shows some samples of the creations with and without RaIR.
+
+\todo{talk about regularity after semantics}
 
 % rair_comparison.pdf
 \begin{figure}[h]
@@ -674,7 +681,7 @@ We also tested this in ShapeGridWorld, where the effect of RaIR was only margina
     \label{fig:rair-sgw}
     \vspace{12pt}
     \includegraphics[width=\textwidth]{images/rair_samples_sgw_categories.pdf}
-    \caption{Samples of creations with and without RaIR in ShapeGridWorld.}
+    \caption[Samples of creations with and without RaIR in ShapeGridWorld.]{Samples of creations with and without RaIR in ShapeGridWorld. Using the \texttt{best} aggregation function.}
     \label{fig:rair-samples-sgw}
 \end{figure}
 

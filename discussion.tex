@@ -37,6 +37,11 @@ We used our insights into these method to successfully create a range of semanti
 % Limitations of the work and failures
 % - Should/Could improve with better models
 Although we were not able to overcome the class preference of CLIP and we got some categories such as ``house'' in Tangram much more than others.
+
+\todo{quantify the prefernce. N >> R > S in SGW.}
+\todo{Talk about how certain features were characteristic of a particular creation.}
+\todo{talk about lambda, the weight of the semantics reward.}
+
 Even removing these categories just gave rise to other categories that were preferred by CLIP.
 We think that these failures are related to capability limitations in the current VLM models.
 Perhaps using newer models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the bigger LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
@@ -46,7 +51,7 @@ We got some promising results with the toy models, and we think that this could 
 
 Additionally, introducing a temporal dependency in the strengths of the regularity and semantics reward might lead to better results as RaIR might help start with the creation and bring it to a regime where the regularization methods of the semantics reward can be more effective in guiding it to a semantically meaningful state.
 
-% \todo{Summary of things. Things that could be helpful.}
+\todo{Summary of things. Things that could be helpful.}
 
 
 % Comments on the environments
