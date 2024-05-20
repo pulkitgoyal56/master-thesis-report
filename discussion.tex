@@ -5,7 +5,7 @@
 % Summary of CLIP reward analysis
 Semantic expression is an innate nature of human exploration during creative free-play.
 Motivated by these observations from experiments in cognitive science and developmental psychology, in this thesis, we tried to leverage multimodal foundational models to realize this behavior in artificial agents.
-We formulated the semantics entropy reward to give the agent a freedom akin to free-play and enable it to reach semantically meaningful states.
+We formulated the semantics entropy reward to give the agent a freedom akin to free play and enable it to reach semantically meaningful states.
 
 To test this reward formulation in creative settings, we extended the ShapeGridWorld environment and created the Tangram environment.
 Subsequently, we showed the performance of the popular vision language model CLIP on these abstract settings and developed methods to improve its use for our purposes.
@@ -25,7 +25,7 @@ Moderate values of the regularization strengths \(\sim (0.3, 0.3)\) and temperat
 Other hyperparameters such as the use of negative embeddings, and tweaking the rendering function (adding texturing or modifying the images with other operations) had different effects on the reward signal, but we found them to be less important than the regularization strengths and temperature.
 Additionally, we show that the complementary RaIR reward helped improve the quality of the final creations in most conditions.
 
-We used our insights into these method to successfully create a range of semantically expressive creations in both environments.
+We used our insights into these methods to successfully create a range of semantically expressive creations in both environments.
 
 % Since the controller uses finite-horizon planning, we do not necessarily converge to global optima.
 % Currently, we are restricted to fully-observable MDPs.
@@ -38,13 +38,24 @@ We used our insights into these method to successfully create a range of semanti
 % - Should/Could improve with better models
 Although we were not able to overcome the class preference of CLIP and we got some categories such as ``house'' in Tangram much more than others.
 
-\todo{quantify the prefernce. N >> R > S in SGW.}
+\todo{quantify the prefernce. N \>\> R \> S in SGW.}
 \todo{Talk about how certain features were characteristic of a particular creation.}
+% - Apple with the red and the green/yellow triangle
+% - Hammer with the parallelogram and the square
+% - Heart with the red triangle pointing down
+% - House with a triangle and the square
 \todo{talk about lambda, the weight of the semantics reward.}
+\todo{Add adaptive RaIR weight}
+\todo{adding control over selection}
+\todo{talk about local regularity}
+\todo{And additional global hierarchical regularity?}
+
+\todo{link to CEEUS and define the state space}
 
 Even removing these categories just gave rise to other categories that were preferred by CLIP.
 We think that these failures are related to capability limitations in the current VLM models.
 Perhaps using newer models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the bigger LAION-5B dataset \citep{laion5b} might lead to some performance improvements.
+% Bottlenecked by open-sourced vision-language models → if we cannot denoise the CLIP signal well enough, we can just use perhaps ChatGPT4 with vision to do some experiments
 
 We also explored the possibility of fine-tuning CLIP with entropy regularization and re-training with random images to decrease its noise with our toy models, but did not scale it to the full CLIP model.
 We got some promising results with the toy models, and we think that this could be a good direction for future work.
@@ -62,3 +73,36 @@ Additionally, introducing a temporal dependency in the strengths of the regulari
 
 % Comments on exploration
 When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), the semantics entropy reward can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.
+
+
+
+\todo{Use conclusion from vlm-rm abstract}
+% We introduced a method to use vision-language models (VLMs) as reward models for reinforcement
+% learning (RL), and implemented it using CLIP as a reward model and standard RL algorithms. We
+% used VLM-RMs to solve classic RL benchmarks and to learn to perform complicated tasks using a
+% simulated humanoid robot. We observed a strong scaling trend with model size, which suggests that
+% future VLMs are likely to be useful as reward models in an even broader range of tasks.
+% Limitations. Fundamentally, our approach relies on the reward model generalizing from a text
+% description to a reward function that captures what a human intends the agent to do. Although
+% the concrete failure cases we observed are likely specific to the CLIP models we used and may
+% be solved by more capable models, some problems will persist. The resulting reward model will
+% be misspecified if the text description does not contain enough information about what the human
+% intends or the VLM generalizes poorly. While we expect future VLMs to generalize better, the risk
+% of the reward model being misspecified grows for more complex tasks, that are difficult to specify
+% in a single language prompt, and in practical applications with larger potential risks. Therefore,
+% when using VLM-RMs in practice it will be crucial to use independent monitoring to ensure agents
+% trained from automated feedback act as intended. For complex tasks, it will be prudent to use a
+% multi-step reward specification, e.g., by using a VLM capable of having a dialogue with the user
+% about specifying the task.
+% Future Work. We were able to learn complex tasks using a simple approach to construct a reward
+% model from CLIP. There are many possible extensions of our implementation that may be able to improve performance but were not necessary in our tasks. Finetuning VLMs for specific environments
+% is a natural next step to make them more useful as reward models. To move beyond goal-based
+% supervision, future VLM-RMs could use VLMs that can encode videos instead of images. To move
+% towards specifying more complex tasks, future VLM-RMs could use dialogue-enabled VLMs.
+% For practical applications, it will be particularly important to ensure robustness and safety of the
+% reward model. Our work can serve as a basis for studying the safety implications of VLM-RMs. For
+% instance, future work could investigate the robustness of VLM-RMs against optimization pressure
+% by RL agents and aim to identify instances of specification gaming.
+% More broadly, we believe VLM-RMs open up exciting avenues for future research to build useful
+% agents on top of pre-trained models, such as building language model agents and real world robotic
+% controllers for tasks where we do not have a reward function available.

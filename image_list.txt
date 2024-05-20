@@ -44,6 +44,10 @@ p_clip_hyperparams.png
 p_random_semantic_bias.png
 p_sparse_rewards.png
 
+sim_rair_later_bird
+Flatnet 15
+Flatnet 3
+
 
 # TBU
 alpha_beta-semantics_rair.pdf
@@ -153,19 +157,20 @@ categories_samples_sgw_norair.pdf
 
 creations_distribution_sgw.pdf
 
-curation_animals.pdf
 curation_bird.pdf
 curation_chair.pdf
+curation_house.pdf
+curation_fish.pdf
+curation_heart.pdf
+curation_letters.pdf
+
+curation_animals.pdf
 curation_faces_a.pdf
 curation_faces_all.pdf
-curation_fish.pdf
 curation_fish_.pdf
 curation_fish_2.pdf
 curation_gun_all.pdf
-curation_heart.pdf
 curation_heart_all.pdf
-curation_house.pdf
-curation_letters.pdf
 curation_objects.pdf
 curation_sgw_letters.pdf
 curation_sgw_N.pdf
@@ -177,9 +182,3 @@ curation_teapot_.pdf
 curation_teapot_all.pdf
 curation_tree.pdf
 curation_tree_.pdf
-
-% What makes CLIP think that the creation is a certain class?
-% - Apple with the red and the green/yellow triangle
-% - Hammer with the parallelogram and the square
-% - Heart with the red triangle pointing down
-% - House with a triangle and the square

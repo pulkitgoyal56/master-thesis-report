@@ -1,3 +1,10 @@
+\makeatletter
+\addtocontents{toc}{\let\protect\l@chapter\protect\l@section}
+\addtocontents{toc}{\let\protect\l@section\protect\l@subsection}
+\makeatother
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\addtocontents{lof}{\protect\pagebreak}
+
 \chapter{Environments' Details}
 \label{sec:environments-details}
 The sections of this chapter provide additional details about the custom environments used in our experiments.
@@ -42,7 +49,7 @@ We also developed a controlled reset method with the added feature to freeze sec
 This additionally enabled us to allow the controller only partial access to the environment.
 Furthermore, the rendering function was reimplemented using faster methods from \emph{OpenCV}; see \secref{sec:improving-render} for more details.
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{C{3.9cm} L}
         \hline
@@ -75,19 +82,19 @@ This is done using a circular convolution kernel over the image to find the corr
 Optionally, it makes the lines in the image thinner by finding its skeleton using morphological operations before the convolution.
 See \figref{fig:sgw-registration} for a demonstration.
 
-\vspace{10pt}
+% \vspace{12pt}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.6\textwidth]{images/grid_registration.png}
+    \includegraphics[width=0.5\textwidth]{images/grid_registration.png}
     \caption{ShapeGridWorld image registration on images from the MNIST dataset.}
     \label{fig:sgw-registration}
 \end{figure}
+% \vspace{12pt}
 
-\vspace{10pt}
 We developed a wrapper around the PIL Python library \citep{pil} to conveniently perform these operations and generate ShapeGridWorld environments.
 The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
 \tabref{tab:imagelib-params} lists the relevant parameters of this image registration library.
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{C{3.9cm} L}
         \hline
@@ -102,6 +109,7 @@ The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
     \label{tab:imagelib-params}
 \end{table}
 
+% \todo{add best hyperparams}
 
 \newpage
 \section{Tangram}
@@ -163,13 +171,33 @@ For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1]
 
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
 
-\newpage
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/tangram_fish_10.pdf}
     \caption{CLIP on different inversions of the same Tangram creation. \(T = 0.1\).}
     \label{fig:clip-tangram-inversions}
 \end{figure}
+
+\todo{add best hyperparams}
+% - controller_params.compression                           True
+% - controller_params.render_kwargs.invert                  True
+% - controller_params.render_kwargs.color                   False
+% - controller_params.semantics_baseline                    "A white canvas"
+% - controller_params.action_sampler_params.opt_iterations  3
+% - controller_params.action_sampler_params.init_std        0.6
+% - controller_params.action_sampler_params.elites_size     20
+% - controller_params.num_simulated_trajectories            256
+% - controller_params.horizon                               8
+% - env_params.x_size                                       28
+% - env_params.x_step                                       7
+% - controller_params.compression_precision                 28
+% - env_params.staging_boundaries                           `[[0.25, 0.25], [0.75, 0.75]]`
+% - env_params.object_persistency                           0
+% - controller_params.semantics_model_temperature           1
+% - controller_params.semantics_alpha_target                0.5
+% - controller_params.semantics_beta_image                  0
+% - controller_params.semantics_reward_scale                1
+% - controller_params.cost_along_trajectory                 "best"
 
 
 \chapter{Controller Hyperparameters}
@@ -234,6 +262,8 @@ The other important hyperparameters that we did not tweak in our experiments are
     \caption{iCEM controller fixed parameters.}
     \label{tab:icem-params-fixed}
 \end{table}
+
+\todo{add best hyperparams}
 
 Please refer to the original paper for more details on the parameters of iCEM.
 
@@ -300,8 +330,8 @@ The hyperparameter for resolution consists of two parts -- precision and granula
 Equation \eqref{eq:rair-relational-extended} extends eq. \eqref{eq:rair-relational} with these hyperparameters to define the \(\lfloor \cdot \rceil\) operator.
 \begin{equation}
     \lfloor s^{(j)} - s^{(k)} \rceil = \begin{cases}\begin{aligned}
-        \left\lfloor \left| s^{(j)} - s^{(k)} \right| \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity} &\text{if bidirectionality} = \text{False}\\
-        \left\lfloor \left( s^{(j)} - s^{(k)} \right) \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity} &\text{if bidirectionality} = \text{True}\\
+        \left\lfloor \left| s^{(j)} - s^{(k)} \right| \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity},\quad&\text{if bidirectionality} = \text{False}\\
+        \left\lfloor \left( s^{(j)} - s^{(k)} \right) \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity},\quad&\text{if bidirectionality} = \text{True}\\
     \end{aligned}\end{cases}
     \label{eq:rair-relational-extended}
 \end{equation}
@@ -354,15 +384,18 @@ Please refer to the original paper for more details on the theory and implementa
 The vision transformer (ViT) models have better accuracy than Resnet models.
 Resnet models have a gradual slope in rollouts compared to ViT models and flatter distributions on random images.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/clip_inference_times.pdf}
+    \vspace{-12pt}
     \caption{Comparing times of different original CLIP models for embedding a single image.}
     \label{fig:clip-time-comparison}
 \end{figure}
 
+\todo{review this section}
+
 \figref{fig:clip-traj-comparison} shows the trajectories of different CLIP models on the Tangram environment.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     % model_comparison.pdf
     \includegraphics[width=\textwidth]{images/model_comparison.pdf}
@@ -374,7 +407,7 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
     \label{fig:clip-traj-comparison}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering    
     % model_comparison_color.pdf
     \includegraphics[width=\textwidth]{images/model_comparison_color.pdf}
@@ -388,15 +421,15 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
 
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller toy setup with convolutional neural networks trained as a number classifier on ShapeGridWorld images using the MNIST dataset \citep{mnist}.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller \emph{toy} setup with convolutional neural networks trained as a single-digit number classifier on ShapeGridWorld images using the MNIST dataset \citep{mnist}.
 We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, target-labeled with a uniform distribution of confidence over the ten single digits.
 
 We treated the entropy regularization strength and the addition of random samples as hyperparameters and trained a series of models with different combinations of the two.
 % \figref{fig:flatnet-comparison} shows the resulting trajectories of the models.
-
 The models were trained with the Adam optimizer \citep{adam} with a learning rate of \(0.001\) and a batch size of \(128\).
 \tabref{tab:flatnet-models} summarizes the models we trained.
-\vspace{12pt}
+
+% \vspace{12pt}
 \begin{table}[H]
     \centering
     \begin{tabularx}{0.7\textwidth}{c c c c}
@@ -418,18 +451,25 @@ The models were trained with the Adam optimizer \citep{adam} with a learning rat
         Flatnet 13 & flatnet & 60000 & 0.0 \\ \hline
         Flatnet 15 & flatnet & 0 & 0.0 \\ \hline
     \end{tabularx}
-    \caption{Summary of the Flatnet models.}
+    \caption[Summary of the Flatnet models.]{Summary of the Flatnet models. More details of these models can be found at \url{https://pulkitgoyal56.github.io/flatnet}.}
     \label{tab:flatnet-models}
 \end{table}
 
-Both, the entropy regularization and the addition of random samples, helped improve the reward trajectories of the models.
+\figref{fig:flatnet-comparison} compares the reward trajectories of a regular Flatnet model and an entropy regularized Flatnet model on random rollouts (similar to \figref{fig:sparse-rewards}) on a grid-registered image of the number zero.
+The comparisons of all the models are neatly visualized at \url{https://www.sharecanvas.io/p/flatnet-comparison}.
 
-% \begin{figure}[h]
-%     \centering
-%     \missingfigure{Flatnet comparison over the 495 closeness trajectory}
-%     \caption{Comparing times of different original CLIP models for embedding a single image.}
-%     \label{fig:flatnet-comparison}
-% \end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/Flatnet 15.pdf}
+    \caption[A regular Flatnet MNIST classifier on random rollouts.]{A regular Flatnet MNIST classifier on random rollouts. Flatnet 15.}
+    \includegraphics[width=0.8\textwidth]{images/Flatnet 3.pdf}
+    \caption[An entropy regularized Flatnet MNIST classifier on random rollouts.]{An entropy regularized Flatnet MNIST classifier on random rollouts. Flatnet 3.}
+    \label{fig:flatnet-comparison}
+\end{figure}
+
+Both, the entropy regularization and the addition of random samples, helped improve the reward trajectories of the models.
+The regularized models have smoother entropy transitions, a stable distribution over time, and a flatter distribution (high entropy) for false positive (random) samples.
+
 
 % \chapter{Descriptive List of Main Hyperparameters}
 % \label{sec:hyperparameters}
@@ -491,7 +531,6 @@ The complete analysis is available on \url{https://github.com/pulkitgoyal56/mast
 \label{sec:improving-infer}
 To minimize the inference times with CLIP, all inferences were done in one large batch.
 This required significant memory, for which we parallelized them on multiple GPUs using Pytorch \texttt{DataParallel} \citep{pytorch}.
-Depending on their size, the simulations were run concurrently on multiple NVIDIA V100 and A100 GPUs.
 
 To reduce the inference time, we tweaked the image preprocessing functions of CLIP to be adaptive to the input to ensure that no redundant operations were performed.
 
@@ -501,9 +540,12 @@ This also helped to improve the simulation times significantly.\\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/full_transform.pdf}\vspace{-15pt}
-    \caption{Preprocessing times before optimizations.}\vspace{15pt}
-    \includegraphics[width=\textwidth]{images/fast_transform.pdf}\vspace{-15pt}
+    \includegraphics[width=\textwidth]{images/full_transform.pdf}
+    \vspace{-12pt}
+    \caption{Preprocessing times before optimizations.}
+    % \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/fast_transform.pdf}
+    \vspace{-12pt}
     \caption{Preprocessing times after optimizations.}
     \label{fig:preprocessing-time-improvement}
 \end{figure}
@@ -515,127 +557,295 @@ These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/
 \chapter{Additional Simulations on ShapeGridWorld}
 \label{sec:sgw-semantics-additional}
 
-% Categories
+\section{Effect of Categories}
+\label{sec:sgw-categories}
 % categories_boxplot_sgw_rair.pdf
 % categories_comparison_sgw_rair.pdf
 % categories_samples_sgw_rair.pdf
 The effect of the choice of categories on the semantics entropy reward in ShapeGridWorld was also significant.
+\figref{fig:categories-boxplot-sgw} and \figref{fig:categories-sgw} show the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw} shows some samples of the creations with different categories.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair.pdf}
     \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
     \label{fig:categories-boxplot-sgw}
-\end{figure}
-
-\figref{fig:categories-sgw} shows the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw} shows some samples of the creations with different categories.
-
-\begin{figure}[h]
-    \centering
     \includegraphics[width=\textwidth]{images/categories_comparison_sgw_rair.pdf}
     \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
     \label{fig:categories-sgw}
-    \vspace{12pt}
-    \includegraphics[width=0.5\textwidth]{images/categories_samples_sgw_rair.pdf}
+    % \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/categories_samples_sgw_rair.pdf}
     \caption{Samples of creations with different categories in ShapeGridWorld.}
     \label{fig:categories-samples-sgw}
 \end{figure}
 
-% Mode
+% categories_boxplot_sgw_norair.pdf
+% categories_comparison_sgw_norair.pdf
+% categories_samples_sgw_norair.pdf
+Without RaIR, the effect of categories on the reward landscape was different.
+\figref{fig:categories-boxplot-sgw-norair} and \figref{fig:categories-sgw-norair} show the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw-norair} shows some samples of the creations with different categories.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_norair.pdf}
+    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.}
+    \label{fig:categories-boxplot-sgw-norair}
+    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_norair.pdf}
+    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.}
+    \label{fig:categories-sgw-norair}
+    % \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/categories_samples_sgw_norair.pdf}
+    \caption{Samples of creations with different categories in ShapeGridWorld without RaIR.}
+    \label{fig:categories-samples-sgw-norair}
+\end{figure}
+
+\section{Effect of Grayscale Pixels}
+\label{sec:sgw-grayscale}
 % mode_comparison_sgw.pdf
 % mode_samples_sgw.pdf
 Observing the effect of the grayscale values on the effect of RaIR in ShapeGridWorld, we also ran simulations with different categories of colors in the pixels.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/mode_comparison_sgw.pdf}
     \caption{Effect of the presence of grayscale pixels on semantics entropy reward in ShapeGridWorld.}
     \label{fig:mode-sgw}
-    \vspace{12pt}
-    \includegraphics[width=0.5\textwidth]{images/mode_samples_sgw.pdf}
+    % \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/mode_samples_sgw.pdf}
     \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
     \label{fig:mode-samples-sgw}
 \end{figure}
 
+\section{Effect of Number of Pixels}
+\label{sec:sgw-pixels}
 % Threshold Ratio
 % n_objects_comparison_sgw.pdf
 % n_objects_samples_sgw.pdf
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/n_objects_comparison_sgw.pdf}
+    \caption{Effect of the number of objects on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:n-objects-sgw}
+    % \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/n_objects_samples_sgw.pdf}
+    \caption{Samples of creations with different numbers of objects in ShapeGridWorld.}
+    \label{fig:n-objects-samples-sgw}
+\end{figure}
+
+% nobj_mode_rair_sgw_boxplot.pdf
+The effects of the number of objects, grayscale pixels, and RaIR are summarised in \figref{fig:nobj-mode-sgw}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/nobj_mode_rair_sgw_boxplot.pdf}
+    \caption{Effect of the number of objects, grayscale pixels, and RaIR on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:nobj-mode-sgw}
+\end{figure}
+
+
+\section{Object Persistency}
+\label{sec:sgw-persistency}
 % Object Persistency
 % object_persistency_comparison_sgw.pdf
 % object_persistency_samples_sgw.pdf
 
-% nobj_mode_rair_sgw_boxplot.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/object_persistency_comparison_sgw.pdf}
+    \caption{Effect of object persistency on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:object-persistency-sgw}
+    % \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/object_persistency_samples_sgw.pdf}
+    \caption{Samples of creations with different object persistency in ShapeGridWorld.}
+    \label{fig:object-persistency-samples-sgw}
+\end{figure}
 
 
 \chapter{Additional Graphs}
 \label{sec:additional-graphs}
 
 % alpha_beta-semantics_std_rair.pdf
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
+    \vspace{-12pt}
     \caption{Standard deviation of regularization strength performance on the semantics reward.}
     \label{fig:alpha_beta-semantics_std_rair}
 \end{figure}
 
-
-% categories_boxplot_sgw_norair.pdf
-% categories_comparison_sgw_norair.pdf
-% categories_samples_sgw_norair.pdf
-
-% creations_distribution_sgw.pdf
+% Class preference in CLIP
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/creations_distribution.pdf}
+    \vspace{-12pt}
+    \caption[Histogram of creations in our simulations on Tangram showing CLIP's class preference.]{Histogram of creations in our simulations on Tangram showing CLIP's class preference. The choice of classes varied in these simulations; when ``house'' or ``bird'' were present, they were chosen almost all the time. The other creations were obtained only when they were removed. Classes not mentioned in the graph include ``boat'', ``teapot'', ``gun'', ``car'', ``airplane'', ``guitar'', and ``flower''}
+    \label{fig:class-preference-tangram}
+    \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/creations_distribution_sgw.pdf}
+    \vspace{-12pt}
+    \caption[Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference.]{Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference. The \(36\) classes are all letters and numbers.}
+    \label{fig:class-preference-sgw}
+\end{figure}
 
 
 \chapter{Curated Gallery}
 \label{sec:gallery}
 
-\begin{figure}[h]
+% curation_bird.pdf
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/curation_bird.pdf}
     \caption{Birds on Tangram.}
     \label{fig:curation_bird}
 \end{figure}
 
-\begin{figure}[h]
+% curation_teapot.pdf
+% curation_teapot_.pdf
+% curation_teapot_all.pdf
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/curation_chair.pdf}
+    % \includegraphics[width=\textwidth]{images/curation_teapot.pdf}
+    % \includegraphics[width=\textwidth]{images/curation_teapot_.pdf}
+    \includegraphics[width=0.5\textwidth]{images/curation_teapot_all.pdf}
+    \caption{Teapots on Tangram.}
+    \label{fig:curation_teapot}
+\end{figure}
+
+% curation_chair.pdf
+% curation_chair_cropped.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/curation_chair_cropped.pdf}
     \caption{Chairs on Tangram.}
     \label{fig:curation_chair}
 \end{figure}
 
-\begin{figure}[h]
+% curation_heart.pdf
+% curation_heart_all.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.66\textwidth]{images/curation_heart.pdf}
+    % \includegraphics[width=0.66\textwidth]{images/curation_heart_all.pdf}
+    \caption{Hearts on Tangram.}
+    \label{fig:curation_heart}
+\end{figure}
+
+% curation_letters.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.824\textwidth]{images/curation_letters.pdf}
+    \caption{Letters on Tangram.}
+    \label{fig:curation_letters}
+\end{figure}
+
+% % sgw_reruns.pdf
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/sgw_reruns.pdf}
+%     \caption{Letters on ShapeGridWorld.}
+%     \label{fig:sgw-trajectories}
+% \end{figure}
+
+% curation_animals.pdf
+% curation_faces_a.pdf
+% curation_faces_all.pdf
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=\textwidth]{images/curation_animals.pdf}
+    % \includegraphics[width=\textwidth]{images/curation_faces_a.pdf}
+    \includegraphics[width=0.66\textwidth]{images/curation_faces_all.pdf}
+    \caption{Animals on Tangram.}
+    \label{fig:curation_animals}
+\end{figure}
+
+% curation_shirt_all.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.66\textwidth]{images/curation_shirt_all.pdf}
+    \caption{Shirts on Tangram.}
+    \label{fig:curation_shirt_all}
+\end{figure}
+
+% curation_house.pdf
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/curation_house.pdf}
     \caption{Houses on Tangram.}
     \label{fig:curation_house}
 \end{figure}
 
-\begin{figure}[h]
+% curation_gun_all.pdf
+% curation_sgw_objects.pdf
+% curation_sgw_objects_cropped.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/curation_gun_all.pdf}
+    \includegraphics[width=0.824\textwidth]{images/curation_sgw_objects_cropped.pdf}
+    \caption{Guns on Tangram and ShapeGridWorld.}
+    \label{fig:curation_gun_all}
+\end{figure}
+
+% % curation_objects.pdf
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/curation_objects.pdf}
+%     \caption{Objects on Tangram.}
+%     \label{fig:curation_objects}
+% \end{figure}
+
+% curation_sgw_letters.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/curation_sgw_letters.pdf}
+    \caption{Letters on ShapeGridWorld.}
+    \label{fig:curation_sgw_letters}
+\end{figure}
+
+% % curation_sgw_N.pdf
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/curation_sgw_N.pdf}
+%     \caption{The letter ``N'' on ShapeGridWorld.}
+%     \label{fig:curation_sgw_N}
+% \end{figure}
+
+% curation_sgw_numbers.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/curation_sgw_numbers.pdf}
+    \caption{Numbers on ShapeGridWorld.}
+    \label{fig:curation_sgw_numbers}
+\end{figure}
+
+% % curation_sgw_objects.pdf
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/curation_sgw_objects.pdf}
+%     \caption{Objects on ShapeGridWorld.}
+%     \label{fig:curation_sgw_objects}
+% \end{figure}
+
+% \newpage
+% % curation_tree.pdf
+% % curation_tree_.pdf
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{images/curation_tree.pdf}
+%     % \includegraphics[width=\textwidth]{images/curation_tree_.pdf}
+%     % \caption{Trees on Tangram.}
+%     \label{fig:curation_tree}
+% \end{figure}
+
+% curation_fish.pdf
+% curation_fish_.pdf
+% curation_fish_2.pdf
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/curation_fish.pdf}
+    % \includegraphics[width=\textwidth]{images/curation_fish_.pdf}
+    % \includegraphics[width=\textwidth]{images/curation_fish_2.pdf}
     \caption{Fishes on Tangram.}
     \label{fig:curation_fish}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.66\textwidth]{images/curation_heart.pdf}
-    \caption{Hearts on Tangram.}
-    \label{fig:curation_heart}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/curation_letters.pdf}
-    \caption{Letters on Tangram.}
-    \label{fig:curation_letters}
-\end{figure}
-
-% % sgw_reruns.pdf
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=\textwidth]{images/sgw_reruns.pdf}
-%     \caption{Letters on ShapeGridWorld.}
-%     \label{fig:sgw-trajectories}
-% \end{figure}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}

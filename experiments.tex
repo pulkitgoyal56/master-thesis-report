@@ -2,43 +2,7 @@
 \chapter{Experiments}
 \label{sec:experiments}
 
-We perform these experiments to showcase that we can indeed get semantically expressive creations with our proposed formulation.
-
-\section{Environments}
-\label{sec:environments}
-We use two custom environments in our experiments which allow for rich creative expression.
-
-\begin{figure}[H]
-    \centering
-    \subfloat[\centering ShapeGridWorld]{\fbox{\includegraphics[width=0.4\textwidth]{images/sgw_random.png}}}
-    \qquad
-    \subfloat[\centering Tangram]{\fbox{\includegraphics[width=0.4\textwidth]{images/tangram_random.png}}}
-    \caption{The environments.}
-    \label{fig:environments}
-\end{figure}
-
-\subsection{ShapeGridWorld}
-\label{sec:sgw}
-ShapeGridWorld is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
-This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs} (\figref{fig:diggs}).
-By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
-This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in appendix \ref{sec:sgw-details}.
-
-ShapeGridWorld was mostly used in the initial experiments but it eventually proved to promote noise in CLIP inferences which led to underwhelming results.
-To work around the problems, the Tangram environment was developed.
-
-\subsection{Tangram}
-\label{sec:tangram}
-Tangram is a traditional puzzle game consisting of a canvas and seven geometric shapes -- five right isosceles triangles (two large, one medium, and two small), one square, and one parallelogram, which conventionally have distinct colors.
-These shapes can be rotated, flipped, and translated on the canvas, without overlapping.
-Even though this is a very simple setup, these pieces can be arranged in very different configurations to create expressive abstract patterns.
-
-The Tangram virtual environment was developed specifically for our experiments as it mitigated the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of our work.
-
-We mostly configured the environment to correspond with the traditional Tangram game.
-The shapes involved were the same, no overlap was allowed, and the shapes could be rotated, flipped, and translated.
-Yet, we did experiments with colors to improve the performance of CLIP and also gave the agent the freedom to use a subset of the shapes to make its creations.
-Please refer to appendix \ref{sec:tangram-details} for more technical details about this environment.
+% We perform these experiments to showcase that we can indeed get semantically expressive creations with our proposed formulation.
 
 \section{Initial Tests with CLIP}
 \label{sec:clip-custom}
@@ -67,51 +31,50 @@ At the same time, there were several hyperparameters in the environments and CLI
 
 We first tested CLIP on sketches of simple shapes from the ImageNet-Sketch dataset \citep{imagenet}.
 
-We also compared these results with renderings of these sketches on ShapeGridWorld grids of different resolutions by registering them to a grid (see \secref{sec:sgw-registration} for more details).
-
-\begin{figure}[H]
+We also compared these results with renderings of these sketches on ShapeGridWorld grids of different resolutions by registering them to a grid (see \secref{sec:sgw-registration} for more details on registration).
+For an example, see \figref{fig:clip-sketches}.
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/grid_comparison.pdf}
     \includegraphics[width=\textwidth]{images/grid_comparison_images.png}
     \includegraphics[width=\textwidth]{images/grid_comparison_accuracy.pdf}
-    \caption{CLIP on sketches and ShapeGridWorld grids of different resolutions.}
+    \caption[CLIP on sketches and ShapeGridWorld grids of different resolutions.]{CLIP on sketches and ShapeGridWorld grids of different resolutions.
+    The first row shows the comparative similarity of the embeddings of \(80\) sketches of apples (and their grid counterparts) to the label ``sketch of an apple'' using the CLIP variant \texttt{ViT-L/14}.
+    The probabilities are calculated using the equation \eqref{eq:clip-dist}, with temperature \(T = 1\), to show the trend.
+    The categories for this example are ``apple'', ``chair'', ``car'', ``flower'', ``pencil'', ``house'', ``tree'', ``fish'', ``star'', and ``bird''.
+    The middle row shows a sample of the images for each of the cases.
+    The bottom row shows the accuracy (percentage of correct predictions) for each of the cases.
+    }
     \label{fig:clip-sketches}
     % \includegraphics[width=\textwidth]{images/grid_comparison_inverted.pdf}
     % \includegraphics[width=\textwidth]{images/grid_comparison_accuracy_inverted.pdf}
     % \caption{CLIP on \emph{inverted} sketches and ShapeGridWorld grids of different resolutions.}
     % \label{fig:clip-sketches-inv}
 \end{figure}
+We found that CLIP can recognize these sketches quite well.
+As the grid became coarser, the confidence and accuracy of CLIP decreased significantly.
+For very coarse grids, the accuracy is almost as bad as random guessing.
 
-As an example, \figref{fig:clip-sketches} shows the comparative similarity of the embeddings of \(80\) sketches of apples (and their grid counterparts) to the label ``sketch of an apple'' using the CLIP variant \texttt{ViT-L/14}, as a probability.
-The probabilities are calculated using the equation \eqref{eq:clip-dist}, with temperature \(T = 1\), to show the trend.
-The categories for this example are ``apple'', ``chair'', ``car'', ``flower'', ``pencil'', ``house'', ``tree'', ``fish'', ``star'', and ``bird''.
-The middle row shows a sample of the images for each of the cases.
-The bottom row shows the accuracy (percentage of correct predictions) for each of the cases.
+We also experimented with inverting the images and found that results were consistently slightly better with black-on-white sketches (shown here) than with white-on-black sketches.
+Yet, we did not notice any difference in performance with the addition of grayscale values in the pixel blocks in these experiments.
 
-\begin{wrapfigure}{r}{0.4\textwidth}
+\begin{wrapfigure}[13]{r}{0.39\textwidth}
     \centering
     \includegraphics[width=0.36\textwidth]{images/hypercategory_comparison_2.pdf}
     \caption{CLIP on different levels of hypernymy and hyponymy of labels.}
     \label{fig:clip-hypercategory}
 \end{wrapfigure}
-
-We found that CLIP can recognize these sketches quite well.
-As the grid became coarser, the confidence and accuracy of CLIP decreased significantly.
-For very coarse grids, the accuracy is almost as bad as random guessing.
-We also experimented with inverting the images and found that results were consistently slightly better with black-on-white sketches (shown here) than with white-on-black sketches.
-Yet, we did not notice any difference in performance with the addition of grayscale values in the pixel blocks.
 In most cases, we also noticed that using specific labels like ``apple'' for a picture of an apple had better accuracy than using hypernyms like ``fruit'' (\figref{fig:clip-hypercategory}).
 
-Additionally, we found that the bigger CLIP models performed better on these tasks than the smaller ones which is in line with observations from other studies on VLMs as a source of rewards.
-Furthermore, we tried the same experiments with different sets of categories, prefixes, and suffixes, but the results followed similar trends.
-
+Additionally, we found that the bigger CLIP models performed better on these tasks than the smaller ones which is in line with observations from other studies on VLMs as a source of rewards, particularly \cite{vlmrm}.
+We tried the same experiments with different sets of categories, prefixes, and suffixes; the results followed similar trends.
 
 \subsection{CLIP on Tangram}
 \label{sec:clip-tangram}
 
-Tangram has lesser degrees of freedom than ShapeGridWorld and it is more abstract but it still allows for rich creative expression.
-To test if it would be a feasible environment for our study, we used some images of creations on Tangram from the internet and used CLIP as a zero-shot classifier as above to test its performance.
-We again found it to be quite good at recognizing these creations with very high confidence.
+Tangram has fewer degrees of freedom than ShapeGridWorld and it is more abstract but it still allows for rich creative expression.
+To test if it would be a feasible environment for our study, we used some images of creations on Tangram from the internet and used CLIP as a zero-shot classifier as above to test its performance using classes with simple Tangram creations.
+We again found it to be quite good at recognizing these creations with good confidence.
 \figref{fig:clip-tangram} shows a few examples.
 \begin{figure}[h]
     \centering
@@ -146,7 +109,7 @@ This results in a sparse semantics entropy reward landscape.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/sparse_rewards.pdf}
+    \includegraphics[width=0.8\textwidth]{images/sparse_rewards.pdf}
     \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld. Going from left to right in time, we perturb the grid pixel-by-pixel and observe CLIP's confidence change. The top row shows the distribution of CLIP's inferences over the labels ``giraffe'', ``number'', and ``random'' in red, green, and blue respectively. The first and last images in the bottom row are the initial and final images respectively.
     The middle three images in the bottom row show the images where the distribution changed its trend, at the last time when ``giraffe'' was the most confident category, at the time when the distribution was equally split between the categories, and the first time when ``random'' was the confident category.
     They are all just a few pixels away from each other but essentially still the same, yet they are much different for CLIP.}
@@ -199,7 +162,7 @@ This included classes that signified broad concepts like ``animal'', ``fruit'', 
 This is a fundamental nature of the CLIP model and we could only mitigate it by avoiding certain categories and choosing enough categories for the semantics entropy reward such that CLIP's preferences balanced out.
 More discussion on tackling this problem in particular is given in section \secref{sec:clip-categories}.
 
-
+\newpage
 \section{Trajectory Analysis with Closeness Costs}
 \label{sec:closeness-rollouts}
 % closeness_reward_scale
@@ -299,9 +262,9 @@ These minimal parameters were then used as a starting point for the simulations 
 % % cost_along_trajectory
 % % discount_along_trajectory
 
-% \todo{Talk about the different hyperparameters that were considered. Show histograms of only the significant parameters.}
+\todo{Talk about the different hyperparameters that were considered. Show histograms of only the significant parameters.}
 
-
+\newpage
 \section{Improving CLIP Rewards}
 \label{sec:improving-rewards}
 
@@ -310,23 +273,21 @@ The regularized semantics reward also has many hyperparameters that can be tuned
 Namely, the temperature of the softmax function (\(T\)), the target baseline regularization strength (\(\alpha\)), the image baseline regularization strength (\(\beta\)), the use of negative embeddings, and tweaking the rendering function (adding texturing or modifying the images with other operations).
 
 The complex nature of the reward landscape and the high dimensionality of the state space made it difficult to analyze the effects of these hyperparameters.
-To gain an intuition over these parameters and reduce the search space before we ran simulations using them in the full semantics reward, we instead used the best of the previously rolled-out trajectories with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP and calculated the trajectories of the resulting semantics reward.
+To gain an intuition over these parameters and reduce the search space before we ran simulations using them in the full semantics reward, we instead used the best of the previously rolled-out trajectories with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP and calculated the trajectories of the resulting semantics reward\footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
+Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters, and prefixes and suffix to see their effects}.
 
-Subsequently, we performed an ablation study on these hyperparameters to gain insights into their effects\footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
-Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters to see their effects}.
-
-Additionally, the performance can highly depend on the choice of prefix and suffix (\figref{fig:prefix-suffix}).
-
-\begin{figure}
+The performance (cumulative rewards) can highly depend on the choice of prefix and suffix (\figref{fig:prefix-suffix}).
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/prefix-suffix.pdf}
     \caption{Effect of different prefixes and suffixes on semantics entropy reward trajectories.}
     \label{fig:prefix-suffix}
 \end{figure}
 
-To get the underlying trends in these parameters and find robust values that were agnostic to prompt engineering, i.e. the choice of prefix and suffix in formulating the text input, we average over our results across multiple choices and combinations of these text parameters.
+To get the underlying trends in these parameters and find robust values that are agnostic to prompt engineering, i.e. the choice of prefix and suffix in formulating the text input, we average over our results across multiple choices and combinations of these text prefix-suffix pairs.
 
 We observed clear trends in the effects of these hyperparameters on the reward landscape.
+Consequently, we performed an ablation study on these hyperparameters independently to gain insights into their effects.
 The following sections on the specific hyperparameters discuss the results of these analyses.
 In the figures shown in these sections, we choose the best-performing other hyperparameters.
 These results can be compared to the corresponding adversarial study results discussed in \secref{sec:adversarial-performance}.
@@ -336,20 +297,19 @@ These results can be compared to the corresponding adversarial study results dis
 To alleviate the problem of class preference in CLIP, we experimented with different numbers of categories/creative possibilities (\(c\)) for the semantics entropy reward.
 \figref{fig:clip-categories} shows the effect of the number of categories on the entropy of CLIP inferences over a random image.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/category_comparison_tangram.pdf}
     \caption{Effect of the number of categories on CLIP inference distribution over a random image.}
     \label{fig:clip-categories}
 \end{figure}
 
-Too few categories can promote semantic bias and class preference in random images, but too many categories can exacerbate the problem of noisy rewards since there are potentially more misleading distractions for the agent.
+We observed that too few categories can promote semantic bias and class preference in random images, but too many categories can exacerbate the problem of noisy rewards since there are potentially more misleading distractions for the agent.
 
 It was important to choose categories that were semantically distinct and not too broad which was non-trivial.
 Especially for the Tangram environment, in which the creations can be quite abstract, there was only a limited set of feasible categories.
 This suggested that a moderate number of categories would be optimal.
-
-For our further simulations, we chose a set of \(10 \sim 20\) categories.
+For our simulations, we typically chose a set of \(10 \sim 20\) categories.
 
 \subsection{Effect of Temperature}
 \label{sec:reg-temperature}
@@ -363,7 +323,7 @@ Any temperature below this range performed significantly worse as it exacerbated
 \figref{fig:clip-temperature} shows the effect of temperature on the semantics entropy reward trajectories, averaged over multiple choice of categories.
 This is a post hoc CLIP inference on trajectory samples from the closeness reward rollout experiments.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/temperature_comparison.pdf}
     \caption{Effect of temperature on semantics entropy reward trajectories.}
@@ -383,7 +343,7 @@ We found a similar trend in our experiments, with a slight preference for the ad
 In our analysis, we compared the cumulative rewards of the post hoc inferences on closeness reward trajectories with different values of \(\alpha\) and \(\beta\) to find the optimal values.
 \figref{fig:clip-alpha-beta} shows these results, averaged over multiple choice of prefixes and suffixes.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta_temp12avg_noneg.pdf}
     \caption{Effect of regularization strength on semantics entropy reward trajectories.}
@@ -427,7 +387,7 @@ This post-suffix can surprisingly even be a random string of characters.
 Following these insights, we also experimented with adding a random string of jibberish to the end of the label as a post-suffix, but we did not find it to affect the reward.
 \figref{fig:post-suffix} shows the effect of different post-suffixes on the semantics entropy reward trajectories, averaged over combinations of prefixes and suffixes.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post_suffix_comparison.pdf}
     \caption{Effect of different post-suffixes on semantics entropy reward trajectories.}
@@ -441,7 +401,7 @@ Following these insights, we also experimented with adding a random string of ji
 %     \label{fig:clip-ablation}
 % \end{figure}
 
-\newpage
+% \newpage
 \subsection{Entropy Regularization}
 \label{sec:entropy-regularization}
 Another promising way to make the reward landscape of CLIP smoother is to fine-tune it with an additional entropy regularization loss over its output.
@@ -469,7 +429,7 @@ Then, we searched for the semantics reward regularization hyperparameters that m
 We used the difference in mean entropy of distributions for the false positive and true positive images as a metric to gauge the performance of CLIP.
 \figref{fig:clip-temperature-adversarial} to \ref{fig:post-suffix-adversarial} show the effect of temperature, regularization, negative embeddings, and post-suffixes on discerning true positives from false positives.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/temperature_adversarial.pdf}
     \caption{Effect of temperature on discerning true positives from false positives.}
@@ -478,7 +438,7 @@ We used the difference in mean entropy of distributions for the false positive a
 
 Higher temperatures of \(2\) were better at smoothing the reward landscape just enough to improve its adversarial performance.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta_adversarial.pdf}
     \caption{Effect of regularization strength on discerning true positives from false positives.}
@@ -491,7 +451,7 @@ This means that it changes the reward at near-goal status in such a way that it 
 This is in contrast to the adversarial performance where we desire to make this difference more pronounced.
 Thus, these results are not at odds with each other, but rather complementary. 
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/baseline_adversarial_2.pdf}
     \caption{Effect of different text baselines on discerning true positives from false positives.}
@@ -505,7 +465,7 @@ Ideally, we would like the points to live above the diagonal, i.e. the entropy o
 Negative embeddings as we have seen before, flatten the reward landscape uniformly and as a consequence increase the entropy of the true positives as well.
 This results in no performance improvement in the adversarial case.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post-suffix_adversarial_2.pdf}
     \caption{Effect of different post-suffixes on discerning true positives from false positives.}
@@ -516,7 +476,7 @@ This results in no performance improvement in the adversarial case.
 Since we were not sure of the exact mechanism for choosing a post-suffix that would work well in general, for this analysis, to ensure more exhaustive and rigorous tests, we also used different formulations of the post-suffix and considered cases such as having the same random post-suffix across all the categories for every prefix-suffix combination or having a random one for each of the categories and combinations.
 As before, we see no difference in adding or omitting the post-suffix.
 
-% \begin{figure}[h]
+% \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=\textwidth]{images/p_subplots/rair_.pdf}
 %     \includegraphics[width=\textwidth]{images/p_subplots/entropy_.pdf}
@@ -541,15 +501,12 @@ We expected the true positive semantic inferences to be invariant to these opera
 
 This is compared together with the texturing operations in \figref{fig:texturing-operations} and \figref{fig:texturing-operations-adversarial} to study their effects on the reward landscape and the adversarial performance respectively.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/texturing_operations_comparison.pdf}
     \caption{Effect of texturing and image operations on semantics entropy reward trajectories.}
     \label{fig:texturing-operations}
-\end{figure}
-\vspace{12pt}
-\begin{figure}[h]
-    \centering
+    \vspace{12pt}
     \includegraphics[width=\textwidth]{images/texturing-operations_adversarial_2.pdf}
     \caption{Effect of image operations on discerning true positives from false positives.}
     \label{fig:texturing-operations-adversarial}
@@ -572,13 +529,12 @@ Although this is helpful, in the following sections, we did not use this method,
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post-suffix_sheared_adversarial_12.pdf}
-    \caption[Effect of different post-suffixes on discerning true positives from false positives with the sheared image.]{Effect of different post-suffixes on discerning true positives from false positives with the sheared image. Note that the temperature here is lower, \(T = 0.012\), the points gather in the upper right corner at higher temperatures.}
+    \caption[Effect of different post-suffixes on discerning true positives from false positives with sheared images.]{Effect of different post-suffixes on discerning true positives from false positives with the sheared image. Note that the temperature here is lower, \(T = 0.012\), the points gather in the upper right corner at higher temperatures.}
     \label{fig:post-suffix_sheared_adversarial}
 \end{figure}
 
-
-% \newpage
-\section{Simulations}
+\newpage
+\section{Simulations using the Semantics Reward}
 \label{sec:simulations}
 % Manual ranking and entropy ranking
 
@@ -589,72 +545,101 @@ We further investigated the effects of a few hyperparameters on the quality of t
 To evaluate these creations, in addition to the cumulative reward, we also asked three human evaluators to manually rank the final creations on a scale of \(1\) to \(5\) based on their apparent semantic expressiveness.
 In the following parts, shown creations (in Tangram) not particularly interesting according to these rankings are desaturated to avoid visual clutter.
 
+% B HUMAN EVALUATION
+% Evaluation on tasks for which we do not have a reward function was done manually by one of the
+% authors, depending on the amount of time the agent met the criteria listed in Table 2. See Figures 5
+% and 6 for the raw labels obtained about the agent performance.
+% We further evaluated the impact of goal-baseline regularization on the humanoid tasks that did not
+% succeed in our experiments with α = 0, cf. Figure 8. In these cases, goal baseline regularization does not improve performance. Together with the results in Figure 4a, this could suggest that
+% goal-baseline regularization is more useful for smaller CLIP models than for larger CLIP models.
+% Alternatively, it is possible that the improvements to the reward model obtained by goal-baseline
+% regularization are too small to lead to noticeable performance increases in the trained agents for the
+% failing humanoid tasks. Unfortunately, a more thorough study of this was infeasible due to the cost
+% associated with human evaluations.
+% Our second type of human evaluation is to compute the EPIC distance of a reward model to a prelabelled set of states. To create a dataset for these evaluations, we select all checkpoints from the
+% training run with the highest VLM-RM reward of the largest and most capable VLM we used. We
+% then collect rollouts from each checkpoint and collect the images across all timesteps and rollouts
+% into a single dataset. We then have a human labeller (again an author of this paper) label each image
+% according to whether it represents the goal state or not, using the same criteria from Table 2. We
+% use such a dataset for Figure 4. Figure 7 shows a more detailed breakdown of the EPIC distance for
+% different model scales.
+
 These simulations were computationally expensive and required a lot of time to run.
 We were limited in our ability to fine-tune all the hyperparameters to the fullest extent, so we focused on the main few -- the regularization strengths and the effect of additional regularity reward RaIR.
 We showcase the results of these analyses in the following sections.
 
 While we ran many additional simulations to confirm our intuitions about the hyperparameters, only a few of our analyses used enough restarts with different random seeds to have enough statistical power to make justified claims.
-Interesting creations from these simulations are curated in \secref{sec:gallery}\footnote{Additionally, videos and summary graphs of some simulations are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}}.
+Interesting creations from these simulations are curated in \secref{sec:gallery}\footnote{Animations and summary graphs of all the simulations and creations referenced in this thesis are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}.}.
 
 % \subsection{Evaluating Regularized Entropy Reward Formulation in Goal-Conditioned Tasks}
 % \label{sec:evaluating-regularized-entropy}
 % % alpha_target
 % % beta_image
 
-\subsection{Effect of Regularization Strenths}
+\subsection{Effect of Regularization Strengths}
 \label{sec:alpha-beta-semantics}
 % Model Search
 We ran simulations with different regularization strengths to reconcile their effects with their results from the previous sections.
 
-\figref{fig:alpha-beta-trajectories} shows the effect of regularization strengths on the semantics entropy reward trajectories.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/alpha_beta_comparison_rair.pdf}
-    \caption{Effect of regularization strengths on semantics entropy reward trajectories.}
-    \label{fig:alpha-beta-trajectories}
-\end{figure}
-\todo{Explain this}
-\vspace{12pt}
-
 We find that the mid-values of the regularization strengths are the best for the performance of the controller, which is in line with the results from the ablation study in \secref{sec:reg-alpha-beta}.
-\figref{fig:alpha-beta-semantics} shows the heatmap of the mean cumulative rewards for different combinations of the regularization strengths and \figref{fig:alpha-beta-samples} shows some samples of the creations with different regularization strengths. For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
+\figref{fig:alpha-beta-semantics} shows the heatmap of the mean cumulative rewards for different combinations of the regularization strengths.
+For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
 
 % alpha_beta-semantics_rair.pdf -- heatmap
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta-semantics_rair.pdf}
     \caption[Performance of regularization strengths on semantics reward.]{Performance of regularization strengths on semantics reward. \(10\) seeds were used.}
     \label{fig:alpha-beta-semantics}
+\end{figure}
+
+\figref{fig:alpha-beta-trajectories} shows the effect of regularization strengths on the semantics entropy reward trajectories and \figref{fig:alpha-beta-samples} shows some samples of the creations with different regularization strengths
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/alpha_beta_comparison_rair.pdf}
+    \caption{Effect of regularization strengths on semantics entropy reward trajectories.}
+    \label{fig:alpha-beta-trajectories}
     \vspace{12pt}
     \includegraphics[width=0.8\textwidth]{images/alpha_beta_rair_samples.pdf}
     \caption{Samples of creations with different regularization strengths.}
     \label{fig:alpha-beta-samples}
 \end{figure}
+\todo{Explain this}
 
+\newpage
 \subsection{Effect of RaIR}
 \label{sec:effect-rair}
 % compression_precision
 % 1 / semantics_reward_scale
 
-Throughout our simulations, we noticed a high degree of regularity in semantic creations and there was always a high correlation between the RaIR and the semantics entropy reward. 
+Throughout our simulations, we noticed a high degree of regularity in semantic creations and a high correlation between the RaIR and the semantics entropy reward. 
 Indeed, adding the structural bias from RaIR helped with grounding and coalescing the creations in more human-recognizable forms and patterns.
 This was particularly helpful in the beginning of the planning as the agent starts building regular structures to bring it closer to a semantically meaningful state which is then further refined by the semantics entropy reward.
 We found that creations simulated with RaIR were much more recognizable than without it.
 \figref{fig:rair} shows the effect and \figref{fig:rair-samples} shows some samples of the creations with and without RaIR.
 
-\todo{talk about regularity after semantics}
-
 % rair_comparison.pdf
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/rair_comparison.pdf}
     \caption{Effect of RaIR on semantics entropy reward in Tangram.}
     \label{fig:rair}
-    \includegraphics[width=\textwidth]{images/rair_samples.pdf}
     \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/rair_samples.pdf}
     \caption{Samples of creations with and without RaIR.}
     \label{fig:rair-samples}
+\end{figure}
+
+\todo{talk about observations of optimizing regularity after semantics}
+\todo{talk about the weight of RaIR}
+\todo{Creations are neater}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/sim_rair_later_bird.pdf}
+    \caption{Simulation on Tangram with the complete semantics reward leading to a bird creation.}
+    \label{fig:sim}
 \end{figure}
 
 We also tested this in ShapeGridWorld, where the effect of RaIR was only marginal and only affected when the pixels had grayscale values.
@@ -664,24 +649,22 @@ We also tested this in ShapeGridWorld, where the effect of RaIR was only margina
 % rair_comparison_sgw_color.pdf
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_color.pdf}
+    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_color_cropped.pdf}
     \caption{Effect of RaIR on ShapeGridWorld with grayscale pixels.}
     \label{fig:rair-color-sgw}
     \vspace{12pt}
     \includegraphics[width=0.5\textwidth]{images/rair_samples_sgw_color.pdf}
     \caption{Samples of creations with and without RaIR in ShapeGridWorld with grayscale pixels.}
     \label{fig:rair-samples-color-sgw}
-\end{figure}
-
-% rair_comparison_sgw_categories.pdf
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_categories.pdf}
+    % rair_comparison_sgw_categories.pdf
+    \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_categories_cropped.pdf}
     \caption{Effect of RaIR on ShapeGridWorld.}
     \label{fig:rair-sgw}
     \vspace{12pt}
     \includegraphics[width=\textwidth]{images/rair_samples_sgw_categories.pdf}
-    \caption[Samples of creations with and without RaIR in ShapeGridWorld.]{Samples of creations with and without RaIR in ShapeGridWorld. Using the \texttt{best} aggregation function.}
+    \caption[Samples of creations with and without RaIR in ShapeGridWorld.]{Samples of creations with and without RaIR in ShapeGridWorld. % Using the \texttt{best} aggregation function.
+    }
     \label{fig:rair-samples-sgw}
 \end{figure}
 

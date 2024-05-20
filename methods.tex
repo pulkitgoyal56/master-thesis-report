@@ -156,7 +156,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
 % \endgroup
 
 \newpage
-\subsubsection{Regularized Semantics Entropy Reward}
+\subsection{Regularized Semantics Entropy Reward}
 \label{sec:entropy-reward-reg}
 We combine these ideas to derive a \emph{baseline regularized semantics-entropy reward}.
 Let \(\bmp = \text{proj}_{V}\psi_I(\bfo)\), \(\bmo = \psi_I(\bfo),\ \bmg = \psi_L(\bfg),\ \bmg_b = \psi_L(\bfg_b)\) for brevity, then using the property \(\norm{\bmo}_2 = \norm{\bmg}_2 = \norm{\bmg_b}_2 = 1\) and the results \(\bmp \cdot \bmo = \norm{p}^2_2\) and \(\bmp \cdot \bmg = (\bmg - \bmg_b) \cdot \bmo\ /\ 2\), the VLM-RM reward can be simplified as,
@@ -326,6 +326,11 @@ At the end of this process, the distribution concentrates on action sequences wi
 (5) Finally, the first action of the best elite sequence of actions \(\bma^{(h)*}_t\) is executed in the environment.
 The process is repeated for a specified number of rollout steps or until a terminal state or reward/cost threshold is reached.
 
+There are additional features that the original iCEM implementation provides, such as decaying population size over time. 
+Since the standard deviation in iCEM adapts according to the elite-set statistics, when the controller is close to an optimum, the standard deviation automatically decreases, narrowing down the search and fine-tuning the solution.
+Therefore it is sufficient to sample fewer action sequences as the CEM iterations proceed.
+Thus the population size is exponentially decayed over time; at timestep \(t\) it is equal to \(max(n \delta^{-t}, 2K)\), where the max ensures that the population size is at least double the size of the elite-set.
+
 Since iCEM is a zero-order trajectory optimizer with a limited sample budget and finite-horizon planning, we do not necessarily converge to the global optima.
 Although this does not solve the full reinforcement learning problem (infinite horizon and stochastic environments), it is very powerful in optimizing for tasks ad-lib without further adaptation, which makes it suitable for optimizing changing exploration targets, as in our case (because of noisy CLIP rewards; discussed later in \secref{sec:inference-noise}).
 
@@ -342,7 +347,7 @@ Thus, we can perform multi-horizon planning without accumulating any model error
 \label{sec:reward-aggregation}
 There are many different ways to aggregate the rewards of the trajectory samples over the horizon.
 This is treated as one of the hyperparameters in our experiments.
-\vspace{-12.5pt}
+\vspace{-13.5pt}
 \begin{align}
 \intertext{A trivial reward aggregation function is the sum of the rewards over the horizon (\texttt{sum}),}
 \texttt{sum}(\bmtau^{(h)}) &= \sum_{k=1}^{h} R_k. \label{eq:reward-aggregation-sum}
@@ -358,3 +363,49 @@ This is particularly useful when inferring the reward is expensive, as in our ca
 \intertext{Finally, we also experimented with a combination of the \texttt{sum} and \texttt{last} methods with \texttt{last-\emph{l}}, which is the sum of the returns of the last \(l\) steps of the trajectory;}
 \texttt{last-\emph{l}}(\bmtau^{(h)}) &= \sum_{k=h-l+1}^{h} R_k. \label{eq:reward-aggregation-sum-last}
 \end{align}
+
+\section{Experiment Setup}
+\label{sec:experiment-setup}
+
+The simulations were run concurrently on multiple NVIDIA V100 and A100 GPUs, depending on the size of the simulations, which is determined by the size of the CLIP model used, the number of trajectory samples in iCEM, and the number of planning horizons.
+To minimize the time of a rollout, all \(h \times n\) CLIP inferences for planning at an inner iCEM iteration are performed in a single batch in parallel.
+Environment rendering and simulations are multi-processed on CPU in parallel.
+
+Several optimizations were put into place to improve the simulation time, particularly in environment rendering and CLIP preprocessing.
+Please refer to \secref{sec:efficiency} for more details.
+
+\section{Environments}
+\label{sec:environments}
+We use two custom environments in our experiments which allow for rich creative expression.
+
+\begin{figure}[H]
+    \centering
+    \subfloat[\centering ShapeGridWorld]{\fbox{\includegraphics[width=0.4\textwidth]{images/sgw_random.png}}}
+    \qquad
+    \subfloat[\centering Tangram]{\fbox{\includegraphics[width=0.4\textwidth]{images/tangram_random.png}}}
+    \caption{The environments.}
+    \label{fig:environments}
+\end{figure}
+
+\subsection{ShapeGridWorld}
+\label{sec:sgw}
+ShapeGridWorld is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
+This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs} (\figref{fig:diggs}).
+By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
+This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in appendix \ref{sec:sgw-details}.
+
+ShapeGridWorld was mostly used in the initial experiments but it eventually proved to promote noise in CLIP inferences which led to underwhelming results.
+To work around the problems, the Tangram environment was developed.
+
+\subsection{Tangram}
+\label{sec:tangram}
+Tangram is a traditional puzzle game consisting of a canvas and seven geometric shapes -- five right isosceles triangles (two large, one medium, and two small), one square, and one parallelogram, which conventionally have distinct colors.
+These shapes can be rotated, flipped, and translated on the canvas, without overlapping.
+Even though this is a very simple setup, these pieces can be arranged in very different configurations to create expressive abstract patterns.
+
+The Tangram virtual environment was developed specifically for our experiments as it mitigated the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of our work.
+
+We mostly configured the environment to correspond with the traditional Tangram game.
+The shapes involved were the same, no overlap was allowed, and the shapes could be rotated, flipped, and translated.
+Yet, we did experiments with colors to improve the performance of CLIP and also gave the agent the freedom to use a subset of the shapes to make its creations.
+Please refer to appendix \ref{sec:tangram-details} for more technical details about this environment.
