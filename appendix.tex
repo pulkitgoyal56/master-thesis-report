@@ -19,22 +19,22 @@ Both of these environments were developed in Python.
 % Added partial reset with control and control boundaries
 % Added controlled reset with max_dist
 % Added partial control with control and control boundaries
-\tabref{tab:original-sgw-params} lists the parameters of the original ShapeGridWorld environment developed by \cite{rair}.
+\tabref{tab:original-sgw-params} lists the parameters of the original ShapeGridWorld environment developed by \cite{rair}, along with the best values we found for our experiments.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Original ShapeGridWorld parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best/(Default)\\
         \hline
-        \texttt{width} & Width of the discrete grid.\\
-        \texttt{height} & Height of the discrete grid. Kept same as \texttt{width}.\\
-        \texttt{n\_pixels} & Number of ``On'' pixels.\\
-        \texttt{shape} & Shape of a pixel block -- ``circle''.\\
-        \texttt{size} & Size of a pixel block.\\
-        \texttt{persistency} & Number of time steps an object (pixel block) is moved. \\
+        \texttt{width} & Width of the discrete grid. & \(28\)\\
+        \texttt{height} & Height of the discrete grid. Kept same as \texttt{width}. & \(28\)\\
+        \texttt{n\_pixels} & Number of ``On'' pixels. & \(\sim 20\)\\
+        \texttt{shape} & Shape of a pixel block. & (``circle'')\\
+        \texttt{size} & Size of a pixel block. & \(7\)\\
+        \texttt{persistency} & Number of time steps an object (pixel block) is moved. & \(1\)\\
         \hline
     \end{tabularx}
-    \caption{Original ShapeGridWorld parameters.}
     \label{tab:original-sgw-params}
 \end{table}
 The state space of this environment is composed of the \(x\) and \(y\) coordinates of the \(n\) block pixels, with the addition of two dimensions -- one that specifies which object is currently in focus and another that specifies how many times it has already moved, i.e. \(\cS \in \nN^{2 n + 2}\).
@@ -51,21 +51,21 @@ Furthermore, the rendering function was reimplemented using faster methods from 
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Additional ShapeGridWorld parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best/(Default)\\
         \hline
-        \texttt{step\_x} & Maximum number of steps an object can be translated in the x-direction in one action.\\
-        \texttt{step\_y} & Maximum number of steps an object can be translated in the y-direction in one action. Kept same as \texttt{step\_x}.\\
-        \texttt{persistency*} & Added the ability to move all objects at once.\\
-        \texttt{color} & A flag that indicates if pixels should have a grayscale value. \\
-        \texttt{invert} & A flag to control the inversion of the rendered images. \\
-        \texttt{control\_boundaries} & If specified, objects inside these limits \emph{initially} are marked.\\
-        \texttt{control} & A flag that indicates whether the controller can move all the objects or those marked initially by the control boundaries.\\
-        \texttt{max\_reset\_dist} & Maximum distance an object can be moved from its original position on reset. Only the objects marked initially are reset (default: \(5\)).\\
+        \texttt{step\_x} & Maximum number of steps an object can be translated in the x-direction in one action. & \(7\)\\
+        \texttt{step\_y} & Maximum number of steps an object can be translated in the y-direction in one action. Kept same as \texttt{step\_x}. & \(7\)\\
+        \texttt{persistency*} & Added the ability to move all objects at once. & \(1\)\\
+        \texttt{color} & A flag to enable grayscale values for pixels. & False\\
+        \texttt{invert} & A flag to control the inversion of the rendered images.  & True\\
+        \texttt{control\_boundaries} & If specified, objects inside these limits \emph{initially} are marked. & (None)\\
+        \texttt{control} & A flag to define the scope of control, i.e. whether all the objects or only those marked initially by the control boundaries can be moved. & (``all'')\\
+        \texttt{max\_reset\_dist} & Maximum distance an object can be moved from its original position on reset. Only the objects marked initially are reset. There are no constraints if set to \(-1\). & (\(5\))\\
         \hline
     \end{tabularx}
-    \caption{Additional ShapeGridWorld parameters.}
     \label{tab:additional-sgw-params}
 \end{table}
 
@@ -83,9 +83,9 @@ Optionally, it makes the lines in the image thinner by finding its skeleton usin
 See \figref{fig:sgw-registration} for a demonstration.
 
 % \vspace{12pt}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{images/grid_registration.png}
+    \includegraphics[width=0.66\textwidth]{images/grid_registration.png}
     \caption{ShapeGridWorld image registration on images from the MNIST dataset.}
     \label{fig:sgw-registration}
 \end{figure}
@@ -93,25 +93,22 @@ See \figref{fig:sgw-registration} for a demonstration.
 
 We developed a wrapper around the PIL Python library \citep{pil} to conveniently perform these operations and generate ShapeGridWorld environments.
 The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
-\tabref{tab:imagelib-params} lists the relevant parameters of this image registration library.
+\tabref{tab:imagelib-params} lists the relevant parameters of this image registration library, along with the default values.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Image registration parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Default\\
         \hline
-        \texttt{mode} & PIL Image mode in which the image is read.\\
-        \texttt{invert} & A flag to control the inversion of the read image. \\
-        \texttt{threshold\_ratio} & Threshold on the convolution sum, for binary grids with no color.\\
+        \texttt{mode} & PIL Image mode in which the image is read. & ``1'' (Binary)\\
+        \texttt{invert} & A flag to control the inversion of the read image. The expected image should be white on black. & False \\
+        \texttt{threshold\_ratio} & Threshold on the convolution sum, for binary grids. & \(0\)\\
         \hline
     \end{tabularx}
-    \caption{Image registration parameters.}
     \label{tab:imagelib-params}
 \end{table}
 
-% \todo{add best hyperparams}
-
-\newpage
 \section{Tangram}
 \label{sec:tangram-details}
 % flip
@@ -125,32 +122,47 @@ The relevant code is hosted on \url{https://github.com/pulkitgoyal56/ImageGrid}.
 % control_boundaries
 % staging_boundaries
 
-The Tangram environment is initialized with a list of polygon objects created using the provided \texttt{Polygon} class, which defines a polygon's size, shape, and color.
+The Tangram environment is constructed with a list of polygon objects created using the provided \texttt{Polygon} class, which defines a polygon's size, shape, and color.
 The additional parameters of the Tangram environment are tabulated in table \tabref{tab:tangram-params}.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Tangram parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best/(Default)\\
         \hline
-        \texttt{x\_size, y\_size} & Span of the discrete grid; number of steps in the x and y directions. If set to \(1\), grid is continuous in \([0, 1]\) (default: \texttt{y\_size} = \texttt{x\_size}).\\
-        \texttt{x\_step, y\_step} & Maximum number of steps a polygon can be translated in the x and y directions in one action (default: \texttt{y\_step} = \texttt{x\_step}).\\
-        \texttt{r\_size} & Span of the discrete grid; number of rotation steps in \(180^\circ\). If set to \(1\), rotation is continuous in \([0, 180^\circ]\).\\
-        \texttt{r\_step} & Maximum number of steps a polygon can be rotated in one action.\\
-        \texttt{rotate} & A flag to enable/disable rotation.\\
-        \texttt{flip} & A flag to enable/disable flipping.\\
-        \texttt{persistency} & Number of time steps a polygon (pixel block) is moved. If set to \(1\), all polygons are moved at once.\\
-        \texttt{control\_boundaries} & If specified, polygons inside these limits \emph{initially} are marked (default: NA).\\
-        \texttt{control\_criteria} & The point inside the polygon that determines if the polygon is inside or outside the control boundaries. A Python lambda function or an attribute of \texttt{Polygon}, such as ``centroid'', ``center'', or ``complete'' (default: ``center'').\\
-        \texttt{control} & A flag that indicates whether the controller can move all the polygons or those marked initially by the control boundaries (default: ``all'').\\
-        \texttt{staging\_boundaries} & If specified, only polygons inside these limits are rendered to get the state's corresponding image observation (default: NA).\\
-        \texttt{staging\_criteria} & Similar to \texttt{control\_criteria} but for staging boundaries (default: ``complete'').\\
-        \texttt{max\_reset\_dist} & Maximum distance a polygon can be moved from its original position on reset. Only the polygons marked initially are reset (default: \(-1\); no constraints).\\
+        \texttt{x\_size, y\_size} & Span of the discrete grid; number of steps in the x and y directions. If set to \(1\), grid is continuous in \([0, 1]\). & \(1\)\\
+        \texttt{x\_step, y\_step} & Maximum number of steps a polygon can be translated in the x and y directions in one action. & \(5\)\\
+        \texttt{r\_size} & Span of the discrete grid; number of rotation steps in \(180^\circ\). If set to \(1\), rotation is continuous in \([0, 180^\circ]\). & \(1\)\\
+        \texttt{r\_step} & Maximum number of steps a polygon can be rotated in one action. & \(4\)\\
+        \texttt{rotate} & A flag to enable/disable rotation. & True\\
+        \texttt{flip} & A flag to enable/disable flipping. & False\\
+        \texttt{persistency} & Number of time steps a polygon (pixel block) is moved. If set to \(1\), all polygons are moved at once. & \(1\)\\
+        \texttt{control\_boundaries} & If specified, polygons inside these limits \emph{initially} are marked. & (None)\\
+        \texttt{control\_criteria} & The point inside the polygon that determines if the polygon is inside or outside the control boundaries. A Python lambda function or an attribute of \texttt{Polygon}, such as ``centroid'' for the centroid, ``center'' for the mean of the vertices, or ``complete'' for the entire polygon. & (``center'')\\
+        \texttt{control} & A flag to define the scope of control, i.e. whether all the polygons or only those marked initially by the control boundaries can be moved. & (``all'')\\
+        \texttt{staging\_boundaries} & If specified, only polygons inside these limits are rendered to get a state's corresponding image observation. See \figref{fig:staging-boundaries} & None\\
+        \texttt{staging\_criteria} & Like \texttt{control\_criteria} but for staging boundaries. & (``complete'')\\
+        \texttt{max\_reset\_dist} & Maximum distance a polygon can be moved from its original position on reset. Only the polygons marked initially are reset. There are no constraints if set to \(-1\). & (\(-1\))\\
         \hline
     \end{tabularx}
-    \caption{Tangram parameters.}
     \label{tab:tangram-params}
 \end{table}
+
+% staging_crop.png
+% staging_crop_color.png
+% staging_nocrop.png
+% staging_nocrop_color.png
+\begin{figure}[h]
+    \centering
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop_color.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop_color.png}}
+    \subfloat{\includegraphics[width=\textwidth]{images/staging_boundaries.pdf}}
+    \caption[Staging boundaries in the Tangram environment.]{Staging boundaries in the Tangram environment. Simulations using staging boundaries can be viewed at \url{https://drive.google.com/drive/u/0/folders/1PLopyNdzpWiz6CK4EvR8oEAScACpUsW0}.}
+    \label{fig:staging-boundaries}
+\end{figure}
 
 The state space of this environment is composed of the \(x\) and \(y\) coordinates of the vertices of the \(n = 7\) polygons, with the addition of two dimensions -- one that specifies which polygon is currently in focus and another that specifies how many times it has already moved, i.e. \(\cS \in \nN^{\,2 + \sum_{i \in n} 2\ n_v(p_i)}\), where \(n_v(p_i)\) is the number of vertices of polygon \(p_i\).
 If all polygons are moved at once, the state space of this environment is composed of only the \(x\) and \(y\) coordinates of the block pixels, i.e. \(\cS \in \nN^{\sum_{i \in n} 2\ n_v(p_i)}\).
@@ -160,45 +172,11 @@ The action space comprises the action value for each of the degrees of freedom (
 For each dimension of the action space, the controller samples from a continuous distribution in \([-1, 1]\).
 In the x-, y-, and rotation dimensions, this is uniformly mapped to integers in \([-l, l]\), where \(l \in \{\texttt{step\_x}, \texttt{step\_y}, \texttt{step\_r}\}\) is the step size of the dimension, if it is discrete.
 If the dimension is continuous (because its \texttt{size} is set to \(1\)), the action is scaled by its respective step size instead.
+The \texttt{step} parameter can then be understood as the minimum number of actions required to move a polygon across the entire grid.
 For example, if \texttt{x\_size} is \(1\) and \texttt{x\_step} is \(3\), the resulting support of the action distribution for any action sampled for x-dimension will be \([-1/3, 1/3]\).
 For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1] \mapsto \texttt{True}\)).
 
-\todo{add staging images and link to the videos.}
-% staging_crop.png
-% staging_crop_color.png
-% staging_nocrop.png
-% staging_nocrop_color.png
-
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{images/tangram_fish_10.pdf}
-    \caption{CLIP on different inversions of the same Tangram creation. \(T = 0.1\).}
-    \label{fig:clip-tangram-inversions}
-\end{figure}
-
-\todo{add best hyperparams}
-% - controller_params.compression                           True
-% - controller_params.render_kwargs.invert                  True
-% - controller_params.render_kwargs.color                   False
-% - controller_params.semantics_baseline                    "A white canvas"
-% - controller_params.action_sampler_params.opt_iterations  3
-% - controller_params.action_sampler_params.init_std        0.6
-% - controller_params.action_sampler_params.elites_size     20
-% - controller_params.num_simulated_trajectories            256
-% - controller_params.horizon                               8
-% - env_params.x_size                                       28
-% - env_params.x_step                                       7
-% - controller_params.compression_precision                 28
-% - env_params.staging_boundaries                           `[[0.25, 0.25], [0.75, 0.75]]`
-% - env_params.object_persistency                           0
-% - controller_params.semantics_model_temperature           1
-% - controller_params.semantics_alpha_target                0.5
-% - controller_params.semantics_beta_image                  0
-% - controller_params.semantics_reward_scale                1
-% - controller_params.cost_along_trajectory                 "best"
-
 
 \chapter{Controller Hyperparameters}
 \label{sec:icem-details}
@@ -211,24 +189,24 @@ The developed code to create Tangram-like environments with any number of arbitr
 % action_sampler_params.elites_size
 % discount_along_trajectory
 The iCEM controller introduced in \secref{sec:icem} has several hyperparameters that need to be tuned for optimal performance.
-\tabref{tab:icem-params} lists the hyperparameters we tweaked in our experiments.
+\tabref{tab:icem-params} lists the hyperparameters we tweaked in our experiments, along with the best values we found.
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{4.7cm} L}
+    \caption{iCEM controller parameters.}
+    \begin{tabularx}{\textwidth}{C{4.7cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best\\
         \hline
-        \texttt{horizon} & Number of steps in the future to plan, \(h\).\\
-        \texttt{n\_trajectories} & Number of trajectories to sample, \(n\).\\
-        \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations.\\
-        \texttt{n\_inner\_iterations} & Number of iterations for the inner optimization loop, \(m\).\\
-        \texttt{init\_std} & Standard deviation at which the sampling distribution is initialized, \(\bmsigma_0\).\\
-        \texttt{elites\_size} & Size of the elite set, \(K\). See eq. \eqref{eq:icem-filter}.\\
-        \texttt{discount\_factor} & Discount factor for returns expected in the future, \(\gamma\). See eq. \eqref{eq:reward-aggregation-sum-discount} (default: \(1.0\); pink noise).\\ 
+        \texttt{horizon} & Number of steps in the future to plan, \(h\) & \(16\).\\
+        \texttt{n\_trajectories} & Number of trajectories to sample, \(n\). & \(128\)\\
+        \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations. & \texttt{Best} or \texttt{Sum}\\
+        \texttt{n\_inner\_iterations} & Number of iterations for the inner optimization loop, \(m\). & \(3\)\\
+        \texttt{init\_std} & Standard deviation at which the sampling distribution is initialized, \(\bmsigma_0\). & \(0.6\)\\
+        \texttt{elites\_size} & Size of the elite set, \(K\). See eq. \eqref{eq:icem-filter}. & \(20\)\\
+        \texttt{discount\_factor} & Discount factor for returns expected in the future, \(\gamma\). See eq. \eqref{eq:reward-aggregation-sum-discount}. & \(1.0\)\\ 
         \hline
     \end{tabularx}
-    \caption{iCEM controller parameters.}
     \label{tab:icem-params}
 \end{table}
 
@@ -245,33 +223,30 @@ The other important hyperparameters that we did not tweak in our experiments are
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{4.7cm} L}
+    \caption{iCEM controller fixed parameters.}
+    \begin{tabularx}{\textwidth}{C{4.7cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Default\\
         \hline
-        \texttt{factor\_decrease\_num} & Factor by which population size is decreased over iterations (default: \(1\)).\\
-        \texttt{alpha} & Momentum term for updating parameters of the sampling distribution.\\
+        \texttt{factor\_decrease\_num} & Factor by which population size is decreased. & \(1.0\)\\
+        \texttt{alpha} & Momentum term for updating parameters of the sampling distribution. & \(0.1\)\\
         % \texttt{relative\_init} & \\
-        \texttt{keep\_previous\_elites} & A flag to enable passing elites to the next timestamp (outer iteration).\\
-        \texttt{shift\_elites\_over\_time} & A flag to enable passing elites over inner iterations.\\
-        \texttt{fraction\_elites\_reused} & Fraction of passed elites from the previous inner/outer iteration added to the sampled trajectory set.\\
-        \texttt{use\_mean\_actions} & If the mean of the sampling distribution is appended to the elite set at the end of inner iterations.\\
-        \texttt{noise\_beta} & Colored noise exponent of the distribution, \(\beta\) (default: \(1\)).\\
+        \texttt{keep\_previous\_elites} & A flag to enable passing elites to the next timestamp (outer iteration). & True\\
+        \texttt{shift\_elites\_over\_time} & A flag to enable passing elites over inner iterations. & True\\
+        \texttt{fraction\_elites\_reused} & Fraction of passed elites from the previous iteration (inner/outer) added to the sampled trajectory set. & \(0.3\)\\
+        \texttt{use\_mean\_actions} & If the mean of the sampling distribution is appended to the elite set at the end of inner iterations. & True\\
+        \texttt{noise\_beta} & Colored noise exponent of the distribution, \(\beta\) & \(1.0\).\\
         \hline
     \end{tabularx}
-    \caption{iCEM controller fixed parameters.}
     \label{tab:icem-params-fixed}
 \end{table}
 
-\todo{add best hyperparams}
-
 Please refer to the original paper for more details on the parameters of iCEM.
-
 
 \chapter{Reward Hyperparameters}
 \label{sec:reward-details}
 
-This chapter lists the hyperparameters of the reward functions used in our experiments.
+This chapter details the hyperparameters of the reward functions used in our experiments.
 
 \section{Semantics Reward}
 \label{sec:semantics-reward-details}
@@ -290,31 +265,32 @@ This chapter lists the hyperparameters of the reward functions used in our exper
 % semantics_normalize
 % semantics_reward_scale
 
-\tabref{tab:entropy-reward-params} lists the parameters of the regularized semantics entropy reward from eq. \eqref{eq:entropy-reward-reg}.
+\tabref{tab:entropy-reward-params} lists the parameters of the regularized semantics entropy reward from eq. \eqref{eq:entropy-reward-reg}, along with the best values we found for our experiments.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Semantics entropy reward parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best\\
         \hline
-        \texttt{categories} & List of creative possibilities, \(\bml\).\\
+        \texttt{categories} & List of creative possibilities, \(\bml\). & \(|l| \approx 20\)\\
         \texttt{label\_prefix} & Prefix to be added to the categories to create text labels.\\
         \texttt{label\_suffix} & Suffix to be added to the categories to create text labels.\\
-        \texttt{baseline} & Baseline text input, \(\bfl_b\).\\
+        \texttt{baseline} & Baseline text input, \(\bfl_b\). ``A white canvas''\\
         \texttt{image\_baseline} & Baseline image input, \(\bfi_b\).\\
-        \texttt{alpha\_target} & Regularization parameter for target text, \(\alpha\).\\
-        \texttt{beta\_image} & Regularization parameter for input image observation, \(\beta\).\\
-        \texttt{model\_version} & Name of the CLIP variant used.\\
-        \texttt{model\_temperature} & Temperature for the softmax function in the semantics entropy reward, \(T\).\\
-        \texttt{normalize} & If the reward should be normalized by maximum entropy, \(\log(|\bml|)\) (default: True).\\
-        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the regularity reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward} (default: \(1\)).\\
+        \texttt{alpha\_target} & Regularization parameter for target text, \(\alpha\). & \(0.5\)\footnotemark[1]\\
+        \texttt{beta\_image} & Regularization parameter for input image observation, \(\beta\). & \(0\)\footnotemark[1]\\
+        \texttt{model\_version} & Name of the CLIP variant used. & (\texttt{ViT-L/14})\\
+        \texttt{model\_temperature} & Temperature for the softmax function in the semantics entropy reward, \(T\). & \([1, 2]\)\\
+        \texttt{normalize} & If the reward should be normalized by maximum entropy, \(\log(|\bml|)\). & True\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the regularity reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}. & \(1.0\)\\
         \hline
     \end{tabularx}
-    \caption{Semantics entropy reward parameters.}
     \label{tab:entropy-reward-params}
 \end{table}
+\footnotetext[1]{Please see \secref{sec:alpha-beta-semantics} for more details.}
 
-
+\newpage
 \subsection{Regularity Reward}
 \label{sec:regularity-reward-details}
 % compression_precision
@@ -335,21 +311,21 @@ Equation \eqref{eq:rair-relational-extended} extends eq. \eqref{eq:rair-relation
     \end{aligned}\end{cases}
     \label{eq:rair-relational-extended}
 \end{equation}
-\tabref{tab:regularity-reward-params} lists the parameters of the regularity reward.
+\tabref{tab:regularity-reward-params} lists the parameters of the regularity reward, along with the (default or) best values we found for our experiments.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Regularity reward parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Best\\
         \hline
-        \texttt{precision} & Precision of the compression algorithm.\\
-        \texttt{granularity} & Granularity of the compression algorithm.\\
-        \texttt{bidirectional} & If the compression should be bidirectional.\\
-        \texttt{normalize} & If the reward should be normalized by the maximum possible entropy, \(\log\left(\binom{N}{2}\right)\) (default: True).\\
-        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the semantics entropy reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}.\\
+        \texttt{precision} & Precision of the compression algorithm. Equal to the grid size for discrete grids. & SGW - \(28\) Tangram - \(1\)\\
+        \texttt{granularity} & Granularity of the compression algorithm. & \(1\)\\
+        \texttt{bidirectional} & If the compression should be bidirectional. & False\\
+        \texttt{normalize} & If the reward should be normalized by the maximum possible entropy, \(\log\left(\binom{N}{2}\right)\). & True\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the semantics entropy reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}. & \(1.0\)\\
         \hline
     \end{tabularx}
-    \caption{Regularity reward parameters.}
     \label{tab:regularity-reward-params}
 \end{table}
 
@@ -364,19 +340,38 @@ Please refer to the original paper for more details on the theory and implementa
 \tabref{tab:closeness-reward-params} lists the parameters of the closeness reward from \secref{sec:closeness-rollouts}.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{C{3.9cm} L}
+    \caption{Closeness reward parameters.}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
         \hline
-        Property & Description\\
+        Property & Description & Default\\
         \hline
-        \texttt{reward\_type} & Type of closeness reward -- \emph{sparse-incremental} or \emph{dense}.\\
-        \texttt{reward\_scale} & Factor with which the reward is scaled.\\
-        \texttt{reward\_threshold} & Threshold, \(\varepsilon\), for sparse rewards, eq. \eqref{eq:closeness-reward-sparse}.\\
+        \texttt{reward\_type} & Type of closeness reward -- \emph{sparse-incremental} or \emph{dense}. & ``sparse''\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. & \(1.0\)\\
+        \texttt{reward\_threshold} & Threshold, \(\varepsilon\), for sparse rewards, eq. \eqref{eq:closeness-reward-sparse}. & \(0.051\)\\
         \hline
     \end{tabularx}
-    \caption{Closeness reward parameters.}
     \label{tab:closeness-reward-params}
 \end{table}
 
+% - controller_params.compression                           True
+% - controller_params.render_kwargs.invert                  True
+% - controller_params.render_kwargs.color                   False
+% - controller_params.semantics_baseline                    "A white canvas"
+% - controller_params.action_sampler_params.opt_iterations  3
+% - controller_params.action_sampler_params.init_std        0.6
+% - controller_params.action_sampler_params.elites_size     20
+% - controller_params.num_simulated_trajectories            256
+% - controller_params.horizon                               8
+% - env_params.x_size                                       28
+% - env_params.x_step                                       7
+% - controller_params.compression_precision                 28
+% - env_params.staging_boundaries                           `[[0.25, 0.25], [0.75, 0.75]]`
+% - env_params.object_persistency                           0
+% - controller_params.semantics_model_temperature           1
+% - controller_params.semantics_alpha_target                0.5
+% - controller_params.semantics_beta_image                  0
+% - controller_params.semantics_reward_scale                1
+% - controller_params.cost_along_trajectory                 "best"
 
 \chapter{Comparing CLIP Models}
 \label{sec:clip-comparison}
@@ -392,20 +387,20 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
     \label{fig:clip-time-comparison}
 \end{figure}
 
-\todo{review this section}
+\figref{fig:clip-traj-comparison-color} shows the trajectories of different CLIP models on colored Tangram environments (without RaIR).
+The cumulative rewards and trajectories of the models are similar and do not give a clear picture of the models' performances, but the larger models seem to have better creations. 
 
-\figref{fig:clip-traj-comparison} shows the trajectories of different CLIP models on the Tangram environment.
-\begin{figure}[H]
-    \centering
-    % model_comparison.pdf
-    \includegraphics[width=\textwidth]{images/model_comparison.pdf}
-    % model_comparison_boxplot.pdf
-    \includegraphics[width=\textwidth]{images/model_comparison_boxplot.pdf}
-    % model_samples.pdf
-    \includegraphics[width=0.9\textwidth]{images/model_samples.pdf}
-    \caption{Comparing reward trajectories of different original CLIP models on black and white Tangram environment. 10 seeds were used for each model.}
-    \label{fig:clip-traj-comparison}
-\end{figure}
+% \begin{figure}[H]
+%     \centering
+%     % model_comparison.pdf
+%     \includegraphics[width=\textwidth]{images/model_comparison.pdf}
+%     % model_comparison_boxplot.pdf
+%     \includegraphics[width=\textwidth]{images/model_comparison_boxplot.pdf}
+%     % model_samples.pdf
+%     \includegraphics[width=0.9\textwidth]{images/model_samples.pdf}
+%     \caption[Comparing reward trajectories of different original CLIP models on b/w Tangram environment.]{Comparing reward trajectories of different original CLIP models on b/w Tangram environment. 10 seeds were used for each model.}
+%     \label{fig:clip-traj-comparison}
+% \end{figure}
 
 \begin{figure}[H]
     \centering    
@@ -415,23 +410,26 @@ Resnet models have a gradual slope in rollouts compared to ViT models and flatte
     \includegraphics[width=\textwidth]{images/model_comparison_boxplot_color.pdf}
     % model_samples_color.pdf
     \includegraphics[width=0.9\textwidth]{images/model_samples_color.pdf}
-    \caption{Comparing reward trajectories of different original CLIP models on a colored Tangram environment. 10 seeds were used for each model.}    
+    \caption[Comparing reward trajectories of different original CLIP models on colored Tangram environment.]{Comparing reward trajectories of different original CLIP models on colored Tangram environment. 10 seeds were used for each model.}
+    \label{fig:clip-traj-comparison-color}
 \end{figure}
 
 
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller \emph{toy} setup with convolutional neural networks trained as a single-digit number classifier on ShapeGridWorld images using the MNIST dataset \citep{mnist}.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller \emph{toy} setup with convolutional neural networks trained as a single-digit number classifier on ShapeGridWorld registered images from the MNIST dataset \citep{mnist}.
 We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, target-labeled with a uniform distribution of confidence over the ten single digits.
 
 We treated the entropy regularization strength and the addition of random samples as hyperparameters and trained a series of models with different combinations of the two.
 % \figref{fig:flatnet-comparison} shows the resulting trajectories of the models.
-The models were trained with the Adam optimizer \citep{adam} with a learning rate of \(0.001\) and a batch size of \(128\).
+The models were trained with the Adam optimizer \citep{adam} with a learning rate of \(0.001\) and a batch size of \(128\). The size of the MNIST training dataset is \(60000\).
 \tabref{tab:flatnet-models} summarizes the models we trained.
+More details of these models can be found at \url{https://pulkitgoyal56.github.io/flatnet}.
 
 % \vspace{12pt}
 \begin{table}[H]
     \centering
+    \caption{Summary of the Flatnet models.}
     \begin{tabularx}{0.7\textwidth}{c c c c}
     \hline
         Serial & Name & Random Training Data Size & \(\lambda\) \\ \hline
@@ -451,7 +449,6 @@ The models were trained with the Adam optimizer \citep{adam} with a learning rat
         Flatnet 13 & flatnet & 60000 & 0.0 \\ \hline
         Flatnet 15 & flatnet & 0 & 0.0 \\ \hline
     \end{tabularx}
-    \caption[Summary of the Flatnet models.]{Summary of the Flatnet models. More details of these models can be found at \url{https://pulkitgoyal56.github.io/flatnet}.}
     \label{tab:flatnet-models}
 \end{table}
 
@@ -462,6 +459,7 @@ The comparisons of all the models are neatly visualized at \url{https://www.shar
     \centering
     \includegraphics[width=0.8\textwidth]{images/Flatnet 15.pdf}
     \caption[A regular Flatnet MNIST classifier on random rollouts.]{A regular Flatnet MNIST classifier on random rollouts. Flatnet 15.}
+    \vspace{12pt}
     \includegraphics[width=0.8\textwidth]{images/Flatnet 3.pdf}
     \caption[An entropy regularized Flatnet MNIST classifier on random rollouts.]{An entropy regularized Flatnet MNIST classifier on random rollouts. Flatnet 3.}
     \label{fig:flatnet-comparison}
@@ -496,6 +494,7 @@ The results of the best formulation for each of these libraries are summarized i
 
 \begin{table}[H]
     \centering
+    \caption{Colored rendering-time comparison.}
     \begin{tabular}[t]{@{} c c c @{}}
         \hline
         \textbf{Library} & \textbf{Main Function/Class} & \textbf{Time (\(\mu s\))*}\\
@@ -505,11 +504,11 @@ The results of the best formulation for each of these libraries are summarized i
         OpenCV & \texttt{fillPoly} & 66.3 ± 0.85\\
         \hline
     \end{tabular}
-    \caption{Colored rendering-time comparison.}
     \label{tab:render-time-color}
 \end{table}
 \begin{table}[H]
     \centering
+    \caption{Grayscale rendering-time comparison.}
     \begin{tabular}[t]{@{} c c c @{}}
         \hline
         \textbf{Library} & \textbf{Main Function/Class} & \textbf{Time (\(\mu s\))*}\\
@@ -519,7 +518,6 @@ The results of the best formulation for each of these libraries are summarized i
         OpenCV & \texttt{fillConvexPoly} & 52.2 ± 1.04\\
         \hline
     \end{tabular}
-    \caption{Grayscale rendering-time comparison.}
     \label{tab:render-time-bw}
 \end{table}
 * - Mean \(\pm\) standard deviation of \(7\) runs; \(1,000 - 10,000\) loops each.
@@ -534,7 +532,7 @@ This required significant memory, for which we parallelized them on multiple GPU
 
 To reduce the inference time, we tweaked the image preprocessing functions of CLIP to be adaptive to the input to ensure that no redundant operations were performed.
 
-Furthermore, we typically chose the rendering configurations for the environments such that the resulting renders required minimal preprocessing in the form of resizing, cropping, type conversions, or copying, which was computationally expensive.
+Additionally, we picked the rendering configurations for the environments such that the resulting renders required minimal preprocessing in the form of resizing, cropping, type conversions, or copying, which was computationally expensive.
 For example, all renderings concurred with the required input for the used CLIP model (eg. \(224 \times 224\) for the \texttt{ViT-L/14} variant) used for inference to avoid any resizing.
 This also helped to improve the simulation times significantly.\\
 
@@ -543,7 +541,7 @@ This also helped to improve the simulation times significantly.\\
     \includegraphics[width=\textwidth]{images/full_transform.pdf}
     \vspace{-12pt}
     \caption{Preprocessing times before optimizations.}
-    % \vspace{12pt}
+    \vspace{12pt}
     \includegraphics[width=\textwidth]{images/fast_transform.pdf}
     \vspace{-12pt}
     \caption{Preprocessing times after optimizations.}
@@ -557,46 +555,47 @@ These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/
 \chapter{Additional Simulations on ShapeGridWorld}
 \label{sec:sgw-semantics-additional}
 
-\section{Effect of Categories}
+\section{Effect of Semantic Categories Set}
 \label{sec:sgw-categories}
+The effect of the choice of categories on the semantics entropy reward in ShapeGridWorld was also significant.
+\figref{fig:categories-sgw} and \figref{fig:categories-sgw-norair} show the effect of different sets of categories on the reward landscape and some samples of their creations, with and without RaIR respectively.
+
+We observe that categories involving numbers (``numbers and letters'' and ``numbers'') start with a flatter distribution compared to object categories (few or many).
+
 % categories_boxplot_sgw_rair.pdf
 % categories_comparison_sgw_rair.pdf
 % categories_samples_sgw_rair.pdf
-The effect of the choice of categories on the semantics entropy reward in ShapeGridWorld was also significant.
-\figref{fig:categories-boxplot-sgw} and \figref{fig:categories-sgw} show the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw} shows some samples of the creations with different categories.
-
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair.pdf}
-    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
-    \label{fig:categories-boxplot-sgw}
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair_cropped.pdf}
+    % \label{fig:categories-boxplot-sgw}
+    \vspace{12pt}
     \includegraphics[width=\textwidth]{images/categories_comparison_sgw_rair.pdf}
-    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld.}
-    \label{fig:categories-sgw}
-    % \vspace{12pt}
+    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld. 10 seeds were used.}
+    \vspace{12pt}
     \includegraphics[width=\textwidth]{images/categories_samples_sgw_rair.pdf}
-    \caption{Samples of creations with different categories in ShapeGridWorld.}
-    \label{fig:categories-samples-sgw}
+    % \caption{Samples of creations with different categories in ShapeGridWorld.}
+    % \label{fig:categories-samples-sgw}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld.]{Effect of categories on semantics entropy reward in ShapeGridWorld. 10 seeds were used.}
+    \label{fig:categories-sgw}
 \end{figure}
 
 % categories_boxplot_sgw_norair.pdf
 % categories_comparison_sgw_norair.pdf
 % categories_samples_sgw_norair.pdf
-Without RaIR, the effect of categories on the reward landscape was different.
-\figref{fig:categories-boxplot-sgw-norair} and \figref{fig:categories-sgw-norair} show the effect of different categories on the reward landscape and \figref{fig:categories-samples-sgw-norair} shows some samples of the creations with different categories.
-
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_norair.pdf}
-    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.}
-    \label{fig:categories-boxplot-sgw-norair}
-    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_norair.pdf}
-    \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.}
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_norair_cropped.pdf}
+    % \label{fig:categories-boxplot-sgw-norair}
+    \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_norair_cropped.pdf}
+    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR. 10 seeds were used.}
+    \vspace{12pt}
+    \includegraphics[width=\textwidth]{images/categories_samples_sgw_norair_cropped.pdf}
+    % \caption{Samples of creations with different categories in ShapeGridWorld without RaIR.}
+    % \label{fig:categories-samples-sgw-norair}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.]{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR. 10 seeds were used.}
     \label{fig:categories-sgw-norair}
-    % \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/categories_samples_sgw_norair.pdf}
-    \caption{Samples of creations with different categories in ShapeGridWorld without RaIR.}
-    \label{fig:categories-samples-sgw-norair}
 \end{figure}
 
 \section{Effect of Grayscale Pixels}
@@ -605,15 +604,18 @@ Without RaIR, the effect of categories on the reward landscape was different.
 % mode_samples_sgw.pdf
 Observing the effect of the grayscale values on the effect of RaIR in ShapeGridWorld, we also ran simulations with different categories of colors in the pixels.
 
-\begin{figure}[H]
+It seems that the presence of grayscale pixels has a regularizing effect on the reward landscape and consequently there is less noise in CLIP.
+This is evident from the reduced confidence in the imperfect final creations in \figref{fig:mode-sgw}.
+
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/mode_comparison_sgw.pdf}
+    \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/mode_samples_sgw.pdf}
+    % \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
+    % \label{fig:mode-samples-sgw}
     \caption{Effect of the presence of grayscale pixels on semantics entropy reward in ShapeGridWorld.}
     \label{fig:mode-sgw}
-    % \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/mode_samples_sgw.pdf}
-    \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
-    \label{fig:mode-samples-sgw}
 \end{figure}
 
 \section{Effect of Number of Pixels}
@@ -622,59 +624,63 @@ Observing the effect of the grayscale values on the effect of RaIR in ShapeGridW
 % n_objects_comparison_sgw.pdf
 % n_objects_samples_sgw.pdf
 
-\begin{figure}[H]
+As we noted earlier, the presence of a high number of controllable pixels in the ShapeGridWorld exacerbates the problem of noise in CLIP and is also a more difficult control problem, hence we also experimented with different numbers of pixels in the environment.
+
+Having too few pixels also results in a rather noisy landscape with a lot of false positives, as seen in \figref{fig:n-objects-sgw}.
+This seems to suggest that moderate numbers of pixels are optimal for the environment.
+
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/n_objects_comparison_sgw.pdf}
+    \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/n_objects_samples_sgw.pdf}
+    % \caption{Samples of creations with different numbers of objects in ShapeGridWorld.}
+    % \label{fig:n-objects-samples-sgw}
     \caption{Effect of the number of objects on semantics entropy reward in ShapeGridWorld.}
     \label{fig:n-objects-sgw}
-    % \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/n_objects_samples_sgw.pdf}
-    \caption{Samples of creations with different numbers of objects in ShapeGridWorld.}
-    \label{fig:n-objects-samples-sgw}
 \end{figure}
 
 % nobj_mode_rair_sgw_boxplot.pdf
 The effects of the number of objects, grayscale pixels, and RaIR are summarised in \figref{fig:nobj-mode-sgw}
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/nobj_mode_rair_sgw_boxplot.pdf}
     \caption{Effect of the number of objects, grayscale pixels, and RaIR on semantics entropy reward in ShapeGridWorld.}
     \label{fig:nobj-mode-sgw}
 \end{figure}
 
-
-\section{Object Persistency}
+\newpage
+\section{Effect of Object Persistency}
 \label{sec:sgw-persistency}
 % Object Persistency
 % object_persistency_comparison_sgw.pdf
 % object_persistency_samples_sgw.pdf
 
-\begin{figure}[H]
+We also experimented with the ``object persistency'' of objects in the environment, which defines how many action steps an object is moved before the controller switches its focus on the next object in the predetermined order.
+This also included the case of moving all the objects together.
+This is related to the step size of the environment which defines how many steps in x/y-directions an object can be moved in one action.
+
+Since the action space with moving all the objects at the same time can be very large (proportional to the number of objects), the controller needs more computational budget to realize the optimal policy, in the form of a higher planning horizon, more sampled trajectories, or more iterations to converge.
+We noticed that we obtained the best results when the objects were moved one at a time, only for one timestep, i.e. an object persistency of \(1\), with a step size around a quarter of the grid size.
+This is evident from the faster convergence in \figref{fig:object-persistency-sgw}.
+
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/object_persistency_comparison_sgw.pdf}
+    \vspace{12pt}
+    \includegraphics[width=0.66\textwidth]{images/object_persistency_samples_sgw.pdf}
+    % \caption{Samples of creations with different object persistency in ShapeGridWorld.}
+    % \label{fig:object-persistency-samples-sgw}
     \caption{Effect of object persistency on semantics entropy reward in ShapeGridWorld.}
     \label{fig:object-persistency-sgw}
-    % \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/object_persistency_samples_sgw.pdf}
-    \caption{Samples of creations with different object persistency in ShapeGridWorld.}
-    \label{fig:object-persistency-samples-sgw}
 \end{figure}
 
 
 \chapter{Additional Graphs}
 \label{sec:additional-graphs}
 
-% alpha_beta-semantics_std_rair.pdf
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
-    \vspace{-12pt}
-    \caption{Standard deviation of regularization strength performance on the semantics reward.}
-    \label{fig:alpha_beta-semantics_std_rair}
-\end{figure}
-
 % Class preference in CLIP
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/creations_distribution.pdf}
     \vspace{-12pt}
@@ -685,6 +691,22 @@ The effects of the number of objects, grayscale pixels, and RaIR are summarised 
     \vspace{-12pt}
     \caption[Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference.]{Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference. The \(36\) classes are all letters and numbers.}
     \label{fig:class-preference-sgw}
+\end{figure}
+
+% alpha_beta-semantics_std_rair.pdf
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.96\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
+    \caption{Standard deviation of regularization strength performance on the semantics reward.}
+    \label{fig:alpha_beta-semantics_std_rair}
+\end{figure}
+
+% all inversions of an image
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/tangram_fish_10.pdf}
+    \caption{CLIP on different inversions of the same Tangram creation. \(T = 0.1\).}
+    \label{fig:clip-tangram-inversions}
 \end{figure}
 
 
