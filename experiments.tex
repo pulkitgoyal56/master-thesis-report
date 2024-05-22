@@ -214,11 +214,12 @@ These minimal parameters were then used as a starting point for the simulations 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/closeness_trajectory_495.pdf}
-    \caption{A successful closeness cost rollout in Tangram.}
+    \href{https://drive.google.com/file/d/15IAo_xsNFSUI0YFVjrIBfn7LAV2hO68E}{\includegraphics[width=\textwidth]{images/closeness_trajectory_495.pdf}}
+    \caption[A successful closeness cost rollout in Tangram.]{A successful closeness cost rollout in Tangram\footnotemark[1].}
     \label{fig:closeness-rollouts}
 \end{figure}
 
+\footnotetext[1]{Simulation (with animation) of another similar closeness rollout with a house as the target is available at \url{https://t.ly/jV1dH} or \url{https://drive.google.com/drive/folders/1yGFYLp96O3bEkMu-byQIRGGnOpkvJRcT}.}
 
 % \subsubsection{Tuning Environment Parameters}
 % \label{sec:env-hyperparameters}
@@ -270,7 +271,7 @@ Namely, the temperature of the softmax function (\(T\)), the text baseline regul
 
 The complex nature of the reward landscape and the high dimensionality of the state space made it difficult to analyze the effects of these hyperparameters.
 To gain an intuition over these parameters and reduce the search space, we used the best of the previous rollouts with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP to calculate the trajectories of the resulting indirect semantics reward\footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
-Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters, and prefixes and suffix to see their effects}.
+Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters, and prefixes and suffix to see their effects.}.
 
 Given a generic set of simple Tangram creations for the creative possibilities, we found that the choice of prefix and suffix could affect the reward trajectories significantly (see \figref{fig:prefix-suffix}).
 Their performance is measured in terms of the mean-shifted cumulative rewards.
@@ -656,7 +657,7 @@ This mechanism is quite apparent in the simulation summary shown in \figref{fig:
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/sim_rair_later_bird_cropped.pdf}
+    \href{https://drive.google.com/file/d/1zhw-571KImEE4OPbpeWEA9SAKPv4r7F3}{\includegraphics[width=\textwidth]{images/sim_rair_later_bird_cropped.pdf}}
     \caption[Simulation on Tangram with the complete semantics reward leading to a bird creation.]{Simulation on Tangram with the complete semantics reward leading to a bird creation. The first row shows the RaIR trajectory, the second row shows the semantics entropy cost, and the third row shows snapshots of labeled milestones across time. Notice how the semantic reward is optimized first, but does not lead to a particularly meaningful bird creation. As the regularity is optimized further, while maintaining the semantic state in the CLIP reward landscape, the creation becomes more recognizable.}
     \label{fig:sim}
 \end{figure}
