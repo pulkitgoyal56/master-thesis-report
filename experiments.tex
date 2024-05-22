@@ -609,14 +609,14 @@ We ran simulations with different regularization strengths to reconcile their ef
 \figref{fig:alpha-beta-semantics} shows the heatmap of the mean cumulative rewards for different combinations of the regularization strengths.
 % For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
 
-We find that non-zero regularization strengths (\(\alpha\) and/or \(\beta\)) do improve the performance, with mid-range values \((\alpha, \beta) = (0.3, 0
+We find that non-zero regularization strengths (\(\alpha\) and/or \(\beta\)) do improve the performance, with mid-range values \((\alpha, \beta) = (0.3, 0.
 3)\) having the best performance by these metrics.
 This corroborates the results in the post hoc trajectory analysis study in \secref{sec:reg-alpha-beta}.
 
 % alpha_beta-semantics_rair.pdf -- heatmap
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/alpha_beta-semantics_rair.pdf}
+    \includegraphics[width=\textwidth]{images/alpha_beta-semantics_rair_with_std.pdf}
     \caption{Performance of regularization strengths on semantics reward.}
     \label{fig:alpha-beta-semantics}
 \end{figure}
@@ -633,10 +633,11 @@ This corroborates the results in the post hoc trajectory analysis study in \secr
     \caption{Samples of creations with different regularization strengths.}
     \label{fig:alpha-beta-samples}
 \end{figure}
+\vspace{-11pt}
 
-Noticeably, the three cost trajectories with high image baseline regularization strength \(\beta = 0.5\) are too flat and seem to converge at entropy values greater than \(0\).
-For \((\alpha, \beta) = (0.5, 0.3)\), the cost trajectory seems more sparse and noisy,
-For other combinations of \((\alpha, \beta)\) -- \(()\), we do not see a significant difference in the performance or quality of creations.
+Noticeably, the three cost trajectories with high image baseline regularization strength (\(\beta = 0.5\)) are too flat and do not reach an optimal zero entropy.
+At \((\alpha, \beta) = (0.5, 0.3)\) and \((0, 0.3)\), the cost trajectories seem slightly more sparse and noisy.
+For the remaining combinations \((0.5, 0)\) and \((0.3, 0)\), the trajectories are well-shaped and there is no significant difference in the performance or quality of creations.
 
 \newpage
 \subsection{Effect of RaIR}
@@ -644,58 +645,47 @@ For other combinations of \((\alpha, \beta)\) -- \(()\), we do not see a signifi
 % compression_precision
 % 1 / semantics_reward_scale
 
-Throughout our simulations, we noticed a high degree of regularity in semantic creations and a high correlation between the RaIR and the semantics entropy reward. 
-Indeed, we found that creations simulated with RaIR were much more recognizable than without it.
-\figref{fig:rair} shows the effect and \figref{fig:rair-samples} shows some samples of the creations with and without RaIR.
+Throughout our tests and simulations, we noticed a high degree of regularity in semantic creations and a high correlation between the RaIR and the semantics entropy reward. 
+Indeed, we found that creations simulated with RaIR were much better in many cases than without it.
 
-% rair_comparison.pdf
-\begin{figure}[H]
+Even though the performance with RaIR is slightly worse in terms of the cumulative reward shown in \figref{fig:rair}, the creations shown in \figref{fig:rair-samples} are more semantically expressive and recognizable.
+Adding structural bias using RaIR helped with grounding and coalescing the creations in better forms and patterns and the resulting creations are neater and more appealing.
+It was particularly helpful in the later stages of planning as the agent first quickly converges to local minima in the semantics reward landscape and then optimizes for regularity while maintaining its semantic expressiveness.
+Thus RaIR helps in escaping local minima, and in turn, leads to more meaningful creations.
+This mechanism is quite apparent in the simulation summary shown in \figref{fig:sim}.
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/rair_comparison.pdf}
-    \caption{Effect of RaIR on semantics entropy reward in Tangram.}
-    \label{fig:rair}
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/rair_samples.pdf}
-    \caption{Samples of creations with and without RaIR.}
-    \label{fig:rair-samples}
-\end{figure}
-
-RaIR was particularly helpful in the beginning of the planning as the agent starts building regular structures to bring it closer to a semantically meaningful state which is then further refined by the semantics entropy reward.
-
-Adding the structural bias from RaIR helped with grounding and coalescing the creations in more human-recognizable forms and patterns.
-
-\todo{talk about observations of optimizing regularity after semantics}
-\todo{talk about the weight of RaIR}
-\todo{Creations are neater}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{images/sim_rair_later_bird.pdf}
-    \caption{Simulation on Tangram with the complete semantics reward leading to a bird creation.}
+    \includegraphics[width=\textwidth]{images/sim_rair_later_bird_cropped.pdf}
+    \caption[Simulation on Tangram with the complete semantics reward leading to a bird creation.]{Simulation on Tangram with the complete semantics reward leading to a bird creation. The first row shows the RaIR trajectory, the second row shows the semantics entropy cost, and the third row shows snapshots of labeled milestones across time. Notice how the semantic reward is optimized first, but does not lead to a particularly meaningful bird creation. As the regularity is optimized further, while maintaining the semantic state in the CLIP reward landscape, the creation becomes more recognizable.}
     \label{fig:sim}
 \end{figure}
 
-We also tested this in ShapeGridWorld, where the effect of RaIR was only marginal and only affected when the pixels had grayscale values.
+We discovered that the exact proportion of the weight of the RaIR to the semantics entropy reward \(\lambda\) from \eqref{eq:semantics-reward} is not as important as the presence of RaIR itself.
+Although, very high values of \(\lambda\) can lead to a loss of semantic expressiveness.
+Consequently, we used a value of \(\lambda = 1\) in our simulations, which resulted in consistent well-expressed creations.
 
-\figref{fig:rair-color-sgw} and \figref{fig:rair-samples-color-sgw} show the effect of RaIR on ShapeGridWorld with grayscale pixels.
+\figref{fig:rair-sgw} and \figref{fig:rair-samples-sgw} show the effect of RaIR on the semantics reward in ShapeGridWorld, where the effect is only marginal, both in terms of the cumulative reward/cost performance, and the quality of the creations.
+Although the creations are neater with RaIR, with fewer random pixels, there is no effective difference in the semantic expressiveness of the creations.
+Results for many more simulations on ShapeGridWorld are given in \secref{sec:sgw-semantics-additional}.
 
-% rair_comparison_sgw_color.pdf
 \begin{figure}[h]
+    % rair_comparison.pdf
     \centering
-    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_color_cropped.pdf}
-    \caption{Effect of RaIR on ShapeGridWorld with grayscale pixels.}
-    \label{fig:rair-color-sgw}
+    \includegraphics[width=0.99\textwidth]{images/rair_comparison.pdf}
+    \caption{Effect of RaIR on semantics entropy reward in Tangram.}
+    \label{fig:rair}
     \vspace{12pt}
-    \includegraphics[width=0.5\textwidth]{images/rair_samples_sgw_color.pdf}
-    \caption{Samples of creations with and without RaIR in ShapeGridWorld with grayscale pixels.}
-    \label{fig:rair-samples-color-sgw}
+    \includegraphics[width=0.99\textwidth]{images/rair_samples.pdf}
+    \caption{Samples of creations with and without RaIR in Tangram.}
+    \label{fig:rair-samples}
+    \vspace{12pt}
     % rair_comparison_sgw_categories.pdf
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/rair_comparison_sgw_categories_cropped.pdf}
-    \caption{Effect of RaIR on ShapeGridWorld.}
+    \includegraphics[width=0.99\textwidth]{images/rair_comparison_sgw_categories_cropped.pdf}
+    \caption{Effect of RaIR on semantics entropy reward in ShapeGridWorld.}
     \label{fig:rair-sgw}
     \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/rair_samples_sgw_categories.pdf}
+    \includegraphics[width=0.99\textwidth]{images/rair_samples_sgw_categories.pdf}
     \caption[Samples of creations with and without RaIR in ShapeGridWorld.]{Samples of creations with and without RaIR in ShapeGridWorld. % Using the \texttt{best} aggregation function.
     }
     \label{fig:rair-samples-sgw}
@@ -709,4 +699,3 @@ We also tested this in ShapeGridWorld, where the effect of RaIR was only margina
 % We ran final simulations on ShapeGridWorld with the best hyperparameters from the previous analyses.
 % \figref{fig:sgw-trajectories} shows the effect of regularization strengths on the semantics entropy reward trajectories.
 
-Results for additional simulations on ShapeGridWorld are given in \secref{sec:sgw-semantics-additional}.
