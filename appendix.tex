@@ -200,7 +200,7 @@ The iCEM controller introduced in \secref{sec:icem} has several hyperparameters 
         \hline
         \texttt{horizon} & Number of steps in the future to plan, \(h\) & \(16\).\\
         \texttt{n\_trajectories} & Number of trajectories to sample, \(n\). & \(128\)\\
-        \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations. & \texttt{Best} or \texttt{Sum}\\
+        \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations. & \texttt{best} or \texttt{sum}\\
         \texttt{n\_inner\_iterations} & Number of iterations for the inner optimization loop, \(m\). & \(3\)\\
         \texttt{init\_std} & Standard deviation at which the sampling distribution is initialized, \(\bmsigma_0\). & \(0.6\)\\
         \texttt{elites\_size} & Size of the elite set, \(K\). See eq. \eqref{eq:icem-filter}. & \(20\)\\
@@ -693,13 +693,13 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     \label{fig:class-preference-sgw}
 \end{figure}
 
-% alpha_beta-semantics_std_rair.pdf
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.96\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
-    \caption{Standard deviation of regularization strength performance on the semantics reward.}
-    \label{fig:alpha_beta-semantics_std_rair}
-\end{figure}
+% % alpha_beta-semantics_std_rair.pdf
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.96\textwidth]{images/alpha_beta-semantics_std_rair.pdf}
+%     \caption{Standard deviation of regularization strength performance on the semantics reward.}
+%     \label{fig:alpha_beta-semantics_std_rair}
+% \end{figure}
 
 % all inversions of an image
 \begin{figure}[h]

@@ -104,53 +104,48 @@ The sections below discuss these problems in detail.
 \label{sec:sparse-rewards}
 
 We observed that the inference of CLIP breaks suddenly with small changes in the image, i.e. its confidence in its classification is very sensitive.
-This results in a sparse semantics entropy reward landscape.
+This can be interpreted as a jagged reward landscape with many local optima.
 \figref{fig:sparse-rewards} illustrates this problem.
+It shows that changing a single pixel might lead to a sudden change in the distribution of CLIP's inferences.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{images/sparse_rewards.pdf}
-    \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld. Going from left to right in time, we perturb the grid pixel-by-pixel and observe CLIP's confidence change. The top row shows the distribution of CLIP's inferences over the labels ``giraffe'', ``number'', and ``random'' in red, green, and blue respectively. The first and last images in the bottom row are the initial and final images respectively.
-    The middle three images in the bottom row show the images where the distribution changed its trend, at the last time when ``giraffe'' was the most confident category, at the time when the distribution was equally split between the categories, and the first time when ``random'' was the confident category.
-    They are all just a few pixels away from each other but essentially still the same, yet they are much different for CLIP.}
+    \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld. Going from left to right in time, we perturb the grid pixel-by-pixel and observe CLIP's confidence change. The bottom row shows the distribution of CLIP's inferences over the labels ``car'', ``apple'', ``fruit'', ``letter'', and ``number''. The graph in the top row shows the distribution's entropy. The first and last images in the bottom row are the initial and final images respectively.
+    The middle image shows the image after which ``car'' was no longer the categorized class.}
     \label{fig:sparse-rewards}
     
 \end{figure}
 
-Sparse rewards are a problem in reinforcement learning in general because underly a lack of continuous feedback. 
-With only sporadic rewards, it becomes exceedingly difficult for an agent to gauge the values of actions to lead it to eventual rewards, i.e. credit assignment becomes difficult, which in turn leads to difficult and inefficient learning of action policies.
-
-% If we imagine this scenario in reverse with an active controller, i.e. if the agent starts from the random image and tries to converge to a meaningful image by relying on the semantics entropy reward, it might register a sudden burst of rewards for small changes in the image, but these rewards are just artifacts of the noise in CLIP's inferences.
+There is a lack of continuous incremental feedback in the reward signal, i.e. the reward landscape is noisy and sparse.
+If we imagine this scenario in reverse with an active controller, i.e. if the agent starts from the random image and tries to converge to a meaningful image by relying on the semantics entropy reward, it might register a sudden burst of rewards for small changes in the image, but these rewards are just artifacts of the noise in CLIP's inferences.
+This makes it difficult for the agent to gauge the values of actions to lead itself to eventual rewards, which in turn leads to difficult and inefficient learning of action policies.
 
 Thus, a smooth and continuous reward is essential for effective learning.
+
+This demanded some regularization techniques that would reduce the noise in CLIP, and a more robust optimization algorithm that could still work well.
 Since we used the iCEM controller which is a gradient-free optimization algorithm and has proved to work well in sparse reward settings, it helped to mitigate this problem.
+% Moreover, we typically used the \texttt{sum} cost aggregation function for iCEM to average out the noise in the reward signals over the planning horizon.
 
 \subsection{Semantic Bias in Random Images} % Confidence in random images
 \label{sec:inference-noise}
-The other consequence of the noise in CLIP inference is that can sometimes confidently classify random images to a class, i.e. false positives, instead of having a flat distribution.
-\figref{fig:semantic-bias-random} shows some examples of Tangram creations in which CLIP displayed high confidence.
+Another consequence of the noise in CLIP is that it often confidently classifies random images to a class, i.e. false positives, instead of having a flat distribution over the classes, as observed here with the class ``number''.
 
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.6\textwidth]{images/p_random_semantic_bias.png}
-    \includegraphics[width=\textwidth]{images/adversarial_samples.pdf}
-    \caption{Large semantic bias in random images.}
-    \label{fig:semantic-bias-random}
-\end{figure}
-
-This can also be interpreted as a jagged reward landscape with many local optima.
-This noisy reward signal can lead the agent to be stuck in local optima (with a rather meaningless creation that it erroneously finds confident), or inhibit it from reaching a good optimum.
+This noisy reward signal can lead the agent to be stuck in local optima (with a rather meaningless creation that it erroneously finds confident), or inhibit it from reaching a good optimum by hindering the policy learning.
 
 The two problems, sparse rewards and semantic bias in random images are not independent.
-They have the same underlying cause -- noisy CLIP inference, yet there's a non-trivial anticorrelation between reward sparseness and noise.
-That is, increasing reward density involves increasing confidence in imperfect/partial creations which also increases noise.
+They have the same underlying cause -- noisy CLIP inference, yet there's a non-trivial anti-correlation between reward sparseness and noise.
+That is, increasing reward density (or reducing reward sparsity) involves increasing confidence in imperfect/partial creations (or adding more semantic bias in random images).
 
 
 \subsubsection{Class Preference in CLIP}
 \label{sec:class-preference}
 Another complementary issue we faced related to the problem of semantic bias in random images was that of class imbalance.
-Simply put, there were some classes in which CLIP was consistently more confident than others and leaned towards them over others when unsure.
+There are some classes in which CLIP is consistently more confident than others and leans towards them over others when unsure.
 This included classes that signified broad concepts like ``animal'', ``fruit'', ``number'', ``letter'', or ``object''.
+
+Thus in free-play, it converges to these classes more often than others.
+Histograms of the creations we observed in our simulations shown in \figref{fig:class-preference-tangram} and \figref{fig:class-preference-sgw} clearly show this bias.
 
 % \begin{figure}[H]
 %     \centering
@@ -162,12 +157,12 @@ This included classes that signified broad concepts like ``animal'', ``fruit'', 
 This is a fundamental nature of the CLIP model and we could only mitigate it by avoiding certain categories and choosing enough categories for the semantics entropy reward such that CLIP's preferences balanced out.
 More discussion on tackling this problem in particular is given in section \secref{sec:clip-categories}.
 
-\newpage
+% \newpage
 \section{Trajectory Analysis with Closeness Costs}
 \label{sec:closeness-rollouts}
 % closeness_reward_scale
 % closeness_reward_threshold
-Before we started improving and running simulations using inferences from CLIP, we needed to ensure that the controller was able to reach a reward-conditioned goal in our environments, i.e. it was \emph{solvable}.
+Before we started improving and running simulations using inferences from CLIP, we needed to ensure that the agent was able to reach a reward-conditioned goal in our environments, i.e. it was \emph{solvable}.
 Especially, it was crucial to establish this solvability under sparse rewards.
 
 To ensure that our controller did this efficiently and robustly, a good choice of the iCEM controller hyperparameters and the environment configuration was essential.
@@ -178,7 +173,7 @@ For a small discrete grid or a large enough step size, the planning horizon does
 If the step size is too small for the grid size, a longer planning horizon is required so that the agent can discover the reward by random sampling.
 
 In a similar vein, the step size is also related to the \emph{object persistency} used in the environments.
-This parameter governs how many steps a single object (pixel block in ShapeGridWorld and a polygon in Tangram) is in focus for the actions of the controller before it cycles to the next object in the sequence.
+This parameter governs how many steps a single object (pixel block in ShapeGridWorld and a polygon in Tangram) is in focus for the actions of the controller before it cycles to the next object in the predefined sequence.
 For a high object persistency, the step size could be lower, but for a low object persistency, the step size needs to be higher.
 
 These interdependencies made the hyperparameter optimization problem quite complex and the sheer number of these parameters made this task very expensive.
@@ -186,17 +181,15 @@ Given the high computation resources and time required to run simulations with t
 Thus, we instead used an alternative reward function to analyze the effect of the hyperparameters.
 We called this ersatz reward function the \emph{closeness reward}.
 
-A closeness reward is defined in the context of a fixed target creation in the environment, and its function is given as the negative of a distance function between the current creation and the target creation in the state space of the environment.
+A closeness reward is defined in the context of a fixed target creation in the environment, and it is formulated as the negative of a distance function between the current creation and the target creation in the state space of the environment.
 
-We used two different formulations of the distance function, which we called the \emph{dense closeness cost} and \emph{sparse incremental closeness cost}.
+We used two different distance functions, which we called the \emph{dense closeness cost} and \emph{sparse incremental closeness cost}.
 The dense closeness cost is formulated as the \(L^2\) distance between the current and target creations and the sparse incremental closeness cost is formulated as the dimension-wise thresholded \(L^1\) distance between the current and target creations, given by,
 \begin{equation}
     \label{eq:closeness-reward-sparse}
     d(\bfi, \bft) = \sum_{k \in n_s} \bm{1}_\varepsilon(\bfi_k - \bft_k),
 \end{equation}
 where \(\bfi, \bft \in \cS\) are the current and target creations respectively, \(\varepsilon\) is a small threshold, and \(\bm{1}_\varepsilon\) is the indicator function such that \(\bm{1}_\varepsilon(x) = 1\) if \(|x| > \varepsilon\) and \(0\) otherwise.
-
-\todo{add more details about the hyperparameters optimized here.}
 
 Using the closeness reward/cost formulations, we performed an extensive grid search over the many hyperparameters of the iCEM controller and the environment together to find the best combinations and study their effects.
 To assess and compare the results in these experiments, we compared their cumulative rewards over the rollouts.
@@ -207,11 +200,14 @@ The controller was easily able to achieve the goal under dense closeness rewards
 The tuning was more difficult under sparse incremental rewards, which required a higher planning horizon and more sampled trajectories to reach the goal.
 This directly corresponds to a higher computational cost.
 
-The cost aggregation functions \texttt{best} and \texttt{sum} were comparable in performance and performed better than \texttt{best-\emph{l}}, \emph{last}, and \emph{last-\emph{l}}.
-We typically employed the \texttt{sum} aggregation function as it is more robust to noise due to its summation.
-In other runs, we found the greedier \texttt{best} aggregation function to be more efficient in reaching the goal and escaping local minima.
+Generally, in a continuous Tangram grid, with a step size of \(4\), moving one object at a time for one action step, an iCEM controller with \(128\) trajectories and a minimum planning horizon of \(8\) with \(3\) inner iterations was able to reach the goal in \(30-60\) timesteps.
 
-The comparison results are omitted here for brevity. Please refer to the appendix sections \ref{sec:icem-details} and \ref{sec:environments-details} for more details about these hyperparameters of the iCEM controller and the environments respectively.
+The cost aggregation functions \texttt{best} and \texttt{sum} were comparable in performance and performed better than \texttt{best-\emph{l}}, \texttt{last}, and \texttt{last-\emph{l}}.
+We typically employed the \texttt{sum} aggregation function for our main simulations due to its summation operation which averages over the rewards in the planning horizon and makes it more robust to noise.
+It essentially has a regularizing effect on the reward landscape.
+In other runs, with other regularization techniques in place, we found the greedier \texttt{best} aggregation function to be more efficient in reaching the goal and escaping local minima.
+
+The comparison results are omitted here for brevity. Please refer to the appendix sections \ref{sec:icem-details} and \ref{sec:environments-details} for more details about these hyperparameters of the iCEM controller and the environments respectively. It also lists the optimal and default values we observed and typically used in our simulations (unless specified otherwise).
 
 From this analysis, we were able to gain an intuition of the minimal required set of hyperparameters that allowed the controller to solve the environment.
 These minimal parameters were then used as a starting point for the simulations with the semantics entropy reward.
@@ -264,34 +260,46 @@ These minimal parameters were then used as a starting point for the simulations 
 
 % \todo{Talk about the different hyperparameters that were considered. Show histograms of only the significant parameters.}
 
-\newpage
+% \newpage
 \section{Improving CLIP Rewards}
 \label{sec:improving-rewards}
 
 We experimented with several methods to reduce the noise from CLIP.
 The regularized semantics reward also has many hyperparameters that can be tuned to make the reward landscape smoother.
-Namely, the temperature of the softmax function (\(T\)), the target baseline regularization strength (\(\alpha\)), the image baseline regularization strength (\(\beta\)), the use of negative embeddings, and tweaking the rendering function (adding texturing or modifying the images with other operations).
+Namely, the temperature of the softmax function (\(T\)), the text baseline regularization strength (\(\alpha\)), the image baseline regularization strength (\(\beta\)), the use of negative embeddings, and tweaking the rendering function (adding texturing or modifying the images with other operations).
 
 The complex nature of the reward landscape and the high dimensionality of the state space made it difficult to analyze the effects of these hyperparameters.
-To gain an intuition over these parameters and reduce the search space before we ran simulations using them in the full semantics reward, we instead used the best of the previously rolled-out trajectories with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP and calculated the trajectories of the resulting semantics reward\footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
+To gain an intuition over these parameters and reduce the search space, we used the best of the previous rollouts with the closeness reward from \secref{sec:closeness-rollouts} and ran post hoc inference on the resulting sequence of image observations using CLIP to calculate the trajectories of the resulting indirect semantics reward\footnote{The myriad of combinations due to the high dimensional space makes it infeasible to show all the subtleties of the interplay between these hyperparameters in a few figures.
 Thus, we have additionally made the analysis available for the reader as an interactive notebook at \url{https://colab.research.google.com/drive/1UzKb5t5PDRO05GbSKpgzWd3DELfAzDxJ} or \url{https://t.ly/j84on}, where one can pick a combination of different hyperparameters, and prefixes and suffix to see their effects}.
 
-The performance (cumulative rewards) can highly depend on the choice of prefix and suffix (\figref{fig:prefix-suffix}).
+Given a generic set of simple Tangram creations for the creative possibilities, we found that the choice of prefix and suffix could affect the reward trajectories significantly (see \figref{fig:prefix-suffix}).
+Their performance is measured in terms of the mean-shifted cumulative rewards.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/prefix-suffix.pdf}
-    \caption{Effect of different prefixes and suffixes on semantics entropy reward trajectories.}
+    \caption{Effect of different prefixes and suffixes on semantics entropy reward trajectories in Tangram.}
     \label{fig:prefix-suffix}
 \end{figure}
-
-To get the underlying trends in these parameters and find robust values that are agnostic to prompt engineering, i.e. the choice of prefix and suffix in formulating the text input, we average over our results across multiple choices and combinations of these text prefix-suffix pairs.
+\vspace{-7pt}
+The following sections on the specific hyperparameters discuss the results of these analyses.
+To get the underlying trends in these parameters and find robust values that are agnostic to prompt engineering, i.e. the choice of prefix and suffix in formulating the text input, we averaged over our results across multiple choices and combinations of these text prefix-suffix pairs.
 
 We observed clear trends in the effects of these hyperparameters on the reward landscape.
-Consequently, we performed an ablation study on these hyperparameters independently to gain insights into their effects.
-The following sections on the specific hyperparameters discuss the results of these analyses.
-In the figures shown in these sections, we choose the best-performing other hyperparameters.
-These results can be compared to the corresponding adversarial study results discussed in \secref{sec:adversarial-performance}.
+Consequently, we performed an ablation study on these hyperparameters independently in our analyses to gain insights into their effects.
+Unless specified otherwise, we chose the best-performing values of hyperparameters not under consideration in that section.
 
+In the figures shown in the following sections, we mostly plot the costs and cumulative semantics entropy costs as a measure of performance, which is the negative of the corresponding reward.
+We use the terms \emph{cost} and \emph{reward} interchangeably.
+Additionally, note that in the trajectory plots, the costs are filtered with a moving average filter of length \(3\) to reduce clutter and make the trends more visible.
+The underlying unfiltered mean trajectories are underlaid in the same but fainter colors.
+
+Ideally, lower cumulative costs indicate better performance, but it has to be interpreted with caution due to the subjective nature of the goal here (semantic expression). Even with a higher cumulative cost, the agent can reach a more semantically expressive state.
+These effects are discussed accordingly in prose.
+
+% The results in this section can be compared to the corresponding adversarial study results discussed in \secref{sec:adversarial-performance}.
+
+% \newpage
 \subsection{Effect of the Number of Creative Possibilities}
 \label{sec:clip-categories}
 To alleviate the problem of class preference in CLIP, we experimented with different numbers of categories/creative possibilities (\(c\)) for the semantics entropy reward.
@@ -299,15 +307,15 @@ To alleviate the problem of class preference in CLIP, we experimented with diffe
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/category_comparison_tangram.pdf}
+    \includegraphics[width=0.9\textwidth]{images/category_comparison_tangram.pdf}
     \caption{Effect of the number of categories on CLIP inference distribution over a random image.}
     \label{fig:clip-categories}
 \end{figure}
+\vspace{-7pt}
+We observed that too few categories can promote semantic bias and class preference in random images, but too many categories could potentially exacerbate the problem of noisy rewards since there are potentially more misleading distractions for the agent.
 
-We observed that too few categories can promote semantic bias and class preference in random images, but too many categories can exacerbate the problem of noisy rewards since there are potentially more misleading distractions for the agent.
-
-It was important to choose categories that were semantically distinct and not too broad which was non-trivial.
-Especially for the Tangram environment, in which the creations can be quite abstract, there was only a limited set of feasible categories.
+Additionally, it is important to choose categories that were semantically distinct and not too broad which was non-trivial.
+Especially for the Tangram environment, in which the creations can be quite abstract, there is only a limited set of feasible categories.
 This suggested that a moderate number of categories would be optimal.
 For our simulations, we typically chose a set of \(10 \sim 20\) categories.
 
@@ -315,13 +323,11 @@ For our simulations, we typically chose a set of \(10 \sim 20\) categories.
 \label{sec:reg-temperature}
 % semantics_model_temperature
 
-Temperature is a crucial hyperparameter for the softmax function in the semantics entropy reward as it directly controller the entropy of the CLIP distribution.
-The original CLIP publication recommends a temperature of \(0.01\) for most use cases, which we also found to most often work best.
-Temperatures up to \(0.02\) were good as well.
-Any temperature below this range performed significantly worse as it exacerbated the noise of CLIP, and any temperature above this range made the reward landscape too smooth and the reward trajectories too flat.
-
-\figref{fig:clip-temperature} shows the effect of temperature on the semantics entropy reward trajectories, averaged over multiple choice of categories.
-This is a post hoc CLIP inference on trajectory samples from the closeness reward rollout experiments.
+Temperature is a crucial hyperparameter for the softmax function in the semantics entropy reward as it directly controller the entropy of the CLIP distribution \eqref{eq:clip-dist}.
+The original CLIP publication recommends a temperature of \(0.01\) for most use cases, which we also found to most often work best to reach a good optimum.
+Temperatures up to \(0.02\) were good as well but any value below this range performed significantly worse as it adds to the noise of CLIP, and any temperature above this range rendered the reward landscape too smooth and the reward trajectories too flat leading to a loss of semantic inference from CLIP.
+\figref{fig:clip-temperature} shows this effect, averaged over multiple choice of categories.
+% This is a post hoc CLIP inference on trajectory samples from the closeness reward rollout experiments.
 
 \begin{figure}[H]
     \centering
@@ -334,13 +340,12 @@ This is a post hoc CLIP inference on trajectory samples from the closeness rewar
 \label{sec:reg-alpha-beta}
 % semantics_alpha_target
 
-The regularization strength of the target baseline (\(\alpha\)) and the image baseline (\(\beta\)) were arguably the most important hyperparameters for the regularized semantics entropy reward.
-Baseline regularization helps with the problem of sparse rewards by providing better directional guidance in the CLIP embedding space.
+The regularization strengths of the text baseline (\(\alpha\)) and the image baseline (\(\beta\)) are arguably the most important hyperparameters for the regularized semantics entropy reward.
+Baseline regularization helps by providing better directional guidance in the CLIP embedding space.
 
-The motivating study of \emph{VLM-RM} noted the best value of the target baseline regularization strength in goal-regularized settings to be somewhere in the middle of the two extremes.
-We found a similar trend in our experiments, with a slight preference for the additional image baseline regularization strength to be higher than the text baseline regularization strength.
+We compared the cumulative semantics entropy rewards of the post hoc inferences on closeness reward trajectories with different values of \(\alpha\) and \(\beta\) to find the optimal values and found the best values of the regularization strengths to be somewhere in the middle of the two extremes, with the optimal image baseline regularization strength a slightly higher than the text baseline regularization strength.
+This is in line with the findings of \cite{vlmrm} in goal-conditioned reward settings.
 
-In our analysis, we compared the cumulative rewards of the post hoc inferences on closeness reward trajectories with different values of \(\alpha\) and \(\beta\) to find the optimal values.
 \figref{fig:clip-alpha-beta} shows these results, averaged over multiple choice of prefixes and suffixes.
 
 \begin{figure}[H]
@@ -367,10 +372,11 @@ In our analysis, we compared the cumulative rewards of the post hoc inferences o
 \subsection{Effect of Negative Embeddings}
 \label{sec:negative-embeddings}
 \cite{negprompt} used negative embeddings as target baselines in their goal-conditioned CLIP reward function to make the reward landscape smoother.
-We experimented with this as well, and instead of using the initial description of the environment as the text baseline, we used a negative embedding of the target creation.
+We experimented with this as well; instead of using the initial description of the environment as the text baseline, we used a negative formulation of this description.
 
-We did not find this to be helpful in our experiments, instead it seemed to flatten the reward landscape.
-We think this is a consequence of CLIP's language encoder being a bag-of-words model, and the negative embeddings being essentially close to the target embeddings, which effectively zeros out the target embeddings.
+We did not find this to be helpful in our experiments.
+Instead, it seemed to flatten the reward landscape (see \figref{fig:baseline}).
+We think this is a consequence of CLIP's language encoder being a bag-of-words model, which makes the negative embeddings essentially close to the target embeddings, and effectively zeros them out.
 
 \begin{figure}[h]
     \centering
@@ -382,9 +388,9 @@ We think this is a consequence of CLIP's language encoder being a bag-of-words m
 \subsection{Effect of Adding Post-Suffix}
 \label{sec:post-suffix}
 \cite{waffleclip} found that adding a \emph{post-}suffix to the label in the text input to CLIP improved the quality of the inferences.
-This post-suffix can surprisingly even be a random string of characters.
+This post-suffix consists of an additional concept for the class and a random string of characters.
 
-Following these insights, we also experimented with adding a random string of jibberish to the end of the label as a post-suffix, but we did not find it to affect the reward.
+Following these insights, we also experimented with adding random jibberish to the end of the label as a post-suffix, but we did not find it to affect the reward.
 \figref{fig:post-suffix} shows the effect of different post-suffixes on the semantics entropy reward trajectories, averaged over combinations of prefixes and suffixes.
 
 \begin{figure}[H]
@@ -412,8 +418,8 @@ This is given by,
 \end{equation}
 where \(L_{\iota}\) is the contrastive cosine-similarity loss used to train CLIP, $\kappa$ is the regularization strength, and \(p(\bfi_k, \bml)\) is the classification probability distribution of image \(\bfi_k\) over the labels \(\bml\) predicted by CLIP.
 
-We experimented with this regularization method to train a toy convolutional neural network (CNN) for classifying handwritten digits from the MNIST dataset \citep{mnist}, which we called \emph{Flatnet}.
-Additionally, we used this in tandem with an augmented training dataset with varying sizes of random-image samples labeled with a uniform distribution over the categories.
+We experimented with this regularization method to train a toy convolutional neural network (CNN) for classifying handwritten digits from the MNIST dataset \citep{mnist}, which we called \emph{flatnet}.
+We trained this model with a modified MNIST training dataset augmented with varying sizes of random-image samples labeled with a uniform distribution over the categories.
 
 This was quite effective in reducing the noise of the model; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory was smoother, and we observed less semantic bias in random images and even less class preference for random inputs.
 
@@ -423,11 +429,22 @@ More information on this analysis can be found in appendix \ref{sec:flatnet}.
 % \newpage
 \subsection{Adversarial Performance}
 \label{sec:adversarial-performance}
-To tackle the problem of semantic bias in random images, we collected samples of the false positive image observations from our rollouts, called \emph{adversarial observations} (\figref{fig:semantic-bias-random}), by filtering out the image observations with low entropy from all our runs and then manually removing the ones that were true positives.
-Then, we searched for the semantics reward regularization hyperparameters that make CLIP less confident in the adversarial images while maintaining its inference for the truly semantically expressive images, i.e. increase its specificity while maintaining its sensitivity.
+To especially tackle the problem of semantic bias in random images, we collected samples of the false positive image observations from our rollouts, called \emph{adversarial observations} (\figref{fig:semantic-bias-random}), by filtering out the image observations with low entropy from all our runs and then manually removing the ones that were true positives.
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.6\textwidth]{images/p_random_semantic_bias.png}
+    \includegraphics[width=\textwidth]{images/adversarial_samples.pdf}
+    \caption{Adversarial samples from simulations.}
+    \label{fig:semantic-bias-random}
+\end{figure}
+
+Then, we searched for the semantics reward regularization hyperparameters that made CLIP less confident in the adversarial images while maintaining its inference for the truly semantically expressive images, i.e. increasing its specificity while maintaining its sensitivity.
 
 We used the difference in mean entropy of distributions for the false positive and true positive images as a metric to gauge the performance of CLIP.
 \figref{fig:clip-temperature-adversarial} to \ref{fig:post-suffix-adversarial} show the effect of temperature, regularization, negative embeddings, and post-suffixes on discerning true positives from false positives.
+
+The results in this subsection can be compared to the corresponding results shown just before.
 
 \begin{figure}[H]
     \centering
@@ -445,11 +462,18 @@ Higher temperatures of \(2\) were better at smoothing the reward landscape just 
     \label{fig:clip-alpha-beta-adversarial}
 \end{figure}
 
-Interestingly, the trends in the regularization strength of the text baseline (\(\alpha\)) and the image baseline (\(\beta\)) shown in \figref{fig:clip-alpha-beta-adversarial} were essentially opposite from the ones in \figref{fig:clip-alpha-beta} that showed the effect on the reward landscape.
+Interestingly, the trends in the regularization strength of the text baseline (\(\alpha\)) and the image baseline (\(\beta\)) shown in \figref{fig:clip-alpha-beta-adversarial} are essentially opposite from the ones in \figref{fig:clip-alpha-beta} that showed the effect on the reward landscape.
+These results are not at odds with each other, but rather complementary. 
+As noted before, there is an anti-correlation between the reward sparseness and semantic bias in random images.
+
 An optimal choice of baseline strength for reducing the sparsity of the goal-based reward landscape essentially improves the path to this goal by improving the gradients to reach this desired reward.
-This means that it changes the reward at near-goal status in such a way that it is better and hinting the agent if it's close to its ultimate goal, i.e. it increases the similarity or correspondance to this state to the goal state.
+This means that it changes the reward at near-goal status in such a way that it is better at intimating the agent if it is close to its ultimate goal, i.e. it increases the similarity or correspondence of this state to the goal state.
 This is in contrast to the adversarial performance where we desire to make this difference more pronounced.
-Thus, these results are not at odds with each other, but rather complementary. 
+
+Next, we looked at the effect of different text baselines and post-suffixes on the adversarial performance.
+To visualize these results, we plot the mean entropies of the false positives and true positives for different combinations of prefixes and suffixes for the text input in a 2D space.
+Ideally, we would like the points to live above the diagonal, i.e. the mean entropy of the false positives should be higher than the true positives.
+Additionally, we plot boxplots of the difference in the mean entropies of the false positives and true positives.
 
 \begin{figure}[H]
     \centering
@@ -458,10 +482,7 @@ Thus, these results are not at odds with each other, but rather complementary.
     \label{fig:baseline-adversarial}
 \end{figure}
 
-\figref{fig:baseline-adversarial} left subfigure shows the adversarial performance of negative embeddings in a 2D space.
-Each of the points is a different combination prefix and suffix for the text input.
-Ideally, we would like the points to live above the diagonal, i.e. the entropy of the false positives should be higher than the true positives.
-
+\figref{fig:baseline-adversarial} shows the effect of different text baselines on the adversarial performance.
 Negative embeddings as we have seen before, flatten the reward landscape uniformly and as a consequence increase the entropy of the true positives as well.
 This results in no performance improvement in the adversarial case.
 
@@ -474,7 +495,7 @@ This results in no performance improvement in the adversarial case.
 
 \figref{fig:post-suffix-adversarial} shows the effect of different post-suffixes on the adversarial performance.
 Since we were not sure of the exact mechanism for choosing a post-suffix that would work well in general, for this analysis, to ensure more exhaustive and rigorous tests, we also used different formulations of the post-suffix and considered cases such as having the same random post-suffix across all the categories for every prefix-suffix combination or having a random one for each of the categories and combinations.
-As before, we see no difference in adding or omitting the post-suffix.
+As before, we see no net effect in adding or omitting the post-suffix, but just a difference in variance.
 
 % \begin{figure}[H]
 %     \centering
@@ -485,39 +506,51 @@ As before, we see no difference in adding or omitting the post-suffix.
 %     \caption{A sample rollout distribution plot.}
 % \end{figure}
 
-
+% \newpage
 \subsection{Effect of Image Texturing}
 \label{sec:image-texturing}
-Following the observations from \cite{vlmrm}, to make the image inputs to CLIP more photorealistic to ensure in-distribution performance, we also experimented with adding textures to the images to make them more realistic for CLIP in hopes of improving its quality.
-This texturing was done by adding a constant shading to the Tangram polygons.
-\figref{fig:texturing-operations} show the effects of this texturing on the reward landscape.
+We also experimented with adding textures in the environment renderings
+in hopes of bringing these image inputs closer to in-distribution for CLIP to improve its inference quality.
+This was done by adding a constant shading to the Tangram polygons (see \figref{fig:texturing}).
 We did not find a significant improvement in the reward landscape with this texturing.
+\figref{fig:texturing-operations} shows its effects.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/hatched.pdf}
+    \caption{Texturing in Tangram.}
+    \label{fig:texturing}
+\end{figure}
 
 \subsection{Effect of Image Operations}
 \label{sec:image-operations}
 % Shearing and Hatching
 We also had the idea to use subtle image operations like shearing before inference.
 We expected the true positive semantic inferences to be invariant to these operations, but the false positives to be reduced, thus reducing the noise in the reward landscape.
+% This is compared together with the texturing operations in \figref{fig:texturing-operations} and \figref{fig:texturing-operations-adversarial} to study their effects on the reward landscape and the adversarial performance respectively.
 
-This is compared together with the texturing operations in \figref{fig:texturing-operations} and \figref{fig:texturing-operations-adversarial} to study their effects on the reward landscape and the adversarial performance respectively.
+Shearing the images before inference did improve the quality of the inferences slightly by smoothing the reward landscape as shown in \figref{fig:texturing-operations}.
+It had a significant performance improvement in the adversarial case as well (\figref{fig:texturing-operations-adversarial}), but it also affected the confidence in the true positive images, thus leading to lower performance by our cumulative reward/cost metric (\figref{fig:texturing-operations}).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/texturing_operations_comparison.pdf}
     \caption{Effect of texturing and image operations on semantics entropy reward trajectories.}
     \label{fig:texturing-operations}
-    \vspace{12pt}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
     \includegraphics[width=\textwidth]{images/texturing-operations_adversarial_2.pdf}
     \caption{Effect of image operations on discerning true positives from false positives.}
     \label{fig:texturing-operations-adversarial}
 \end{figure}
 
-Shearing the images before inference did improve the quality of the inferences slightly by smoothing the reward landscape.
-It had a significant performance improvement in the adversarial case as well, but it also affected the confidence in the true positive images, thus leading to lower performance by our cumulative reward metric.
-
 To show the interdependence of the hyperparameters discussed above, \figref{fig:baseline_sheared_adversarial} and \figref{fig:post-suffix_sheared_adversarial}  compare the adversarial performance of the sheared images across negative embeddings and different post-suffix patterns respectively.
-We observe that the shearing operation when used with baselines based on initial states is very helpful in improving the adversarial performance of CLIP.
-Although this is helpful, in the following sections, we did not use this method, because of the associated computational costs, and because a similar effect could be achieved by tuning the regularization strengths and the temperature.
+
+We observe that the shearing operation when used with baselines based on initial states is very helpful in improving the adversarial performance of CLIP as seen by the points gathering in the upper right corner of \figref{fig:baseline_sheared_adversarial}.
+
+Yet, in the following sections, we did not use this method, because of the associated added computational costs of rendering, and because we could get a similar effect by tuning the baseline regularization strengths and the temperature.
 
 \begin{figure}[H]
     \centering
@@ -526,6 +559,9 @@ Although this is helpful, in the following sections, we did not use this method,
     \label{fig:baseline_sheared_adversarial}
 \end{figure}
 
+The addition of post-suffixes in the sheared image case impairs the adversarial performance, as shown in \figref{fig:post-suffix_sheared_adversarial}.
+This result surfaces their originally intended regularization/smoothing effect which is not as visibly pronounced in the non-sheared case in the study of its effect on the reward trajectories (\figref{fig:post-suffix}).
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/post-suffix_sheared_adversarial_12.pdf}
@@ -533,43 +569,33 @@ Although this is helpful, in the following sections, we did not use this method,
     \label{fig:post-suffix_sheared_adversarial}
 \end{figure}
 
-\newpage
+% \newpage
 \section{Simulations using the Semantics Reward}
 \label{sec:simulations}
 % Manual ranking and entropy ranking
 
-Using the suitable combinations of the controller and environment hyperparameters from \secref{sec:closeness-rollouts} and intuition of the regularized semantics entropy reward hyperparameters \secref{sec:improving-rewards}, we ran simulations with the semantics reward to generate creations in the environments.
-We were generally able to generate meaningful creations in both environments, but the quality of the creations varied significantly.
+Using the suitable combinations of the controller and environment hyperparameters from \secref{sec:closeness-rollouts} and insights into the regularized semantics entropy reward hyperparameters from \secref{sec:improving-rewards}, we ran simulations (rollouts) with the semantics reward to generate creations in the environments.
+We were generally able to consistently generate meaningful creations in both environments, but the quality of the creations varied with the exact choice of these reward hyperparameters.
 
-We further investigated the effects of a few hyperparameters on the quality of the creations.
-To evaluate these creations, in addition to the cumulative reward, we also asked three human evaluators to manually rank the final creations on a scale of \(1\) to \(5\) based on their apparent semantic expressiveness.
+These simulations were computationally expensive and required significant time to run.
+Thus, we were limited in our ability to further investigate, confirm, and fine-tune all the hyperparameters exhaustively enough. 
+Consequently, we focused our analyses on the main few -- the baseline regularization strengths and the effect of the additional regularity reward, RaIR.
+We showcase the results of these analyses in the following sections.
+All figures show the mean cost trajectories over the rollouts for \(10\) different random seeds for each hyperparameter combination.
+
+While we also ran enough simulations to confirm our intuitions about the other hyperparameters, only a few of our analyses used enough restarts with different random seeds to have the statistical power to make justified general claims.
+These additional results are available in \secref{sec:sgw-semantics-additional} of the appendix.
+
+To evaluate the obtained final creations, in addition to the cumulative reward, we also asked three human evaluators to manually rank all the final creations on a scale of \(1\) to \(5\) based on their apparent underlying semantic expressiveness and subjective feel/quality of the patterns.
 In the following parts, shown creations (in Tangram) not particularly interesting according to these rankings are desaturated to avoid visual clutter.
+Interesting creations based on these results are curated in the gallery in \secref{sec:gallery}\footnote[1]{Animations and summary graphs of all the simulations and creations referenced in this thesis are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}.}.
+
 
 % B HUMAN EVALUATION
-% Evaluation on tasks for which we do not have a reward function was done manually by one of the
-% authors, depending on the amount of time the agent met the criteria listed in Table 2. See Figures 5
-% and 6 for the raw labels obtained about the agent performance.
-% We further evaluated the impact of goal-baseline regularization on the humanoid tasks that did not
-% succeed in our experiments with α = 0, cf. Figure 8. In these cases, goal baseline regularization does not improve performance. Together with the results in Figure 4a, this could suggest that
-% goal-baseline regularization is more useful for smaller CLIP models than for larger CLIP models.
-% Alternatively, it is possible that the improvements to the reward model obtained by goal-baseline
-% regularization are too small to lead to noticeable performance increases in the trained agents for the
-% failing humanoid tasks. Unfortunately, a more thorough study of this was infeasible due to the cost
-% associated with human evaluations.
-% Our second type of human evaluation is to compute the EPIC distance of a reward model to a prelabelled set of states. To create a dataset for these evaluations, we select all checkpoints from the
-% training run with the highest VLM-RM reward of the largest and most capable VLM we used. We
-% then collect rollouts from each checkpoint and collect the images across all timesteps and rollouts
-% into a single dataset. We then have a human labeller (again an author of this paper) label each image
-% according to whether it represents the goal state or not, using the same criteria from Table 2. We
-% use such a dataset for Figure 4. Figure 7 shows a more detailed breakdown of the EPIC distance for
-% different model scales.
-
-These simulations were computationally expensive and required a lot of time to run.
-We were limited in our ability to fine-tune all the hyperparameters to the fullest extent, so we focused on the main few -- the regularization strengths and the effect of additional regularity reward RaIR.
-We showcase the results of these analyses in the following sections.
-
-While we ran many additional simulations to confirm our intuitions about the hyperparameters, only a few of our analyses used enough restarts with different random seeds to have enough statistical power to make justified claims.
-Interesting creations from these simulations are curated in \secref{sec:gallery}\footnote{Animations and summary graphs of all the simulations and creations referenced in this thesis are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}.}.
+% In these cases, goal baseline regularization does not improve performance.
+% Together with the results in Figure 4a, this could suggest that goal-baseline regularization is more useful for smaller CLIP models than for larger CLIP models.
+% Alternatively, it is possible that the improvements to the reward model obtained by goal-baseline regularization are too small to lead to noticeable performance increases in the trained agents for the failing humanoid tasks.
+% Unfortunately, a more thorough study of this was infeasible due to the cost associated with human evaluations.
 
 % \subsection{Evaluating Regularized Entropy Reward Formulation in Goal-Conditioned Tasks}
 % \label{sec:evaluating-regularized-entropy}
@@ -579,21 +605,23 @@ Interesting creations from these simulations are curated in \secref{sec:gallery}
 \subsection{Effect of Regularization Strengths}
 \label{sec:alpha-beta-semantics}
 % Model Search
-We ran simulations with different regularization strengths to reconcile their effects with their results from the previous sections.
-
-We find that the mid-values of the regularization strengths are the best for the performance of the controller, which is in line with the results from the ablation study in \secref{sec:reg-alpha-beta}.
+We ran simulations with different regularization strengths to reconcile their effects with the results from the previous sections.
 \figref{fig:alpha-beta-semantics} shows the heatmap of the mean cumulative rewards for different combinations of the regularization strengths.
-For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
+% For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
+
+We find that non-zero regularization strengths (\(\alpha\) and/or \(\beta\)) do improve the performance, with mid-range values \((\alpha, \beta) = (0.3, 0
+3)\) having the best performance by these metrics.
+This corroborates the results in the post hoc trajectory analysis study in \secref{sec:reg-alpha-beta}.
 
 % alpha_beta-semantics_rair.pdf -- heatmap
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/alpha_beta-semantics_rair.pdf}
-    \caption[Performance of regularization strengths on semantics reward.]{Performance of regularization strengths on semantics reward. \(10\) seeds were used.}
+    \caption{Performance of regularization strengths on semantics reward.}
     \label{fig:alpha-beta-semantics}
 \end{figure}
 
-\figref{fig:alpha-beta-trajectories} shows the effect of regularization strengths on the semantics entropy reward trajectories and \figref{fig:alpha-beta-samples} shows some samples of the creations with different regularization strengths
+\figref{fig:alpha-beta-trajectories} shows the effect of regularization strengths on the semantics entropy cost trajectories and \figref{fig:alpha-beta-samples} shows some samples of the creations with different regularization strengths.
 
 \begin{figure}[H]
     \centering
@@ -605,7 +633,10 @@ For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
     \caption{Samples of creations with different regularization strengths.}
     \label{fig:alpha-beta-samples}
 \end{figure}
-\todo{Explain this}
+
+Noticeably, the three cost trajectories with high image baseline regularization strength \(\beta = 0.5\) are too flat and seem to converge at entropy values greater than \(0\).
+For \((\alpha, \beta) = (0.5, 0.3)\), the cost trajectory seems more sparse and noisy,
+For other combinations of \((\alpha, \beta)\) -- \(()\), we do not see a significant difference in the performance or quality of creations.
 
 \newpage
 \subsection{Effect of RaIR}
@@ -614,9 +645,7 @@ For standard deviations, please see \figref{fig:alpha_beta-semantics_std_rair}.
 % 1 / semantics_reward_scale
 
 Throughout our simulations, we noticed a high degree of regularity in semantic creations and a high correlation between the RaIR and the semantics entropy reward. 
-Indeed, adding the structural bias from RaIR helped with grounding and coalescing the creations in more human-recognizable forms and patterns.
-This was particularly helpful in the beginning of the planning as the agent starts building regular structures to bring it closer to a semantically meaningful state which is then further refined by the semantics entropy reward.
-We found that creations simulated with RaIR were much more recognizable than without it.
+Indeed, we found that creations simulated with RaIR were much more recognizable than without it.
 \figref{fig:rair} shows the effect and \figref{fig:rair-samples} shows some samples of the creations with and without RaIR.
 
 % rair_comparison.pdf
@@ -630,6 +659,10 @@ We found that creations simulated with RaIR were much more recognizable than wit
     \caption{Samples of creations with and without RaIR.}
     \label{fig:rair-samples}
 \end{figure}
+
+RaIR was particularly helpful in the beginning of the planning as the agent starts building regular structures to bring it closer to a semantically meaningful state which is then further refined by the semantics entropy reward.
+
+Adding the structural bias from RaIR helped with grounding and coalescing the creations in more human-recognizable forms and patterns.
 
 \todo{talk about observations of optimizing regularity after semantics}
 \todo{talk about the weight of RaIR}
