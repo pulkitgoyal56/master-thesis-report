@@ -8,7 +8,7 @@
 \label{sec:clip-custom}
 
 % Talk about the initial tests with CLIP that were motivated by the poor performance of CLIP on abstract images and sketches.
-CLIP was trained on a large dataset of captioned natural images foraged from the internet.
+CLIP is trained on a large dataset of captioned natural images foraged from the internet.
 While it generalizes well to many natural-image distributions and has proved to be a powerful zero-shot model for various tasks, it was not clear how well it would perform on sketches and abstract images. 
 
 CLIP has been shown to not perform much better than chance on many tasks which were not well represented in its pre-training dataset.
@@ -31,7 +31,7 @@ At the same time, there were several hyperparameters in the environments and CLI
 
 We first tested CLIP on sketches of simple shapes from the ImageNet-Sketch dataset \citep{imagenet}.
 
-We also compared these results with renderings of these sketches on ShapeGridWorld grids of different resolutions by registering them to a grid (see \secref{sec:sgw-registration} for more details on registration).
+We also compared these results with renderings of these sketches on ShapeGridWorld grids of different resolutions by registering them to a grid (see \secref{sec:sgw-registration} of the appendix for more details on registration).
 For an example, see \figref{fig:clip-sketches}.
 \begin{figure}[h]
     \centering
@@ -40,7 +40,7 @@ For an example, see \figref{fig:clip-sketches}.
     \includegraphics[width=\textwidth]{images/grid_comparison_accuracy.pdf}
     \caption[CLIP on sketches and ShapeGridWorld grids of different resolutions.]{CLIP on sketches and ShapeGridWorld grids of different resolutions.
     The first row shows the comparative similarity of the embeddings of \(80\) sketches of apples (and their grid counterparts) to the label ``sketch of an apple'' using the CLIP variant \texttt{ViT-L/14}.
-    The probabilities are calculated using the equation \eqref{eq:clip-dist}, with temperature \(T = 1\), to show the trend.
+    The probabilities are calculated using \eqref{eq:clip-dist}, with temperature \(T = 1\), to show the trend.
     The categories for this example are ``apple'', ``chair'', ``car'', ``flower'', ``pencil'', ``house'', ``tree'', ``fish'', ``star'', and ``bird''.
     The middle row shows a sample of the images for each of the cases.
     The bottom row shows the accuracy (percentage of correct predictions) for each of the cases.
@@ -84,7 +84,7 @@ We again found it to be quite good at recognizing these creations with good conf
 \end{figure}
 
 We did not find a significant trend in the effect of colors on the performance of CLIP, but inversions seemed to slightly affect the distribution of inferences in certain cases
-(one such example is given in the appendix \figref{fig:clip-tangram-inversions}, where the distribution of CLIP was skewed in grayscale and white-on-black cases).
+(one such example is given in \figref{fig:clip-tangram-inversions} in the appendix, where the distribution of CLIP is skewed in grayscale and white-on-black cases).
 Consequently, we used colored or black-on-white binary renderings for our experiments.
 
 More experiments on these hyperparameters are discussed in the later sections.
@@ -112,7 +112,7 @@ It shows that changing a single pixel might lead to a sudden change in the distr
     \centering
     \includegraphics[width=0.8\textwidth]{images/sparse_rewards.pdf}
     \caption[Random rollouts in ShapeGridWorld.]{Random rollouts in ShapeGridWorld. Going from left to right in time, we perturb the grid pixel-by-pixel and observe CLIP's confidence change. The bottom row shows the distribution of CLIP's inferences over the labels ``car'', ``apple'', ``fruit'', ``letter'', and ``number''. The graph in the top row shows the distribution's entropy. The first and last images in the bottom row are the initial and final images respectively.
-    The middle image shows the image after which ``car'' was no longer the categorized class.}
+    The middle image shows the image after which ``car'' is no longer the categorized class.}
     \label{fig:sparse-rewards}
     
 \end{figure}
@@ -140,7 +140,7 @@ That is, increasing reward density (or reducing reward sparsity) involves increa
 
 \subsubsection{Class Preference in CLIP}
 \label{sec:class-preference}
-Another complementary issue we faced related to the problem of semantic bias in random images was that of class imbalance.
+Another complementary issue we faced related to the problem of semantic bias in random images is that of class imbalance.
 There are some classes in which CLIP is consistently more confident than others and leans towards them over others when unsure.
 This included classes that signified broad concepts like ``animal'', ``fruit'', ``number'', ``letter'', or ``object''.
 
@@ -154,7 +154,7 @@ Histograms of the creations we observed in our simulations shown in \figref{fig:
 %     \label{fig:class-preference}
 % \end{figure}
 
-This is a fundamental nature of the CLIP model and we could only mitigate it by avoiding certain categories and choosing enough categories for the semantics entropy reward such that CLIP's preferences balanced out.
+This is a fundamental nature of the CLIP model and we could only circumvent it by avoiding certain categories and choosing enough categories for the semantics entropy reward such that CLIP's preferences balanced out.
 More discussion on tackling this problem in particular is given in section \secref{sec:clip-categories}.
 
 % \newpage
@@ -162,11 +162,11 @@ More discussion on tackling this problem in particular is given in section \secr
 \label{sec:closeness-rollouts}
 % closeness_reward_scale
 % closeness_reward_threshold
-Before we started improving and running simulations using inferences from CLIP, we needed to ensure that the agent was able to reach a reward-conditioned goal in our environments, i.e. it was \emph{solvable}.
+Before we started improving and running simulations using inferences from CLIP, we needed to ensure that the agent could reach a reward-conditioned goal in our environments, i.e. it is \emph{solvable}.
 Especially, it was crucial to establish this solvability under sparse rewards.
 
-To ensure that our controller did this efficiently and robustly, a good choice of the iCEM controller hyperparameters and the environment configuration was essential.
-These hyperparameters and configurations were dependent on each other so we needed to optimize them together.
+To ensure that our controller did this efficiently and robustly, a good choice of the iCEM controller hyperparameters and the environment configuration is essential.
+These hyperparameters and configurations are dependent on each other so we needed to optimize them together.
 
 For example, for both environments, the size of the grid together with the step size affects the minimum required planning horizon for the controller.
 For a small discrete grid or a large enough step size, the planning horizon does not need to be very high, because the controller can potentially reach the goal in a few steps and does not need to plan far ahead.
@@ -194,20 +194,20 @@ where \(\bfi, \bft \in \cS\) are the current and target creations respectively, 
 Using the closeness reward/cost formulations, we performed an extensive grid search over the many hyperparameters of the iCEM controller and the environment together to find the best combinations and study their effects.
 To assess and compare the results in these experiments, we compared their cumulative rewards over the rollouts.
 
-The controller was easily able to achieve the goal under dense closeness rewards for a wide range of hyperparameters and other than a few parameters such as the granularity of the grid, the step size, and the object persistency, we did not notice much difference in the performance of the controller over the other hyperparameters.
+The controller is easily able to achieve the goal under dense closeness rewards for a wide range of hyperparameters and other than a few parameters such as the granularity of the grid, the step size, and the object persistency, we did not notice much difference in the performance of the controller over the other hyperparameters.
 \figref{fig:closeness-rollouts} shows a sample closeness reward run for the dense closeness cost on the Tangram environment.
 
-The tuning was more difficult under sparse incremental rewards, which required a higher planning horizon and more sampled trajectories to reach the goal.
+The tuning is more difficult under sparse incremental rewards, which requires a higher planning horizon and more sampled trajectories to reach the goal.
 This directly corresponds to a higher computational cost.
 
-Generally, in a continuous Tangram grid, with a step size of \(4\), moving one object at a time for one action step, an iCEM controller with \(128\) trajectories and a minimum planning horizon of \(8\) with \(3\) inner iterations was able to reach the goal in \(30-60\) timesteps.
+Generally, in a continuous Tangram grid, with a step size of \(4\), moving one object at a time for one action step, an iCEM controller with \(128\) trajectories and a minimum planning horizon of \(8\) with \(3\) inner iterations can reach the goal in \(30-60\) timesteps.
 
 The cost aggregation functions \texttt{best} and \texttt{sum} were comparable in performance and performed better than \texttt{best-\emph{l}}, \texttt{last}, and \texttt{last-\emph{l}}.
 We typically employed the \texttt{sum} aggregation function for our main simulations due to its summation operation which averages over the rewards in the planning horizon and makes it more robust to noise.
 It essentially has a regularizing effect on the reward landscape.
 In other runs, with other regularization techniques in place, we found the greedier \texttt{best} aggregation function to be more efficient in reaching the goal and escaping local minima.
 
-The comparison results are omitted here for brevity. Please refer to the appendix sections \ref{sec:icem-details} and \ref{sec:environments-details} for more details about these hyperparameters of the iCEM controller and the environments respectively. It also lists the optimal and default values we observed and typically used in our simulations (unless specified otherwise).
+The comparison results are omitted here for brevity. Please refer to the appendix chapters \ref{sec:icem-details} and \ref{sec:environments-details} for more details about these hyperparameters of the iCEM controller and the environments respectively. It also lists the optimal and default values we observed and typically used in our simulations (unless specified otherwise).
 
 From this analysis, we were able to gain an intuition of the minimal required set of hyperparameters that allowed the controller to solve the environment.
 These minimal parameters were then used as a starting point for the simulations with the semantics entropy reward.
@@ -279,7 +279,7 @@ Their performance is measured in terms of the mean-shifted cumulative rewards.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/prefix-suffix.pdf}
-    \caption{Effect of different prefixes and suffixes on semantics entropy reward trajectories in Tangram.}
+    \caption{Effect of prefixes and suffixes on semantics entropy reward trajectories in Tangram.}
     \label{fig:prefix-suffix}
 \end{figure}
 \vspace{-7pt}
@@ -324,7 +324,7 @@ For our simulations, we typically chose a set of \(10 \sim 20\) categories.
 \label{sec:reg-temperature}
 % semantics_model_temperature
 
-Temperature is a crucial hyperparameter for the softmax function in the semantics entropy reward as it directly controller the entropy of the CLIP distribution \eqref{eq:clip-dist}.
+Temperature is a crucial hyperparameter for the softmax function in the semantics entropy reward as it directly controller the entropy of the CLIP distribution (see \eqref{eq:clip-dist}).
 The original CLIP publication recommends a temperature of \(0.01\) for most use cases, which we also found to most often work best to reach a good optimum.
 Temperatures up to \(0.02\) were good as well but any value below this range performed significantly worse as it adds to the noise of CLIP, and any temperature above this range rendered the reward landscape too smooth and the reward trajectories too flat leading to a loss of semantic inference from CLIP.
 \figref{fig:clip-temperature} shows this effect, averaged over multiple choice of categories.
@@ -422,10 +422,10 @@ where \(L_{\iota}\) is the contrastive cosine-similarity loss used to train CLIP
 We experimented with this regularization method to train a toy convolutional neural network (CNN) for classifying handwritten digits from the MNIST dataset \citep{mnist}, which we called \emph{flatnet}.
 We trained this model with a modified MNIST training dataset augmented with varying sizes of random-image samples labeled with a uniform distribution over the categories.
 
-This was quite effective in reducing the noise of the model; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory was smoother, and we observed less semantic bias in random images and even less class preference for random inputs.
+This is quite effective in reducing the noise of the model; it seemed to relieve both of the problems from \secref{sec:clip-problems} -- the reward trajectory is smoother, and there is less semantic bias in random images and even less class preference for random inputs.
 
 Yet, we did not use it to fine-tune CLIP to constrain the scope of the project given the limited time.
-More information on this analysis can be found in appendix \ref{sec:flatnet}.
+More information on this analysis can be found in Chapter \ref{sec:flatnet} of the appendix.
 
 % \newpage
 \subsection{Adversarial Performance}
@@ -470,6 +470,7 @@ As noted before, there is an anti-correlation between the reward sparseness and 
 An optimal choice of baseline strength for reducing the sparsity of the goal-based reward landscape essentially improves the path to this goal by improving the gradients to reach this desired reward.
 This means that it changes the reward at near-goal status in such a way that it is better at intimating the agent if it is close to its ultimate goal, i.e. it increases the similarity or correspondence of this state to the goal state.
 This is in contrast to the adversarial performance where we desire to make this difference more pronounced.
+These results are further discussed in Chapter \ref{sec:discussion}.
 
 Next, we looked at the effect of different text baselines and post-suffixes on the adversarial performance.
 To visualize these results, we plot the mean entropies of the false positives and true positives for different combinations of prefixes and suffixes for the text input in a 2D space.
@@ -512,7 +513,7 @@ As before, we see no net effect in adding or omitting the post-suffix, but just 
 \label{sec:image-texturing}
 We also experimented with adding textures in the environment renderings
 in hopes of bringing these image inputs closer to in-distribution for CLIP to improve its inference quality.
-This was done by adding a constant shading to the Tangram polygons (see \figref{fig:texturing}).
+This is done by adding a constant shading to the Tangram polygons (see \figref{fig:texturing}).
 We did not find a significant improvement in the reward landscape with this texturing.
 \figref{fig:texturing-operations} shows its effects.
 
@@ -585,11 +586,11 @@ We showcase the results of these analyses in the following sections.
 All figures show the mean cost trajectories over the rollouts for \(10\) different random seeds for each hyperparameter combination.
 
 While we also ran enough simulations to confirm our intuitions about the other hyperparameters, only a few of our analyses used enough restarts with different random seeds to have the statistical power to make justified general claims.
-These additional results are available in \secref{sec:sgw-semantics-additional} of the appendix.
+These additional results are available in Chapter \ref{sec:sgw-semantics-additional} of the appendix.
 
 To evaluate the obtained final creations, in addition to the cumulative reward, we also asked three human evaluators to manually rank all the final creations on a scale of \(1\) to \(5\) based on their apparent underlying semantic expressiveness and subjective feel/quality of the patterns.
 In the following parts, shown creations (in Tangram) not particularly interesting according to these rankings are desaturated to avoid visual clutter.
-Interesting creations based on these results are curated in the gallery in \secref{sec:gallery}\footnote[1]{Animations and summary graphs of all the simulations and creations referenced in this thesis are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}.}.
+Interesting creations based on these results are curated in the gallery in Chapter \ref{sec:gallery} of the appendix\footnote[1]{Animations and summary graphs of all the simulations and creations referenced in this thesis are available on \url{https://drive.google.com/drive/folders/1RdG86GLLujH3z6eDRIvdaczokpr8krnc} or \url{https://t.ly/49O3h}.}.
 
 
 % B HUMAN EVALUATION
@@ -626,11 +627,11 @@ This corroborates the results in the post hoc trajectory analysis study in \secr
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/alpha_beta_comparison_rair.pdf}
+    \includegraphics[width=\textwidth]{images/alpha_beta_comparison.pdf}
     \caption{Effect of regularization strengths on semantics entropy reward trajectories.}
     \label{fig:alpha-beta-trajectories}
     \vspace{12pt}
-    \includegraphics[width=0.8\textwidth]{images/alpha_beta_rair_samples.pdf}
+    \includegraphics[width=0.8\textwidth]{images/alpha_beta_samples.pdf}
     \caption{Samples of creations with different regularization strengths.}
     \label{fig:alpha-beta-samples}
 \end{figure}
@@ -651,8 +652,8 @@ Indeed, we found that creations simulated with RaIR were much better in many cas
 
 Even though the performance with RaIR is slightly worse in terms of the cumulative reward shown in \figref{fig:rair}, the creations shown in \figref{fig:rair-samples} are more semantically expressive and recognizable.
 Adding structural bias using RaIR helped with grounding and coalescing the creations in better forms and patterns and the resulting creations are neater and more appealing.
-It was particularly helpful in the later stages of planning as the agent first quickly converges to local minima in the semantics reward landscape and then optimizes for regularity while maintaining its semantic expressiveness.
-Thus RaIR helps in escaping local minima, and in turn, leads to more meaningful creations.
+It is particularly helpful in the later stages of planning as the agent first quickly converges to local minima in the semantics reward landscape and then optimizes for regularity while maintaining its semantic expressiveness.
+Thus RaIR helps in escaping and navigating different local minima, and in turn, leads to more meaningful creations.
 This mechanism is quite apparent in the simulation summary shown in \figref{fig:sim}.
 
 \begin{figure}[h]
@@ -668,7 +669,7 @@ Consequently, we used a value of \(\lambda = 1\) in our simulations, which resul
 
 \figref{fig:rair-sgw} and \figref{fig:rair-samples-sgw} show the effect of RaIR on the semantics reward in ShapeGridWorld, where the effect is only marginal, both in terms of the cumulative reward/cost performance, and the quality of the creations.
 Although the creations are neater with RaIR, with fewer random pixels, there is no effective difference in the semantic expressiveness of the creations.
-Results for many more simulations on ShapeGridWorld are given in \secref{sec:sgw-semantics-additional}.
+Results for many more simulations on ShapeGridWorld are given in Chapter \ref{sec:sgw-semantics-additional} of the appendix.
 
 \begin{figure}[h]
     % rair_comparison.pdf

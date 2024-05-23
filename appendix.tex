@@ -8,7 +8,7 @@
 \chapter{Environments' Details}
 \label{sec:environments-details}
 The sections of this chapter provide additional details about the custom environments used in our experiments.
-Both of these environments were developed in Python.
+Both of these environments are developed in Python.
 
 \section{ShapeGridWorld}
 \label{sec:sgw-details}
@@ -149,21 +149,6 @@ The additional parameters of the Tangram environment are tabulated in table \tab
     \label{tab:tangram-params}
 \end{table}
 
-% staging_crop.png
-% staging_crop_color.png
-% staging_nocrop.png
-% staging_nocrop_color.png
-\begin{figure}[h]
-    \centering
-    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop.png}}
-    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop.png}}
-    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop_color.png}}
-    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop_color.png}}
-    \subfloat{\includegraphics[width=\textwidth]{images/staging_boundaries.pdf}}
-    \caption[Staging boundaries in the Tangram environment.]{Staging boundaries in the Tangram environment. Simulations using staging boundaries can be viewed at \url{https://drive.google.com/drive/folders/1PLopyNdzpWiz6CK4EvR8oEAScACpUsW0} or \url{https://t.ly/zb2cZ}.}
-    \label{fig:staging-boundaries}
-\end{figure}
-
 The state space of this environment is composed of the \(x\) and \(y\) coordinates of the vertices of the \(n = 7\) polygons, with the addition of two dimensions -- one that specifies which polygon is currently in focus and another that specifies how many times it has already moved, i.e. \(\cS \in \nN^{\,2 + \sum_{i \in n} 2\ n_v(p_i)}\), where \(n_v(p_i)\) is the number of vertices of polygon \(p_i\).
 If all polygons are moved at once, the state space of this environment is composed of only the \(x\) and \(y\) coordinates of the block pixels, i.e. \(\cS \in \nN^{\sum_{i \in n} 2\ n_v(p_i)}\).
 The observation space is a rendering of the grid whose resolution is controlled with different parameters.
@@ -177,6 +162,22 @@ For example, if \texttt{x\_size} is \(1\) and \texttt{x\_step} is \(3\), the res
 For the flip dimension, the mapping is (\([-1, 0] \mapsto \texttt{False}, (0, 1] \mapsto \texttt{True}\)).
 
 The developed code to create Tangram-like environments with any number of arbitrary convex polygons is available on \url{https://github.com/pulkitgoyal56/Tangram}.
+
+% staging_crop.png
+% staging_crop_color.png
+% staging_nocrop.png
+% staging_nocrop_color.png
+\vspace{6pt}
+\begin{figure}[h]
+    \centering
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_nocrop_color.png}}
+    % \subfloat{\includegraphics[width=0.2\textwidth]{images/staging_crop_color.png}}
+    \subfloat{\includegraphics[width=\textwidth]{images/staging_boundaries.pdf}}
+    \caption[Staging boundaries in the Tangram environment.]{Staging boundaries in the Tangram environment. Simulations using staging boundaries can be viewed at \url{https://drive.google.com/drive/folders/1PLopyNdzpWiz6CK4EvR8oEAScACpUsW0} or \url{https://t.ly/zb2cZ}.}
+    \label{fig:staging-boundaries}
+\end{figure}
 
 \chapter{Controller Hyperparameters}
 \label{sec:icem-details}
@@ -203,8 +204,8 @@ The iCEM controller introduced in \secref{sec:icem} has several hyperparameters 
         \texttt{cost\_along\_trajectory} & Cost/reward aggregation function to evaluate the trajectory, \(g\). See \secref{sec:reward-aggregation} for explanations. & \texttt{best} or \texttt{sum}\\
         \texttt{n\_inner\_iterations} & Number of iterations for the inner optimization loop, \(m\). & \(3\)\\
         \texttt{init\_std} & Standard deviation at which the sampling distribution is initialized, \(\bmsigma_0\). & \(0.6\)\\
-        \texttt{elites\_size} & Size of the elite set, \(K\). See eq. \eqref{eq:icem-filter}. & \(20\)\\
-        \texttt{discount\_factor} & Discount factor for returns expected in the future, \(\gamma\). See eq. \eqref{eq:reward-aggregation-sum-discount}. & \(1.0\)\\ 
+        \texttt{elites\_size} & Size of the elite set, \(K\). See \eqref{eq:icem-filter}. & \(20\)\\
+        \texttt{discount\_factor} & Discount factor for returns expected in the future, \(\gamma\). See \eqref{eq:reward-aggregation-sum-discount}. & \(1.0\)\\ 
         \hline
     \end{tabularx}
     \label{tab:icem-params}
@@ -241,7 +242,7 @@ The other important hyperparameters that we did not tweak in our experiments are
     \label{tab:icem-params-fixed}
 \end{table}
 
-Please refer to the original paper for more details on the parameters of iCEM.
+Please refer to the original paper \citep{icem} for more details on the parameters of iCEM.
 
 \chapter{Reward Hyperparameters}
 \label{sec:reward-details}
@@ -265,7 +266,7 @@ This chapter details the hyperparameters of the reward functions used in our exp
 % semantics_normalize
 % semantics_reward_scale
 
-\tabref{tab:entropy-reward-params} lists the parameters of the regularized semantics entropy reward from eq. \eqref{eq:entropy-reward-reg}, along with the best values we found for our experiments.
+\tabref{tab:entropy-reward-params} lists the parameters of the regularized semantics entropy reward from \eqref{eq:entropy-reward-reg}, along with the best values we found for our experiments.
 \begin{table}[H]
     \centering
     \caption{Semantics entropy reward parameters.}
@@ -283,7 +284,7 @@ This chapter details the hyperparameters of the reward functions used in our exp
         \texttt{model\_version} & Name of the CLIP variant used. & (\texttt{ViT-L/14})\\
         \texttt{model\_temperature} & Temperature for the softmax function in the semantics entropy reward, \(T\). & \([1, 2]\)\\
         \texttt{normalize} & If the reward should be normalized by maximum entropy, \(\log(|\bml|)\). & True\\
-        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the regularity reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}. & \(1.0\)\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the regularity reward, this determines the reward ratio, \(\lambda\) from \eqref{eq:semantics-reward}. & \(1.0\)\\
         \hline
     \end{tabularx}
     \label{tab:entropy-reward-params}
@@ -303,7 +304,7 @@ In the introduction to the regularity reward in \secref{sec:regularity-reward}, 
 This section provides more details about these hyperparameters.
 
 The hyperparameter for resolution consists of two parts -- precision and granularity.
-Equation \eqref{eq:rair-relational-extended} extends eq. \eqref{eq:rair-relational} with these hyperparameters to define the \(\lfloor \cdot \rceil\) operator.
+The following equation extends \eqref{eq:rair-relational} with these hyperparameters to define the \(\lfloor \cdot \rceil\) operator.
 \begin{equation}
     \lfloor s^{(j)} - s^{(k)} \rceil = \begin{cases}\begin{aligned}
         \left\lfloor \left| s^{(j)} - s^{(k)} \right| \frac{\text{precision}}{\text{granularity}} \right\rfloor \times \text{granularity},\quad&\text{if bidirectionality} = \text{False}\\
@@ -315,21 +316,21 @@ Equation \eqref{eq:rair-relational-extended} extends eq. \eqref{eq:rair-relation
 \begin{table}[H]
     \centering
     \caption{Regularity reward parameters.}
-    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2.1cm}}
         \hline
         Property & Description & Best\\
         \hline
-        \texttt{precision} & Precision of the compression algorithm. Equal to the grid size for discrete grids. & SGW - \(28\) Tangram - \(1\)\\
+        \texttt{precision} & Precision of the compression algorithm. & SGW - \(1\) Tangram - \(28\)\\
         \texttt{granularity} & Granularity of the compression algorithm. & \(1\)\\
         \texttt{bidirectional} & If the compression should be bidirectional. & False\\
         \texttt{normalize} & If the reward should be normalized by the maximum possible entropy, \(\log\left(\binom{N}{2}\right)\). & True\\
-        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the semantics entropy reward, this determines the reward ratio, \(\lambda\) from eq. \eqref{eq:semantics-reward}. & \(1.0\)\\
+        \texttt{reward\_scale} & Factor with which the reward is scaled. Together with the \texttt{reward\_scale} for the semantics entropy reward, this determines the reward ratio, \(\lambda\) from \eqref{eq:semantics-reward}. & \(1.0\)\\
         \hline
     \end{tabularx}
     \label{tab:regularity-reward-params}
 \end{table}
 
-Please refer to the original paper for more details on the theory and implementation of \emph{RaIR}.
+Please refer to the original paper \citep{rair} for more details on the theory and implementation of \emph{RaIR}.
 
 \section{Closeness Reward}
 \label{sec:closeness-reward-details}
@@ -337,17 +338,17 @@ Please refer to the original paper for more details on the theory and implementa
 % closeness_reward_scale
 % closeness_reward_threshold
 
-\tabref{tab:closeness-reward-params} lists the parameters of the closeness reward from \secref{sec:closeness-rollouts}.
+\tabref{tab:closeness-reward-params} lists the typical parameters of the closeness reward introduced in \secref{sec:closeness-rollouts}.
 \begin{table}[H]
     \centering
     \caption{Closeness reward parameters.}
-    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2cm}}
+    \begin{tabularx}{\textwidth}{C{3.9cm} L C{2.1cm}}
         \hline
         Property & Description & Default\\
         \hline
         \texttt{reward\_type} & Type of closeness reward -- \emph{sparse-incremental} or \emph{dense}. & ``sparse''\\
         \texttt{reward\_scale} & Factor with which the reward is scaled. & \(1.0\)\\
-        \texttt{reward\_threshold} & Threshold, \(\varepsilon\), for sparse rewards, eq. \eqref{eq:closeness-reward-sparse}. & \(0.051\)\\
+        \texttt{reward\_threshold} & Threshold, \(\varepsilon\), for sparse rewards \eqref{eq:closeness-reward-sparse}. & \(0.051\)\\
         \hline
     \end{tabularx}
     \label{tab:closeness-reward-params}
@@ -417,13 +418,13 @@ The cumulative rewards and trajectories of the models are similar and do not giv
 
 \chapter{Flatnet}
 \label{sec:flatnet}
-To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique (eq. \ref{eq:entropy-regularization}) to reduce its inference noise, we conducted experiments on a smaller \emph{toy} setup with convolutional neural networks trained as a single-digit number classifier on ShapeGridWorld registered images from the MNIST dataset \citep{mnist}.
-We additionally augmented the MNIST training dataset with samples of images with random arrangements of pixels, target-labeled with a uniform distribution of confidence over the ten single digits.
+To test the feasibility and efficacy of fine-tuning CLIP with an entropy regularization technique \eqref{eq:entropy-regularization} to reduce its inference noise, we conducted experiments on a smaller \emph{toy} setup with convolutional neural networks trained as a single-digit number classifier on ShapeGridWorld registered images from the MNIST dataset \citep{mnist}.
+We additionally augment the MNIST training dataset with samples of images with random arrangements of pixels, target-labeled with a uniform distribution of confidence over the ten single digits.
 
 We treated the entropy regularization strength and the addition of random samples as hyperparameters and trained a series of models with different combinations of the two.
 % \figref{fig:flatnet-comparison} shows the resulting trajectories of the models.
 The models were trained with the Adam optimizer \citep{adam} with a learning rate of \(0.001\) and a batch size of \(128\). The size of the MNIST training dataset is \(60000\).
-\tabref{tab:flatnet-models} summarizes the models we trained.
+\tabref{tab:flatnet-models} summarizes the models we compare.
 More details of these models can be found at \url{https://pulkitgoyal56.github.io/flatnet}.
 
 % \vspace{12pt}
@@ -552,7 +553,7 @@ These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/
 
 
 
-\chapter{Additional Simulations on ShapeGridWorld}
+\chapter{More Simulations on ShapeGridWorld}
 \label{sec:sgw-semantics-additional}
 
 \section{Effect of Semantic Categories Set}
@@ -560,43 +561,19 @@ These modifications are available on \url{https://github.com/pulkitgoyal56/CLIP/
 The effect of the choice of categories on the semantics entropy reward in ShapeGridWorld was also significant.
 \figref{fig:categories-sgw} and \figref{fig:categories-sgw-norair} show the effect of different sets of categories on the reward landscape and some samples of their creations, with and without RaIR respectively.
 
-We observe that categories involving numbers (``numbers and letters'' and ``numbers'') start with a flatter distribution compared to object categories (few or many).
+We observe that categories involving numbers (``numbers and letters'' and ``numbers'') start with a flatter distribution compared to object categories (few\footnotemark[1] or many\footnotemark[2]).
+However, we do not notice a substantial difference in the diversity of final creations due to this even starting ground.
+
+\footnotetext[1]{The categories referred to in ``many categories'' are ``house'', ``bird'',``tree'',``horse'', ``rabbit'', ``goat'', ``shirt'', ``chair'', ``swan'', ``camel'', ``teapot'', ``hammer'', ``boot'', ``key'', ``gun'', ``apple'', ``car'', ``guitar'', ``flower'', and ``heart''.}
+\footnotetext[2]{The categories referred to in ``few categories'' is the subset ``bird'', ``goat'', ``shirt'', ``swan'', ``goose'', ``teapot'', ``gun'', ``apple'', ``car'', ``airplane'', ``guitar'', and ``flower''.}
 
 % categories_boxplot_sgw_rair.pdf
 % categories_comparison_sgw_rair.pdf
 % categories_samples_sgw_rair.pdf
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair_cropped.pdf}
-    % \label{fig:categories-boxplot-sgw}
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_rair.pdf}
-    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld. 10 seeds were used.}
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/categories_samples_sgw_rair.pdf}
-    % \caption{Samples of creations with different categories in ShapeGridWorld.}
-    % \label{fig:categories-samples-sgw}
-    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld.]{Effect of categories on semantics entropy reward in ShapeGridWorld. 10 seeds were used.}
-    \label{fig:categories-sgw}
-\end{figure}
 
 % categories_boxplot_sgw_norair.pdf
 % categories_comparison_sgw_norair.pdf
 % categories_samples_sgw_norair.pdf
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_norair_cropped.pdf}
-    % \label{fig:categories-boxplot-sgw-norair}
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_norair_cropped.pdf}
-    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR. 10 seeds were used.}
-    \vspace{12pt}
-    \includegraphics[width=\textwidth]{images/categories_samples_sgw_norair_cropped.pdf}
-    % \caption{Samples of creations with different categories in ShapeGridWorld without RaIR.}
-    % \label{fig:categories-samples-sgw-norair}
-    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.]{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR. 10 seeds were used.}
-    \label{fig:categories-sgw-norair}
-\end{figure}
 
 \section{Effect of Grayscale Pixels}
 \label{sec:sgw-grayscale}
@@ -616,22 +593,10 @@ We observe that categories involving numbers (``numbers and letters'' and ``numb
 %     \label{fig:rair-samples-color-sgw}
 % \end{figure}
 
-
 Observing the effect of the grayscale values on the effect of RaIR in ShapeGridWorld, we also ran simulations with different categories of colors in the pixels.
 
 It seems that the presence of grayscale pixels has a regularizing effect on the reward landscape and consequently there is less noise in CLIP.
 This is evident from the reduced confidence in the imperfect final creations in \figref{fig:mode-sgw}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/mode_comparison_sgw.pdf}
-    \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/mode_samples_sgw.pdf}
-    % \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
-    % \label{fig:mode-samples-sgw}
-    \caption{Effect of the presence of grayscale pixels on semantics entropy reward in ShapeGridWorld.}
-    \label{fig:mode-sgw}
-\end{figure}
 
 \section{Effect of Number of Pixels}
 \label{sec:sgw-pixels}
@@ -644,27 +609,61 @@ As we noted earlier, the presence of a high number of controllable pixels in the
 Having too few pixels also results in a rather noisy landscape with a lot of false positives, as seen in \figref{fig:n-objects-sgw}.
 This seems to suggest that moderate numbers of pixels are optimal for the environment.
 
-\begin{figure}[h]
+The effects of the number of objects, grayscale pixels, and RaIR are summarised in \figref{fig:nobj-mode-sgw}.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/n_objects_comparison_sgw.pdf}
-    \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/n_objects_samples_sgw.pdf}
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_rair_cropped.pdf}\vspace{6pt}
+    % \label{fig:categories-boxplot-sgw}
+    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_rair.pdf}\vspace{6pt}
+    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld. 10 seeds were used.}
+    \includegraphics[width=\textwidth]{images/categories_samples_sgw_rair.pdf}\vspace{3pt}
+    % \caption{Samples of creations with different categories in ShapeGridWorld.}
+    % \label{fig:categories-samples-sgw}
+    % \vspace{12pt}
+    \captionsetup{justification=centering}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld.]{Effect of categories on semantics entropy reward in ShapeGridWorld with RaIR.\\(10 seeds were used.)}
+    \label{fig:categories-sgw}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/categories_boxplot_sgw_norair_cropped.pdf}\vspace{6pt}
+    % \label{fig:categories-boxplot-sgw-norair}
+    % \vspace{24pt}
+    \includegraphics[width=\textwidth]{images/categories_comparison_sgw_norair_cropped.pdf}\vspace{6pt}
+    % \caption{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR. 10 seeds were used.}
+    \includegraphics[width=\textwidth]{images/categories_samples_sgw_norair_cropped.pdf}\vspace{3pt}
+    % \caption{Samples of creations with different categories in ShapeGridWorld without RaIR.}
+    % \label{fig:categories-samples-sgw-norair}
+    % \vspace{12pt}
+    \captionsetup{justification=centering}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.]{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.\\(10 seeds were used.)}
+    \label{fig:categories-sgw-norair}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/mode_comparison_sgw.pdf}\vspace{6pt}
+    \includegraphics[width=0.55\textwidth]{images/mode_samples_sgw.pdf}\vspace{3pt}
+    % \caption{Samples of creations with and without grayscale pixels in ShapeGridWorld.}
+    % \label{fig:mode-samples-sgw}
+    % \vspace{12pt}
+    \caption{Effect of the presence of grayscale pixels on semantics entropy reward in ShapeGridWorld.}
+    \label{fig:mode-sgw}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/n_objects_comparison_sgw.pdf}\vspace{6pt}
+    \includegraphics[width=0.55\textwidth]{images/n_objects_samples_sgw.pdf}\vspace{3pt}
     % \caption{Samples of creations with different numbers of objects in ShapeGridWorld.}
     % \label{fig:n-objects-samples-sgw}
+    % \vspace{12pt}
     \caption{Effect of the number of objects on semantics entropy reward in ShapeGridWorld.}
     \label{fig:n-objects-sgw}
 \end{figure}
 
-% nobj_mode_rair_sgw_boxplot.pdf
-The effects of the number of objects, grayscale pixels, and RaIR are summarised in \figref{fig:nobj-mode-sgw}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{images/nobj_mode_rair_sgw_boxplot.pdf}
-    \caption{Effect of the number of objects, grayscale pixels, and RaIR on semantics entropy reward in ShapeGridWorld.}
-    \label{fig:nobj-mode-sgw}
-\end{figure}
-
-\newpage
 \section{Effect of Object Persistency}
 \label{sec:sgw-persistency}
 % Object Persistency
@@ -679,13 +678,13 @@ Since the action space with moving all the objects at the same time can be very 
 We noticed that we obtained the best results when the objects were moved one at a time, only for one timestep, i.e. an object persistency of \(1\), with a step size around a quarter of the grid size.
 This is evident from the faster convergence in \figref{fig:object-persistency-sgw}.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/object_persistency_comparison_sgw.pdf}
-    \vspace{12pt}
-    \includegraphics[width=0.66\textwidth]{images/object_persistency_samples_sgw.pdf}
+    \includegraphics[width=\textwidth]{images/object_persistency_comparison_sgw.pdf}\vspace{6pt}
+    \includegraphics[width=0.55\textwidth]{images/object_persistency_samples_sgw.pdf}\vspace{3pt}
     % \caption{Samples of creations with different object persistency in ShapeGridWorld.}
     % \label{fig:object-persistency-samples-sgw}
+    % \vspace{12pt}
     \caption{Effect of object persistency on semantics entropy reward in ShapeGridWorld.}
     \label{fig:object-persistency-sgw}
 \end{figure}
@@ -704,7 +703,8 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     \vspace{12pt}
     \includegraphics[width=\textwidth]{images/creations_distribution_sgw.pdf}
     \vspace{-12pt}
-    \caption[Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference.]{Histogram of creations in our simulations on ShapeGridWorld showing CLIP's class preference. The \(36\) classes are all letters and numbers.}
+    \captionsetup{justification=centering}
+    \caption[Histogram of creations in our simulations on SGW showing CLIP's class preference.]{Histogram of creations in our simulations on SGW showing CLIP's class preference.\\The \(36\) classes are all letters and numbers.}
     \label{fig:class-preference-sgw}
 \end{figure}
 
@@ -716,11 +716,19 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
 %     \label{fig:alpha_beta-semantics_std_rair}
 % \end{figure}
 
+% nobj_mode_rair_sgw_boxplot.pdf
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/nobj_mode_rair_sgw_boxplot.pdf}
+    \caption{Effect of the number of objects, grayscale, and RaIR on semantics entropy reward in SGW.}
+    \label{fig:nobj-mode-sgw}
+\end{figure}
+
 % all inversions of an image
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.95\textwidth]{images/tangram_fish_10.pdf}
-    \caption{CLIP on different inversions of the same Tangram creation. \(T = 0.1\).}
+    \caption[CLIP on different inversions of the same Tangram creation.]{CLIP on different inversions of the same Tangram creation (\(T = 0.1\)).}
     \label{fig:clip-tangram-inversions}
 \end{figure}
 
@@ -757,6 +765,22 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     \label{fig:curation_chair}
 \end{figure}
 
+% curation_letters.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.824\textwidth]{images/curation_letters.pdf}
+    \caption{Letters on Tangram.}
+    \label{fig:curation_letters}
+\end{figure}
+
+% curation_shirt_all.pdf
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.66\textwidth]{images/curation_shirt_all.pdf}
+    \caption{Shirts on Tangram.}
+    \label{fig:curation_shirt_all}
+\end{figure}
+
 % curation_heart.pdf
 % curation_heart_all.pdf
 \begin{figure}[H]
@@ -765,14 +789,6 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     % \includegraphics[width=0.66\textwidth]{images/curation_heart_all.pdf}
     \caption{Hearts on Tangram.}
     \label{fig:curation_heart}
-\end{figure}
-
-% curation_letters.pdf
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.824\textwidth]{images/curation_letters.pdf}
-    \caption{Letters on Tangram.}
-    \label{fig:curation_letters}
 \end{figure}
 
 % % sgw_reruns.pdf
@@ -791,16 +807,10 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     % \includegraphics[width=\textwidth]{images/curation_animals.pdf}
     % \includegraphics[width=\textwidth]{images/curation_faces_a.pdf}
     \includegraphics[width=0.66\textwidth]{images/curation_faces_all.pdf}
-    \caption{Animals on Tangram.}
+    \captionsetup{margin=72pt}
+    \caption[Animals on Tangram.]{Animals on Tangram. It might be difficult to see these creations as animals at first glance.
+    Interestingly, this is because they seem to be faces of animals and not outlines as we might expect. We found these faces to have consistent subtle differences that set them apart.}
     \label{fig:curation_animals}
-\end{figure}
-
-% curation_shirt_all.pdf
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.66\textwidth]{images/curation_shirt_all.pdf}
-    \caption{Shirts on Tangram.}
-    \label{fig:curation_shirt_all}
 \end{figure}
 
 % curation_house.pdf

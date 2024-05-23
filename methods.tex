@@ -52,7 +52,7 @@ The training batch loss is then computed as the difference between the similarit
 There are several variants of CLIP, with different sizes and different architectures for its image encoder (vision transformer \emph{ViT}; \cite{vit}, or residual network \emph{ResNet}; \cite{resnet}).
 We used the vision transformer variant (\texttt{ViT-L/14}) for most of our experiments as it gave a good balance of performance and computational efficiency.
 It takes image inputs of size \(224 \times 224\) and tokenizes them in patch sizes of \(14 \times 14\) for the vision transformer.
-The comparison of the different models from the original paper for our use case is presented in the appendix \secref{sec:clip-comparison}.
+The comparison of the different models from the original paper for our use case is presented in Chapter \ref{sec:clip-comparison} of the appendix.
 
 \subsubsection{CLIP as Zero-Shot Image Classifier}
 \label{sec:clip-classifier}
@@ -95,7 +95,7 @@ We call this the \emph{semantics-entropy reward},
 \label{sec:goal-baseline}
 To improve the reward quality, we further extend this formulation by adopting a combination of suggestions from other studies on VLMs as a source of goal-conditioned rewards.
 
-The most trivial way to use CLIP as a goal-conditioned reward is to directly use the similarity metric from eq. \eqref{eq:clip-similarity} as the reward function.
+The most trivial way to use CLIP as a goal-conditioned reward is to directly use the similarity metric from \eqref{eq:clip-similarity} as the reward function.
 Given a goal description \(\bfg \in \cL\), the reward for an image observation \(\bfo \in \cO\) is given by,
 \begin{equation}
     \label{eq:trivial-reward}
@@ -140,7 +140,7 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     % \intertext{where \(V\) is the direction spanned by \(\psi_I(\bfg_b) - \psi_L(\bfg)\), \(\text{proj}_{V}\psi_I(\bfo)\) is the projection of the image observation embedding \(\bfo\) onto this direction, and \(\gamma \in [0, 1]\) is a hyperparameter to control the regularization/trade-off strength.
     % Note that the magnitude of the projection \(\norm{\text{proj}_{V}\psi_I(\bfo)}_2\) is equivalent to the cosine similarity \(\cos(\vartheta) := S_c(\psi_I(\bfo), (\psi_L(\bfg) - \psi_L(\bfg_b)))\), and \(\sin(\vartheta)\) is the projection of \(\bfo\) perpendicular to this direction.
     % The authors found this method to be relatively robust to changes in \(\gamma\) with most intermediate values being better than \(0\) or \(1\).}
-    \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from eq. \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
+    \shortintertext{For \(\gamma = 0\), the original CLIP similarity metric from \eqref{eq:clip-similarity} is recovered as an unregularized goal-conditioned reward function,}
     r_{\text{goal-reg}}(\bfo; \bfg, \bfg_b, 0) &= 1 - \dfrac{1}{2}\ \norm{\psi_I(\bfo) - \psi_L(\bfg)}^2_2 = S_c(\psi_I(\bfo), \psi_L(\bfg)), \label{eq:vlmrm-0}
     \intertext{since \(\norm{\psi_I(\bfg_b)}_2 = \norm{\psi_L(\bfg)}_2 = 1\).
     For \(\gamma = 1\), there is a trade-off of components of \(\bfo\) orthogonal and parallel to ``\(\bfg - \bfg_b\)''.
@@ -151,8 +151,8 @@ The authors found this method to be relatively robust to changes in \(\gamma\) w
     &= 1 - \dfrac{\norm{\text{proj}_{V}\psi_I(\bfo)}^2_2 + 1 - 2\ \text{proj}_{V}\psi_I(\bfo) \cdot \psi_L(\bfg)}{2}\\
     &= \underbrace{\dfrac{1 - \norm{\text{proj}_{V}\psi_I(\bfo)}^2_2}{2}}_{\propto\ \sin^2(\vartheta)} + \underbrace{\dfrac{\psi_I(\bfo) \cdot (\psi_L(\bfg) - \psi_L(\bfg_b))}{2}}_{\propto\ \cos(\vartheta)}. \label{eq:vlmrm-1}
 \end{align}
-% (Refer to eq. \eqref{eq:vlmrm-equivalence-start} to \eqref{eq:vlmrm-equivalence-end} for more details on the derivation.)\\
-% Mathematically, this is not equivalent to eq. \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
+% (Refer to equations \eqref{eq:vlmrm-equivalence-start} to \eqref{eq:vlmrm-equivalence-end} for more details on the derivation.)\\
+% Mathematically, this is not equivalent to \eqref{eq:zest} (with no image baseline), because of the additional term, but it is similar in spirit.
 % \endgroup
 
 \newpage
@@ -195,7 +195,7 @@ First, let us formulate a regularized similarity metric for an image observation
         )
     \end{split}
 \end{equation}
-where \(\alpha, \beta \in [0, 0.5]\) are the regularization hyperparameters homologous to \(\gamma / 2\) in eq. \eqref{eq:vlmrm-equivalence-end}, for text and image inputs respectively, and \(T \in \nR^+\) is the temperature hyperparameter.
+where \(\alpha, \beta \in [0, 0.5]\) are the regularization hyperparameters homologous to \(\gamma / 2\) in \eqref{eq:vlmrm-equivalence-end}, for text and image inputs respectively, and \(T \in \nR^+\) is the temperature hyperparameter.
 
 The likelihood distribution \(\hat{p}\) of the predictions of the VLM for the image observation \(\bfo\) over the creative possibilities \(\bmc\). For \(\bfc_k \in \bmc\) is then given by,
 \begin{equation}
@@ -239,7 +239,7 @@ For our purposes, following insights from \cite{symmetry} and \cite{compositiona
     \phi(\bfs) = \{ \cX^{m(\cX)} : \cX = \lfloor s^{(j)} - s^{(k)} \rceil \mid s^{(j)}, s^{(k)} \in \bfs \},
 \end{equation}
 where the \(\lfloor \cdot \rceil\) operator groups the distances into discrete bins based on the configured resolution.
-For more details on the parameters and formulation, please refer to \secref{sec:regularity-reward-details}.
+For more details on the parameters and formulation, please refer to \secref{sec:regularity-reward-details} of the appendix.
 
 \subsection{Complete Intrinsic Semantics Reward}
 \label{sec:complete-semantics-reward}
@@ -263,7 +263,7 @@ In the Model-Based Reinforcement Learning (MBRL) paradigm, the agent learns a mo
 Such policies can be learned with universal function approximators such as neural networks using RL algorithms or planning methods.
 
 The improved Cross-Entropy Method (iCEM) is one such planning method.
-It is a zeroth-order Monte-Carlo trajectory optimizer that works in a Model Predictive Control (MPC) loop to solve finite-horizon planning problems, i.e. it iteratively re-plans after every step in the environment by (1) coming up with several action sequences (by sampling a multi-variate distribution) to \emph{think} a few steps ahead, (2) imagining/predicting the future states resulting from these actions (using the model of the environment) and assessing their expected returns (using the reward function), (3) picking out the best action sequences, (4) improving the \emph{thinking} method based on these elite sequences, and (5) taking the first step of the best action sequence.
+It is a zeroth-order Monte-Carlo trajectory optimizer that works in a Model Predictive Control (MPC) loop to solve finite-horizon planning problems online, i.e. it iteratively re-plans after every step in the environment by (1) coming up with several action sequences (by sampling a multi-variate distribution) to \emph{think} a few steps ahead, (2) imagining/predicting the future states resulting from these actions (using the model of the environment) and assessing their expected returns (using the reward function), (3) picking out the best action sequences, (4) improving the \emph{thinking} method based on these elite sequences, and (5) taking the first step of the best action sequence.
 
 Precisely, given a finite planning horizon \(h\), iCEM uses a clipped colored-noise Gaussian distribution of dimension \(n_a \times h\) over action sequences (\(\bma^{(h)} = \{ \bfa_0, \bfa_1, \ldots, \bfa_{h-1} \}\)), given by,
 \begin{equation}
@@ -335,7 +335,7 @@ Since iCEM is a zero-order trajectory optimizer with a limited sample budget and
 Although this does not solve the full reinforcement learning problem (infinite horizon and stochastic environments), it is very powerful in optimizing for tasks ad-lib without further adaptation, which makes it suitable for optimizing changing exploration targets, as in our case (because of noisy CLIP rewards; discussed later in \secref{sec:inference-noise}).
 
 The colored noise of the iCEM distribution leads to temporally correlated action sequences over the horizon for smoother trajectories, which helps mitigate the problems due to the sparse nature of our semantics entropy reward.
-Furthermore, the addition of memory gives it good sample efficiency, which was essential for our case due to the computational bottleneck because of the long inference times for CLIP.
+Furthermore, the addition of memory gives it good sample efficiency, which is essential for our case due to the computational bottleneck because of the long inference times for CLIP.
 These reasons made iCEM a suitable choice for our experiments.
 
 For this to be successful, a good transition model \(f\) needs to be learned, and the reward function needs to be known or discovered.
@@ -372,7 +372,7 @@ To minimize the time of a rollout, all \(h \times n\) CLIP inferences for planni
 Environment rendering and simulations are multi-processed on CPU in parallel.
 
 Several optimizations were put into place to improve the simulation time, particularly in environment rendering and CLIP preprocessing.
-Please refer to \secref{sec:efficiency} for more details.
+Please refer to Chapter \ref{sec:efficiency} of the appendix for more details.
 
 \section{Environments}
 \label{sec:environments}
@@ -392,7 +392,7 @@ We use two custom environments in our experiments which allow for rich creative 
 ShapeGridWorld is a pixel grid environment where the agent can draw on the grid by moving pixels around, either one or all of them at the same time.
 This is reminiscent of the pin-board platform used in the free play study conducted by \citet{diggs} (\figref{fig:diggs}).
 By setting the pixels in a specific layout, the agent can draw a variety of shapes on the grid.
-This environment was adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in appendix \ref{sec:sgw-details}.
+This environment is adapted from the pixel grid environment used in the work by \citet{rair} with some modifications summarised in \ref{sec:sgw-details} of the appendix.
 
 ShapeGridWorld was mostly used in the initial experiments but it eventually proved to promote noise in CLIP inferences which led to underwhelming results.
 To work around the problems, the Tangram environment was developed.
@@ -403,9 +403,12 @@ Tangram is a traditional puzzle game consisting of a canvas and seven geometric 
 These shapes can be rotated, flipped, and translated on the canvas, without overlapping.
 Even though this is a very simple setup, these pieces can be arranged in very different configurations to create expressive abstract patterns.
 
-The Tangram virtual environment was developed specifically for our experiments as it mitigated the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}, and is a major contribution of our work.
+The Tangram virtual environment was developed specifically for our experiments.
+Because of its reduced degrees of freedom compared to ShapeGridWorld, it mitigates the problems discussed in sections \secref{sec:sparse-rewards} and \secref{sec:inference-noise}.
+It is a major contribution of our work.
 
 We mostly configured the environment to correspond with the traditional Tangram game.
-The shapes involved were the same, no overlap was allowed, and the shapes could be rotated, flipped, and translated.
-Yet, we did experiments with colors to improve the performance of CLIP and also gave the agent the freedom to use a subset of the shapes to make its creations.
-Please refer to appendix \ref{sec:tangram-details} for more technical details about this environment.
+The shapes involved are the same, no overlap is allowed, and the shapes could be rotated, flipped, and translated.
+Yet, we conducted experiments with colors to improve the performance of CLIP and also tested giving the agent the freedom to use a subset of the shapes to make its creations.
+
+Please refer to \secref{sec:tangram-details} of the appendix for more technical details about this environment.
