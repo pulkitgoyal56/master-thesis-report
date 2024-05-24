@@ -31,6 +31,12 @@
 \setlength{\headheight}{13.6pt}
 
 \usepackage[bottom,hang,flushmargin]{footmisc}
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
 
 \usepackage[pagebackref=true,breaklinks=true,hidelinks,bookmarks=false]{hyperref}
 \let\subsectionautorefname\sectionautorefname
