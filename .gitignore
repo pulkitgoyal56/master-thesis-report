@@ -302,7 +302,7 @@ TSWLatexianTemp*
 
 # custom
 .vscode/
-main.pdf
+# main.pdf
 
 *.ignore*
 p_*

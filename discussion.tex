@@ -4,82 +4,89 @@
 
 % Summary of CLIP reward analysis
 Semantic expression is an innate nature of human exploration during creative free-play.
-Motivated by these observations in cognitive science and developmental psychology, in this thesis, we try to leverage multimodal foundational models to realize this behavior in artificial agents, i.e. bias exploration in free play towards semantically meaningful and visually expressive states.
+Motivated by these observations in cognitive science and developmental psychology, in this thesis, we try to leverage multimodal foundation models to realize this behavior in artificial agents, i.e. bias curious exploration in free play towards visual semantics.
+% 
+Towards this end, we formulate the semantics entropy reward using semantic inductive bias from the large vision language model CLIP as a means to give the agent a freedom akin to free play in humans and enable it to reach semantically meaningful and visually expressive states.
 
-Towards this end, we formulate the semantics entropy reward using semantic inductive bias from the large vision language model CLIP as a means to give the agent a freedom akin to free play in humans and enable it to reach semantically meaningful states.
-
-To test the efficacy of this reward in archiving rich and diverse creative expression, we extended the ShapeGridWorld environment and created the Tangram environment.
-We demonstrate the performance of CLIP in these abstract settings across parameters and establish that CLIP is noisy and suffers from has problems such as semantic biases in random images.
+To test the efficacy of this reward in achieving rich and diverse creative expression, we extended the ShapeGridWorld environment and created the Tangram environment.
+We demonstrate the performance of CLIP in these abstract settings across parameters and establish that CLIP is noisy and suffers from problems such as semantic biases in random images.
 
 Thus we develop methods to improve its use for our purposes, where we build upon recent work on baseline regularization in using VLMs as a source of goal-conditioned rewards to formulate the regularized semantics entropy reward.
-Furthermore, we adapt and devise other additional methods such as negative embeddings, post-suffixes, and tweaking the rendering function (adding texturing and modifying the images with small shearing) to denoise and improve the reward signal.
+Furthermore, we adapt and devise other additional methods such as negative embeddings, post-suffixes, and tweaking the rendering function (adding texturing and modifying the images with a little shearing) to denoise and improve the reward signal.
 
-Subsequently, in our analyses, we show how these techniques, agnostic to the variations due to prompt engineering, affect the reward trajectories.
+Subsequently, in our preliminary analyses, we show how these techniques, agnostic to the variations due to prompt engineering, affect the reward trajectories.
 The different additional methods have subtly disparate desired effects on the reward signal, but we find the baseline regularization strengths and temperature of the softmax activation function to be the most effective in reducing CLIP's noise.
-Their effects are complementary, but not quite the same.
+% Their effects are complementary, but not quite the same.
 
 Baseline regularization improves the shape of the reward landscape by introducing tradeoffs between the directions of effective semantic change in the CLIP embedding space.
-The delta embeddings at higher strengths capture the important aspects of the desired change in the text embeddings so the reward function can focus on imbuing this change in the image observation space, and the absolute embeddings at lower strengths help in providing context.
+The delta embeddings it employs at higher strengths capture the important aspects of the desired change in the text embeddings so the reward function can focus on imbuing this change in the image observation space, and the absolute embeddings at lower strengths help in providing context.
 By considering a tradeoff between the two as a hyperparameter in either modality, we try to balance these two important aspects.
 We find that moderate values of the two baseline regularization hyperparameters (\(\sim (0.3, 0.3)\)) are the most effective in guiding the agent to semantically meaningful states.
 Overall, we think that baseline regularization makes the reward landscape denser and softens/improves its gradients.
 
-However, a consequence of this is poorer adversarial performance, i.e. a larger semantic bias in random and imperfect images, making the final creations less expressive.
+However, this results in poorer adversarial performance as a consequence, i.e. a larger semantic bias in random and imperfect images, which renders the final creations less expressive.
 This is tackled by the temperature parameter, which complements baseline regularization, and at values between \(0.015 - 0.02\), smoothens the reward landscape and reduces this semantic bias.
 The resulting reward trajectories have less noise and the creations are less abstract.
-A similar effect is achieved by the shearing operation on the images.
+(A comparable effect could be achieved by shearing the image renderings.)
 
-We use these insights from our results to guide the hyperparameter choice and search in the main experiments using the regularized semantics reward.
-We find that tweaking just the regularization strengths and temperature is generally enough to achieve good reward signals.
+The regularization methods improved and extended here, particularly the addition of image baseline regularization, can also be used in other applications in reinforcement learning where VLMs are used as reward models, such as for goal-conditioned rewards.
+Additionally, the insights gained from our analysis of the different methods for improving the noise of CLIP can be used to improve the applications of CLIP and other VLMs in general.
+
+We use these insights from our results to guide the hyperparameter choice and search in the main experiments using the regularized semantics reward and show that tweaking just the regularization strengths and temperature is generally enough to achieve good reward signals.
 Moreover, these hyperparameters are robust and slight variations in their values in the given ranges do not affect the reward signal significantly.
 The modified reward is effective in consistently guiding the agent to a range of semantically meaningful states in both environments.
 
 Although, these creations can still sometimes show a lack of expressiveness.
 This degenerative effect can be attributed to poorly shaped (flat) reward signals near goal states of absolute meaning and could be exacerbated by artifacts of the environment design or limitations of the agent's capabilities since the controller uses finite-horizon planning which hinders it from finding global optima.
 
-Regardless, this is further mitigated by the complementary regularity reward (RaIR) which improves the quality of these arrangements by grounding and coalescing the objects in better forms and patterns, resulting in creations that are more reminiscent of real objects.
-This is especially evident in Tangram where the resulting creations become more recognizable and appealing.
-In ShapeGridWorld, the creations with RaIR are instead neater and more organized, with fewer random pixels.
-RaIR particularly archives this in the later stages of the rollout, by incentivizing the agent to modify its creation while maintaining its semantic value.
-Effectively, it helps in escaping and navigating different local minima, encouraging exploration, and in turn, leads to more meaningful creations with degrees of visual abstraction.
-
+Regardless of the reason, this is further mitigated by the introduction of the complementary regularity reward RaIR which improves the quality of these arrangements by grounding and coalescing the objects in better forms and patterns, resulting in improved creations that are more reminiscent of real objects.
+This is especially evident in Tangram where the creations become more recognizable and appealing as they become more compact.
+In ShapeGridWorld, the creations are neater and more organized, with fewer random pixels. RaIR particularly archives this in the later stages of the rollout by incentivizing the agent to modify its creation while maintaining its semantic value.
+Effectively, it helps in escaping and navigating different local minima, encouraging exploration, and in turn, leads to more meaningful creations through degrees of visual abstraction.
 
 \subsection*{Limitations and Future Work}
 \label{sec:future-work}
 
-The final creations the agent achieves still suffer from a lack of diversity as we are not able to overcome the class preference of CLIP.
-Some categories such as ``house'' in Tangram are chosen overwhelmingly more often than others.
+Although our methods are effective in shaping the reward signal to guide the agent to semantically expressive states, the final creations the agent achieves still suffer from a lack of good diversity.
+Some categories such as ``house'' in Tangram are chosen more often than others.
 In ShapeGridWorld, the agent prefers the letter ``N'' followed by the letters ``R'' and ``S'' with numbers and letters, or ``gun'' with a set of simple objects.
-(Counts of all the creations we observed in our simulations are summarized in \figref{fig:class-preference-tangram} and \figref{fig:class-preference-sgw} in the appendix.)
 Even removing these categories just gives rise to other such categories especially preferred by CLIP.
+(Counts of all the creations we observed in our simulations are summarized in \figref{fig:class-preference-tangram} and \figref{fig:class-preference-sgw} in the appendix.)
 
-This can be in-part due to the specific shapes of these creations and how they might be more suited or be easier to stumble upon in the environments we use.
+This class preference can be in part due to the specific shapes of these creations and how they might be more suited or be easier to stumble upon in the environments we use.
 For example, in Tangram, a house can simply be created with a face-up triangle above a square.
-The agent also prefers to make a hammer with a parallelogram and a square, and a heart with simply a red triangle pointing down.
-However, based on our observations in ShapeGridWorld, where no such elementary patterns could be identified, we think that these behaviors are also because of the inherent biases in the CLIP model.
-% 
+The agent also prefers to make a hammer with a parallelogram next to a square, and a heart with simply a red triangle pointing down.
+However, we could not identify such patterns in ShapeGridWorld.
+% However, based on our observations in ShapeGridWorld, where no such elementary patterns could be identified, we think that these behaviors are also because of the inherent biases in the CLIP model.
+
+% Another problem that is overshadowed by the class preference is our limitation in the number of creative possibilities we can choose due to the noise in the model.
+
+We think that these limitations mainly stem from the inherent biases in the CLIP model.
 % Bottlenecked by open-sourced vision-language models → if we cannot denoise the CLIP signal well enough, we can just use perhaps ChatGPT4 with vision to do some experiments
-% , perhaps emerging from structures in natural language.
+%, perhaps emerging from structures in natural language.
 Perhaps using newer and larger open-source vision-language models from OpenCLIP such as \texttt{ViT-bigG-14} \citep{openclip} which are trained on the bigger LAION-5B dataset \citep{laion5b} might lead to some performance improvements, with better generalization, reduced noise, and diminished biases.
 
 % Flatnet
-In our supplementary work, we also explore the possibility of de-noising CLIP by fine-tuning with entropy regularization and re-training with random images with our toy models vis-\`a-vis \emph{flatnet}. This shows some promising results, so we think scaling it to the full CLIP model could improve results further.
+In our supplementary work, we also explore the possibility of de-noising CLIP by fine-tuning with entropy regularization and re-training with random images with our toy models vis-\`a-vis \emph{flatnet}.
+This shows some promising results with smoother entropy transitions, a stable (less noisy) inference confidence over time, and a flatter distribution (high entropy) for false positive (random) samples.
+Scaling it to the full CLIP model could improve results further.
 
-The regularization methods extended here, particularly the addition of image baseline regularization, can also be used in other applications where VLMs are used as reward models, such as for goal-conditioned rewards.
-Additionally, the insights gained from our analysis of the different methods for improving the noise of CLIP can be used to potentially improve the applications of CLIP and other VLMs in general.
+Another promising method of reducing CLIP noise could be adding redundant (nonsensical) labels in the creative possibilities and computing the semantics entropy reward only over the main set of labels.
+This could potentially trim away the noise and attenuate the problem of large semantic bias in random images.
+Redundant labels have been shown to facilitate learning in humans \citep{redundant_labels}.
 
 % Future work
 Other improvements could be using temporally adaptive weights for the regularity reward to explicitly force the mechanism that we observed with RaIR in improving expression, i.e. starting with a smaller \(\lambda\) to encourage semantic expression and then increasing it later.
 These phases could also be shorter and interleaved to further ensure that the agent does not degenerate to local minima.
 
-Furthermore, multiple terms for regularity can be introduced, for example, a local regularity in every object's limited vicinity with higher precision and a global more coarse regularity with higher granularity (see \eqref{eq:rair-relational-extended}).
+Furthermore, multiple terms for regularity can be introduced, for example, a local regularity in every object's limited vicinity with higher precision and a global coarser regularity with higher granularity (see \eqref{eq:rair-relational-extended}).
 This is motivated by observations that structures in the real world are regular at different scales in a similar manner, and might lead to more complex/richer creations.
 
 % Comments on the environments
 Future work can also experiment with giving the agent control over the choice of object to move.
-This is a harder control problem and was not done in our experiments for the same reason.
-We wanted to reduce the complexity of the problem and focus on the reward signal.
-Similarly, experiments could be conducted in complex or realistic environments, with more objects, elaborate shapes, or additional dimensions.
+This is a harder control problem and is not tested in our work for the same reason.
+Instead, we reduce the complexity of the problem and focus on the reward signal.
+Similarly, simulations could be run in complex or realistic environments, with more objects, elaborate shapes, or additional dimensions.
 
 Currently, our experiments are limited to fully observable MDPs with known dynamics using ground-truth models, and the application of RaIR additionally requires object-centric state-space representations where the observations are disentangled per object.
 In our case, this is manually specified in the form of the precise positions of all the objects.
@@ -87,10 +94,11 @@ Such representations that can capture relational inductive biases of the objects
 Accordingly, testing the semantics reward in partially observable environments with learned models (with or without object-centric representations) could be a good direction for future work.
 
 % Comments on creativity
-
+Our entropy-based approach to modeling emergent behavior presents a novel perspective on imbuing free-form creativity in artificial intelligence.
+With the advances in deep learning and neural architectures, as the open-source vision-language models further improve and overcome the limitations of noise and biases, this approach can be extended to span a large number of creative possibilities, potentially in more complex and realistic environments, and can be used to model complex human behaviors and interactions.
 
 % Comments on exploration
-When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), the semantics entropy reward can lead to more human-like exploration i.e. curious behaviors with semantically-sound creative expression.
+When used as an additional reward to augment traditional novelty-seeking intrinsic rewards \(r_{\text{intrinsic}} = r_{\text{semantics}} + r_{\text{novelty}}\), the semantics entropy reward can lead to efficient human-like exploration i.e. curious information gathering behaviors with semantically-sound creative expression.
 
-This can eventually be linked to the mechanisms of learning through play observed in humans, where an agent improves its understanding of the environment and builds better models and policies with a structured manner of exploration by guiding and linking its new experiences to its previous knowledge and experiences.
-This work is a small step along the path to recreate this incremental effect in artificial intelligence.
+Eventually, this can be linked to the mechanisms of learning through play observed in humans, where an agent improves its understanding of the environment and builds better models and policies with a structured manner of exploration by guiding and linking its new experiences to its previous knowledge and experiences.
+This work is a small step along the path to recreate this incremental learning effect in artificial intelligence.

@@ -290,9 +290,8 @@ This chapter details the hyperparameters of the reward functions used in our exp
     \label{tab:entropy-reward-params}
 \end{table}
 
-The list of creative possibilities we typically used in Tangram is -- ``house'', ``bird'',``tree'',``horse'', ``rabbit'', ``goat'', ``shirt'', ``chair'', ``swan'', ``goose'', ``camel'', ``teapot'', ``hammer'', ``boot'', ``key'', ``gun'', ``apple'', ``car'', ``guitar'', ``flower'', and ``heart''.
-Since some categories were identified to be preferred by CLIP, such as ``house'' and ``bird'', they were removed in some experiments.
-
+The list of creative possibilities we typically used in Tangram is -- ``\texttt{house}'', ``\texttt{bird}'', ``\texttt{tree}'', ``\texttt{horse}'', ``\texttt{rabbit}'', ``\texttt{goat}'', ``\texttt{shirt}'', ``\texttt{chair}'', ``\texttt{swan}'', ``\texttt{goose}'', ``\texttt{camel}'', ``\texttt{teapot}'', ``\texttt{hammer}'', ``\texttt{boot}'', ``\texttt{key}'', ``\texttt{gun}'', ``\texttt{apple}'', ``\texttt{car}'', ``\texttt{guitar}'', ``\texttt{flower}'', and ``\texttt{heart}''.
+Since some categories were identified to be preferred by CLIP, such as ``\texttt{house}'' and ``\texttt{bird}'', they were removed in some experiments.
 In ShapeGridWorld, we typically used either a set of all single-digit numbers or numbers with letters together.
 We also experimented with the above list of categories in ShapeGridWorld.
 The effects of this choice are also compared in \secref{sec:sgw-categories}.
@@ -365,7 +364,7 @@ Please refer to the original paper \citep{rair} for more details on the theory a
 % - controller_params.compression                           True
 % - controller_params.render_kwargs.invert                  True
 % - controller_params.render_kwargs.color                   False
-% - controller_params.semantics_baseline                    "A white canvas"
+% - controller_params.semantics_baseline                    ``A white canvas''
 % - controller_params.action_sampler_params.opt_iterations  3
 % - controller_params.action_sampler_params.init_std        0.6
 % - controller_params.action_sampler_params.elites_size     20
@@ -380,7 +379,7 @@ Please refer to the original paper \citep{rair} for more details on the theory a
 % - controller_params.semantics_alpha_target                0.5
 % - controller_params.semantics_beta_image                  0
 % - controller_params.semantics_reward_scale                1
-% - controller_params.cost_along_trajectory                 "best"
+% - controller_params.cost_along_trajectory                 ``best''
 
 \chapter{Comparing CLIP Models}
 \label{sec:clip-comparison}
@@ -407,7 +406,8 @@ The cumulative rewards and trajectories of the models are similar and do not giv
 %     \includegraphics[width=\textwidth]{images/model_comparison_boxplot.pdf}
 %     % model_samples.pdf
 %     \includegraphics[width=0.9\textwidth]{images/model_samples.pdf}
-%     \caption[Comparing reward trajectories of different original CLIP models on b/w Tangram environment.]{Comparing reward trajectories of different original CLIP models on b/w Tangram environment. 10 seeds were used for each model.}
+%     \captionsetup{justification=centering}
+%     \caption[Comparing reward trajectories of different original CLIP models on b/w Tangram environment.]{Comparing reward trajectories of different original CLIP models on b/w Tangram environment.\\(10 seeds were used for each model.)}
 %     \label{fig:clip-traj-comparison}
 % \end{figure}
 
@@ -419,7 +419,8 @@ The cumulative rewards and trajectories of the models are similar and do not giv
     \includegraphics[width=\textwidth]{images/model_comparison_boxplot_color.pdf}
     % model_samples_color.pdf
     \includegraphics[width=0.9\textwidth]{images/model_samples_color.pdf}
-    \caption[Comparing reward trajectories of different original CLIP models on colored Tangram environment.]{Comparing reward trajectories of different original CLIP models on colored Tangram environment. 10 seeds were used for each model.}
+    \captionsetup{justification=centering}
+    \caption[Comparing reward trajectories of CLIP models in Tangram.]{Comparing reward trajectories of different CLIP models in Tangram.\\(10 seeds were used for each model.)}
     \label{fig:clip-traj-comparison-color}
 \end{figure}
 
@@ -475,7 +476,7 @@ The comparisons of all the models are neatly visualized at \url{https://www.shar
 \end{figure}
 
 Both, the entropy regularization and the addition of random samples, helped improve the reward trajectories of the models.
-The regularized models have smoother entropy transitions, a stable distribution over time, and a flatter distribution (high entropy) for false positive (random) samples.
+The regularized models have smoother entropy transitions, a stable (less noisy) inference confidence over time, and a flatter distribution with higher entropy for false positive (random) samples.
 
 
 % \chapter{Descriptive List of Main Hyperparameters}
@@ -572,8 +573,8 @@ The effect of the choice of categories on the semantics entropy reward in ShapeG
 We observe that categories involving numbers (``numbers and letters'' and ``numbers'') start with a flatter distribution compared to object categories (few\footnotemark[1] or many\footnotemark[2]).
 However, we do not notice a substantial difference in the diversity of final creations due to this even starting ground.
 
-\footnotetext[1]{The categories referred to in ``many categories'' are ``house'', ``bird'',``tree'',``horse'', ``rabbit'', ``goat'', ``shirt'', ``chair'', ``swan'', ``camel'', ``teapot'', ``hammer'', ``boot'', ``key'', ``gun'', ``apple'', ``car'', ``guitar'', ``flower'', and ``heart''.}
-\footnotetext[2]{The categories referred to in ``few categories'' is the subset ``bird'', ``goat'', ``shirt'', ``swan'', ``goose'', ``teapot'', ``gun'', ``apple'', ``car'', ``airplane'', ``guitar'', and ``flower''.}
+\footnotetext[1]{The categories referred to in ``many categories'' are ``\texttt{house}'', ``\texttt{bird}'',``\texttt{tree}'',``\texttt{horse}'', ``\texttt{rabbit}'', ``\texttt{goat}'', ``\texttt{shirt}'', ``\texttt{chair}'', ``\texttt{swan}'', ``\texttt{camel}'', ``\texttt{teapot}'', ``\texttt{hammer}'', ``\texttt{boot}'', ``\texttt{key}'', ``\texttt{gun}'', ``\texttt{apple}'', ``\texttt{car}'', ``\texttt{guitar}'', ``\texttt{flower}'', and ``\texttt{heart}''.}
+\footnotetext[2]{The categories referred to in ``few categories'' is the subset ``\texttt{bird}'', ``\texttt{goat}'', ``\texttt{shirt}'', ``\texttt{swan}'', ``\texttt{goose}'', ``\texttt{teapot}'', ``\texttt{gun}'', ``\texttt{apple}'', ``\texttt{car}'', ``\texttt{airplane}'', ``\texttt{guitar}'', and ``\texttt{flower}''.}
 
 % categories_boxplot_sgw_rair.pdf
 % categories_comparison_sgw_rair.pdf
@@ -630,7 +631,7 @@ The effects of the number of objects, grayscale pixels, and RaIR are summarised 
     % \label{fig:categories-samples-sgw}
     % \vspace{12pt}
     \captionsetup{justification=centering}
-    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld.]{Effect of categories on semantics entropy reward in ShapeGridWorld with RaIR.\\(10 seeds were used.)}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld.]{Effect of categories on semantics entropy reward in ShapeGridWorld with RaIR.\\(10 seeds were used for each set.)}
     \label{fig:categories-sgw}
 \end{figure}
 
@@ -646,7 +647,7 @@ The effects of the number of objects, grayscale pixels, and RaIR are summarised 
     % \label{fig:categories-samples-sgw-norair}
     % \vspace{12pt}
     \captionsetup{justification=centering}
-    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.]{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.\\(10 seeds were used.)}
+    \caption[Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.]{Effect of categories on semantics entropy reward in ShapeGridWorld without RaIR.\\(10 seeds were used for each set.)}
     \label{fig:categories-sgw-norair}
 \end{figure}
 
@@ -706,7 +707,7 @@ This is evident from the faster convergence in \figref{fig:object-persistency-sg
     \centering
     \includegraphics[width=\textwidth]{images/creations_distribution.pdf}
     \vspace{-12pt}
-    \caption[Histogram of creations in our simulations on Tangram showing CLIP's class preference.]{Histogram of creations in our simulations on Tangram showing CLIP's class preference. The choice of classes varied in these simulations; when ``house'' or ``bird'' were present, they were chosen almost all the time. The other creations were obtained only when they were removed. Classes not mentioned in the graph include ``boat'', ``teapot'', ``gun'', ``car'', ``airplane'', ``guitar'', and ``flower''}
+    \caption[Histogram of creations in our simulations on Tangram showing CLIP's class preference.]{Histogram of creations in our simulations on Tangram showing CLIP's class preference. The choice of classes varied in these simulations; when ``\texttt{house}'' or ``\texttt{bird}'' were present, they were chosen almost all the time. The other creations were obtained only when they were removed. Classes not mentioned in the graph include ``\texttt{boat}'', ``\texttt{teapot}'', ``\texttt{gun}'', ``\texttt{car}'', ``\texttt{airplane}'', ``\texttt{guitar}'', and ``\texttt{flower}''.}
     \label{fig:class-preference-tangram}
     \vspace{12pt}
     \includegraphics[width=\textwidth]{images/creations_distribution_sgw.pdf}
