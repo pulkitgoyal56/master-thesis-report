@@ -462,22 +462,25 @@ More details of these models can be found at \url{https://pulkitgoyal56.github.i
     \label{tab:flatnet-models}
 \end{table}
 
-\figref{fig:flatnet-comparison} compares the reward trajectories of a regular Flatnet model and an entropy regularized Flatnet model on random rollouts (similar to \figref{fig:random-rollout}) on a grid-registered image of the number zero.
-The comparisons of all the models are neatly visualized at \url{https://www.sharecanvas.io/p/flatnet-comparison}.
+\figref{fig:flatnet-comparison} and \ref{fig:flatnet-comparison} show the reward trajectories of a regular and an entropy-regularized Flatnet model respectively.
+These trajectories are random rollouts (similar to \figref{fig:random-rollout}) starting from a grid-registered image of the number zero.
+Trajectories of all the models listed in \tabref{tab:flatnet-models} are neatly visualized and compared at \url{https://www.sharecanvas.io/p/flatnet-comparison}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/Flatnet 15.pdf}
-    \caption[A regular Flatnet MNIST classifier on random rollouts.]{A regular Flatnet MNIST classifier on random rollouts. Flatnet 15.}
+    \caption[A regular Flatnet MNIST classifier on random rollouts.]{A regular Flatnet MNIST classifier on random rollouts\footnotemark[1]. Flatnet 15.}
+    \label{fig:flatnet-comparison-baseline}
     \vspace{12pt}
     \includegraphics[width=0.8\textwidth]{images/Flatnet 3.pdf}
-    \caption[An entropy regularized Flatnet MNIST classifier on random rollouts.]{An entropy regularized Flatnet MNIST classifier on random rollouts. Flatnet 3.}
+    \caption[An entropy regularized Flatnet MNIST classifier on random rollouts.]{An entropy regularized Flatnet MNIST classifier on random rollouts\footnotemark[1]. Flatnet 3.}
     \label{fig:flatnet-comparison}
 \end{figure}
 
 Both, the entropy regularization and the addition of random samples, helped improve the reward trajectories of the models.
-The regularized models have smoother entropy transitions, a stable (less noisy) inference confidence over time, and a flatter distribution with higher entropy for false positive (random) samples.
+The regularized models have smoother entropy transitions, a stable (less noisy) inference confidence over time, and a flatter distribution with higher entropy for false positive (random) samples\footnotemark[1].
 
+\footnotetext[1]{Note that the y-axis limits on the graphs in \figref{fig:flatnet-comparison-baseline} and \ref{fig:flatnet-comparison} are \([0, \max(H)]\), so the absolute values of the two graphs are not comparable, but the maximum entropy of the regularized version is \(\sim 1.5\) times higher than that of the unregularized version.}
 
 % \chapter{Descriptive List of Main Hyperparameters}
 % \label{sec:hyperparameters}
