@@ -21,7 +21,7 @@ Thus, free play is intertwined with visual perception and semantics (meaning), a
 our inherent preferences for visual semantics play a pivotal role in guiding our curiosity-driven exploration, i.e. we constantly seek to understand the semantics of the objects and scenes we encounter based on our prior experiences \citep{exploration}.
 
 % \todo{Characteristics of free play - going to previous biases towards free play}
-In a study on free play conducted by \citet{diggs}, in which they asked participants to freely interact with a grid of pixels with no predefined goal or external rewards, both adults and children were found to show a preference for semantic expression in the form of regular and symmetric patterns that depict real-world objects or concepts (see \figref{fig:diggs}).
+In a study on free play conducted by \citet{diggs}, in which they asked participants to freely interact with a grid of pixels with no predefined goal or external rewards, both adults and children showed a preference for semantic expression in the form of regular and symmetric patterns that depict real-world objects or concepts (see \figref{fig:diggs}).
 % They invent a rich diversity of goals, take costly actions to pursue those goals despite receiving no external rewards,
 % and deploy rich planning strategies in the process to achieve this.
 
@@ -64,23 +64,28 @@ Indeed, evidence from functional imaging studies in neuroscience shows that mean
 % Cedric Collas and Pierre-Yves Oudeyer have some papers on this bias towards semantics in developmental psychology.
 
 \newpage
-In the context of artificial intelligence, reinforcement learning (RL) has emerged as a powerful framework for training agents to learn complex behaviors (policies) to solve tasks based on the optimization of engineered reward functions through trial and error.
-% exploitation and exploration
-This learning procedure involves a trade-off between exploitation (maximizing the expected cumulative rewards) and exploration (gathering information about the environment to improve the policy).
+In the context of artificial intelligence, reinforcement learning (RL) has emerged as a powerful framework for training artificial agents capable of learning complex behaviors (policies) to solve tasks based on the pursuit of rewards through trial and error \citep{sutton2018reinforcement}.
+It has shown remarkable success in a wide range of environments.
+However, it can require a substantial amount of data to train and has yet to achieve a comparable quality of efficient learning and generalization that humans can achieve through exploration in high-dimensional and complex environments.
+Thus scalable and effective exploration remains a fundamental challenge in RL. 
+% A fundamental challenge in RL is the trade-off between exploitation (maximizing the expected cumulative rewards) and exploration (gathering information about the environment to improve the policy).
+% Exploration is important for an agent to discover enough about its surroundings to be able to ensure optimal policies or internal models that generalize well to unseen states.
 
-However, most RL algorithms are designed to solve specific tasks and do not consider the free-play exploration paradigm that is of interest to us; they require a specific goal to be achieved, either self-generated or manually defined.
-Self-supervised exploration remains a topic of interest for researchers in the fields of robotics and machine learning, and the ability to efficiently and sufficiently explore remains a fundamental challenge.
+% However, most RL algorithms are designed to solve specific tasks and do not consider the free-play exploration paradigm that is of interest to us; they require a specific goal to be achieved, either self-generated or manually defined.
 
 % \todo{Better segregate the different exploration methods (maybe in methods)}
-Complementary formulations of intrinsic rewards to add exploration \citep{exploration_survey} with novelty-based \citep{burda2018largescale,novel_explore} or uncertainty-based \citep{rnd,plan_explore,disagreement} methods have been proposed to encourage agents to explore their environment in a self-supervised manner. 
+Among the various methods to model exploration in RL, formulations of \emph{intrinsic rewards} \citep{exploration_survey} with curiosity-based \citep{icm,vime}, novelty-based \citep{burda2018largescale,novel_explore}, or uncertainty-based \citep{rnd,plan_explore,disagreement} methods have been proposed to encourage agents to explore their environment in a self-supervised manner. 
 % \todo{Play vs exploration}
-Yet these rewards explicitly incentivize efficient and maximal information gain and fail to generate the rich and diverse creative emergent behaviors characteristic of human play.
+Yet these methods reward low-level exploration as they are designed explicitly to incentivize maximal information gain for improving internal models and policies.
+The precise novelties they promote might not be effectively (semantically) novel and the agent can be stuck in the pursuit of meaningless exploratory goals in an overwhelming search space.
+% Consequently, they may not scale to domains requiring more abstract skills.
+
 % which are distinctively marked by the self-governed creation of new goals and rich planning strategies rather than the pursuit of predefined goals in a robotic manner.
 % They invent a rich diversity of goals, take costly actions to pursue those goals despite receiving no external rewards,
 % and deploy rich planning strategies in the process to achieve this.
 
-This thesis considers the role of visual semantic bias in shaping exploration, embracing the idea that our innate visual preferences act as a compass, directing our attention and interactions toward meaningful expression.
-We imbue artificial agents with this visual semantics bias that expresses itself as the agent plays freely with the environment, akin to that in humans.
+This thesis considers the role of our visual semantic priors as abstractions in shaping exploration, embracing the idea that our knowledge and innate visual preferences act as a compass for more efficient and structured high-level exploration during free play by directing our attention and interactions toward semantic expression and discovery.
+We imbue artificial agents with this visual semantics bias that emerges and expresses itself automatically as the agent plays freely with the environment, akin to that in humans.
 
 This is done by leveraging large vision language models (VLMs), which are deep neural networks trained on massive generic text and image datasets using the recent advances in self-supervised learning \citep{ssl} and attention architectures \citep{vit}. 
 The abstractions of natural language \citep{languageforlearning,vlmhumans}, which reflect the semantics of the world, allow them to learn efficient representations that encapsulate human visual understanding.
@@ -92,34 +97,34 @@ For example, pre-trained vision-language encoders, such as CLIP \citep{clip}, ha
 % In reinforcement learning, CLIP features have been used to integrate semantic information about the environment in the policy network to improve its perception \citep{vlmcontrol}.
 % Pretrained language models can also provide useful initializations for training policies to imitate offline trajectories [42, 27].
 % These successes demonstrate that large pre-trained models contain prior knowledge that can be useful for RL. While the existing literature uses pre-trained embeddings directly in the agent, we instead allow the policy network to learn from scratch and only utilize pre-trained embeddings to guide exploration during training (Figure S2).
-
+% 
 % - VLM as Rewards
 Recent work \citep{zest,negprompt,vlmrm,lamp} has shown that they can also be used as effective abstractions to generate zero-shot rewards for language-guided goal-conditioned tasks in reinforcement learning.
 
-Additionally, there are studies on using VLMs for exploration \citep{vlmlang,vlmdistill} that use them for refining intrinsic reward signals by abstracting away pseudo-novelty.
-Yet these methods are extensions of the traditional intrinsic reward formulations and like their predecessors, incentivize efficient exploration.
+Additionally, VLMs have also been used to improve exploration as tools for refining intrinsic reward signals by abstracting away pseudo-novelty \citep{vlmdistill} or to pursue language-based internally-generated goals \citep{vlmlang}.
+% Yet these methods are extensions of the typical intrinsic reward formulations, and like their predecessors, incentivize efficient exploration.
+% They do not consider the free-play exploration paradigm that is of interest to us, and require a specific goal to be achieved, either self-generated or manually defined.
+Yet these approaches to abstracted exploration do not generate the rich and diverse creative behaviors characteristic of human exploration during play. 
 
 % - Entropy Rewards
-% Yet these studies do not consider the free-play exploration paradigm that is of interest to us; they require a specific goal to be achieved, either self-generated or manually defined.
-Our objective is fundamentally different as we are specifically interested in emergent and creative semantic expression.
-
-We instead use CLIP to generate exploratory intrinsic rewards that incentivize the agent to freely play in the environment and use its entities to express itself such that a meaningful creation \emph{emerges} automatically.
+Our approach is fundamentally different from these existing studies as we are specifically interested in emergent and creative semantic expression.
+We use CLIP to generate exploratory intrinsic rewards that incentivize the agent to freely play in the environment and use its entities to express itself such that a meaningful creation emerges automatically.
 This intrinsic reward formulation is based on minimizing the entropy of a VLM's predictions over a set of creative possibilities that the environment offers.
 Although the range of freedom is limited to these possibilities, there is no explicit goal specification,
 and our controller can exploit this intrinsic entropy reward to guide the agent to any semantically expressive state that the VLM finds confidently meaningful.
 
 We test our formulation in two rich creative environments: the traditional puzzle Tangram and a pixel grid similar to \figref{fig:diggs} and show the limitations of CLIP that pose challenges in shaping our reward.
-Subsequently, we introduce several modifications and regularization techniques adapted from previous work on using VLMs as a source of rewards in goal-conditioned tasks \citep{zest,negprompt,vlmrm} to mitigate these limitations and demonstrate their effects in independent ablation studies.
+Subsequently, we introduce several modifications and regularization techniques adapted from previous work on using VLMs as a source of rewards in goal-conditioned tasks to mitigate these limitations and demonstrate their effects in independent ablation studies.
 These modifications help the agent to reach a meaningful state, keep it from getting stuck with imperfect creations (false positives or local optima), and improve its exploration to a diverse range of creative possibilities.
 
 % \todo{Comments on shaping of clip rewards near and far from the goal states}
 % \todo{Comments on regularization}
 
 % - RaIR (Regularity as Intrinsic Reward)
-Furthermore, since there is an implicit structure in meaningful creations, and given the compositional strategies for creative expression learned by humans during development that favor symmetry \citep{symmetry} and uniformity \citep{compositional}, we hypothesize that a complementary intrinsic reward for this regularity \citep{rair} could promote semantic expression.
+Furthermore, since there is an implicit order and regularity in meaningful creations, and given the compositional strategies for creative expression learned by humans during early development that favor symmetry \citep{symmetry} and uniformity \citep{compositional}, we hypothesize that a complementary intrinsic reward for this regularity \citep{rair} could promote semantic expression.
 
-With the different bells and whistles, the augmented formulation of semantics entropy reward is effective in consistently guiding the agent to a range of diverse semantically expressive states in both environments.
+With the added bells and whistles, we show that the semantics entropy reward is effective in consistently guiding the agent to discover a range of diverse semantically expressive states in both environments.
 
 % We find that our agent invents a rich diversity of goals despite receiving no external reward, and deploys rich planning strategies in the process.
 
-In the bigger picture, the work presented in this thesis improves upon and furthers the methods of using VLMs as a source of rewards in reinforcement learning and presents a novel perspective on imbuing emergent behaviors and free-form creativity in artificial intelligence.
+The work presented in this thesis improves upon and furthers the methods of using VLMs as a source of rewards in reinforcement learning and presents a novel perspective on imbuing human-like free-play behaviors in artificial intelligence with emergent exploration and free-form creativity.
